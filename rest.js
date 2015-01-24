@@ -20,14 +20,20 @@ function ensureAdmin(req, res, next) {
 exports = module.exports = function(app, passport) {
 
   // People
+  // List all users.
   app.get('/api/v1/people/', require('./rest/people').find);
+  // Retrieve a user.
   app.get('/api/v1/people/:uid', require('./rest/people').read);
+  // Update a User (isActive).
   app.put('/api/v1/people/:uid/', require('./rest/people').update);
-
+  // Add role to a user.
   app.post('/api/v1/people/:uid/roles/', require('./rest/people').createRoles);
+  // Remove role from a user.
   app.delete('/api/v1/people/:uid/roles/:rid', require('./rest/people').deleteRoles);
 
   // Roles
+  // List all roles.
   app.get('/api/v1/roles/', require('./rest/roles').find);
+  // Retrieve a role.
   app.get('/api/v1/roles/:rid', require('./rest/roles').read);
 };
