@@ -1,0 +1,14 @@
+extends ../../layouts/default
+
+block head
+  title About Us
+
+block neck
+  link(rel='stylesheet', href='/views/about/index.min.css?#{cacheBreaker}')
+
+block body
+  div.row
+    div.col-sm-6
+      div.page-header
+        h1 About Us
+      p Text about people.js

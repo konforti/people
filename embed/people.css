@@ -1,0 +1,7 @@
+.hidden {
+  display: none;
+}
+
+form input {
+  display: block;
+}

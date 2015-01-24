@@ -1,0 +1,204 @@
+extends ../../../layouts/admin
+
+block head
+  title Users / Details
+
+block neck
+  link(rel='stylesheet', href='/views/admin/users/details.min.css?#{cacheBreaker}')
+
+block feet
+  script(src='/views/admin/users/details.js?#{cacheBreaker}')
+
+block body
+  div.row
+    div.col-xs-12
+      div#header
+  div.row
+    div.col-sm-8
+      div#header
+        fieldset
+          div#identity
+        fieldset
+          div#delete
+    div.col-sm-4
+      fieldset
+        div#status-new.status-new
+        div#status-collection
+      fieldset
+        div#roles
+      fieldset
+        div#password
+      fieldset
+        div#notes-new.notes-new
+        div#notes-collection
+
+  script(type='text/template', id='tmpl-header')
+    div.page-header
+      h1
+        a(href='/admin/users/') Users
+        |  / <%= username %>
+
+  script(type='text/template', id='tmpl-identity')
+      legend Identity
+      div.alerts
+        |<% _.each(errors, function(err) { %>
+        div.alert.alert-danger.alert-dismissable
+          button.close(type='button', data-dismiss='alert') &times;
+          |<%- err %>
+        |<% }); %>
+        |<% if (success) { %>
+        div.alert.alert-info.alert-dismissable
+          button.close(type='button', data-dismiss='alert') &times;
+          | Changes have been saved.
+        |<% } %>
+      div.form-role(class!='<%- errfor.username ? "has-error" : "" %>')
+        label Username:
+        input.form-control(type='text', name='username', value!='<%= username %>')
+        span.help-block <%- errfor.username %>
+      div.form-role(class!='<%- errfor.email ? "has-error" : "" %>')
+        label Email:
+        input.form-control(type='text', name='email', value!='<%= email %>')
+        span.help-block <%- errfor.email %>
+      div.form-role(class!='<%- errfor.isActive ? "has-error" : "" %>')
+        label Is Active:
+        select.form-control(name='isActive')
+          option(value='yes') yes
+          option(value='no') no
+        span.help-block <%- errfor.isActive %>
+
+      div.form-role
+        button.btn.btn-primary.btn-update(type='button') Update
+
+  script(type='text/template', id='tmpl-roles')
+      legend Groups
+      div.alerts
+        |<% _.each(errors, function(err) { %>
+        div.alert.alert-danger.alert-dismissable
+          button.close(type='button', data-dismiss='alert') &times;
+          |<%- err %>
+        |<% }); %>
+        |<% if (success) { %>
+        div.alert.alert-info.alert-dismissable
+          button.close(type='button', data-dismiss='alert') &times;
+          | Changes have been saved.
+        |<% } %>
+      div.form-role(class!='<%- errfor.newMembership ? "has-error" : "" %>')
+        label Add Membership:
+        div.input-role
+          select.form-control(name='newMembership')
+            for role in data.roles
+              option(value='#{role._id}') #{role.name}
+          div.input-role-btn
+            button.btn.btn-success.btn-add(type='button') Add
+        span.help-block <%- errfor.newUsername %>
+      div.form-role(class!='<%- errfor.memberships ? "has-error" : "" %>')
+        label Memberships:
+        div.roles
+          |<% _.each(roles, function(role) { %>
+          div.input-role
+            input.form-control(disabled=true, value!='<%= role.name %>')
+            div.input-role-btn
+              button.btn.btn-danger.btn-delete(type='button')
+                i.fa.fa-trash-o.fa-inverse
+          |<% }); %>
+          |<% if (roles.length == 0) { %>
+          span.badge no memberships defined
+          |<% } %>
+          span.help-block <%- errfor.memberships %>
+      div.form-role
+        button.btn.btn-primary.btn-save(type='button') Save Groups
+
+  script(type='text/template', id='tmpl-password')
+      legend Set Password
+      div.alerts
+        |<% _.each(errors, function(err) { %>
+        div.alert.alert-danger.alert-dismissable
+          button.close(type='button', data-dismiss='alert') &times;
+          |<%- err %>
+        |<% }); %>
+      |<% if (success) { %>
+      div.alert.alert-info.alert-dismissable
+        button.close(type='button', data-dismiss='alert') &times;
+        | A new password has been set.
+      |<% } %>
+      div.form-role(class!='<%- errfor.newPassword ? "has-error" : "" %>')
+        label New Password:
+        input.form-control(type='password', name='newPassword', value!='<%= newPassword %>')
+        span.help-block <%- errfor.newPassword %>
+      div.form-role(class!='<%- errfor.confirm ? "has-error" : "" %>')
+        label Confirm Password:
+        input.form-control(type='password', name='confirm', value!='<%= confirm %>')
+        span.help-block <%- errfor.confirm %>
+      div.form-role
+        button.btn.btn-primary.btn-password(type='button') Set Password
+
+  script(type='text/template', id='tmpl-status-new')
+    legend Status
+    div.alerts
+      |<% _.each(errors, function(err) { %>
+      div.alert.alert-danger.alert-dismissable
+        button.close(type='button', data-dismiss='alert') &times;
+        |<%- err %>
+      |<% }); %>
+    div.input-role
+      select.form-control(name='status')
+        option(value='') -- choose --
+        for status in data.statuses
+          option(value='#{status._id}') #{status.name}
+      div.input-role-btn
+        button.btn.btn-default.btn-add Change
+
+  script(type='text/template', id='tmpl-status-collection')
+    div#status-items.status-items
+
+  script(type='text/template', id='tmpl-status-item')
+    div <%- name %>
+    div.pull-right.badge.author
+      |<%= userCreated.name %>
+      | -&nbsp;
+      span.timeago <%= userCreated.time %>
+      div.clearfix
+
+  script(type='text/template', id='tmpl-notes-new')
+    legend Notes
+    div.alerts
+      |<% _.each(errors, function(err) { %>
+      div.alert.alert-danger.alert-dismissable
+        button.close(type='button', data-dismiss='alert') &times;
+        |<%- err %>
+      |<% }); %>
+    textarea.form-control(rows='3', name='data', placeholder='enter notes')
+    button.btn.btn-default.btn-block.btn-add Add New Note
+
+  script(type='text/template', id='tmpl-notes-collection')
+    div#notes-items.notes-items
+
+  script(type='text/template', id='tmpl-notes-item')
+    div.force-wrap <%- data %>
+    div.pull-right.badge.author
+      |<%= userCreated.name %>
+      | -&nbsp;
+      span.timeago <%= userCreated.time %>
+    div.clearfix
+
+  script(type='text/template', id='tmpl-notes-none')
+    div.note.text-muted no notes found
+
+
+  script(type='text/template', id='tmpl-delete')
+      legend Danger Zone
+      div.alerts
+        |<% _.each(errors, function(err) { %>
+        div.alert.alert-danger.alert-dismissable
+          button.close(type='button', data-dismiss='alert') &times;
+          |<%- err %>
+        |<% }); %>
+      div.form-role
+        span.help-block
+          span.label.label-danger If you do this, it cannot be undone.
+          |&nbsp;
+          span.text-muted You may also create orphaned document relationships too.
+      div.form-role
+        button.btn.btn-danger.btn-delete(type='button') Delete
+
+  script(type='text/template', id='data-record') !{data.record}
