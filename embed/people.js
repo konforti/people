@@ -68,7 +68,7 @@
   function Logout() {
     eraseCookie('people.sid');
     localStorage.removeItem('people.user');
-    formsBlock();
+    formsLoginBlock();
     userBlockRemove();
   }
 
@@ -129,10 +129,10 @@
    * Hide login/register forms.
    */
   function formsRemoveForms() {
-    $('##people-forms').html('');
+    $('#people-forms').html('');
   }
 
-////////////////////////////////
+  ////////////////////////////////
 
   $(document).on('ready', function() {
 

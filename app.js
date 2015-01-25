@@ -95,10 +95,13 @@ app.use(allowCrossDomain);
 require('./passport')(app, passport);
 
 //setup routes
-require('./rest')(app, passport);
+require('./routes/api')(app);
 
 //setup routes
-require('./routes')(app, passport);
+require('./routes/remote')(app);
+
+//setup routes
+require('./routes/web')(app, passport);
 
 
 //custom (friendly) error handler

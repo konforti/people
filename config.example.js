@@ -8,6 +8,8 @@ exports.companyName = 'People, Inc.';
 exports.projectName = 'People';
 exports.systemEmail = 'your@email.com';
 exports.cryptoKey = 'k3yb0ardc4t';
+exports.public_key = 'pk_BDBFEA65CB85DC41FF9E928E7886C';
+exports.secret_key = 'sk_A6D8FC87413B789E4E9E86FAC43A2';
 exports.loginAttempts = {
   forIp: 50,
   forIpAndUser: 7,
