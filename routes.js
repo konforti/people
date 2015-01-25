@@ -9,7 +9,7 @@ function ensureAuthenticated(req, res, next) {
   res.redirect('/login/');
 }
 
-function ensureAdmin(req, res, next) {console.log(req.user);
+function ensureAdmin(req, res, next) {
   if (req.user.isMemberOf('root')) {
     return next();
   }
@@ -42,7 +42,7 @@ exports = module.exports = function(app, passport) {
   app.get('/signup/tumblr/callback/', require('./views/signup/index').signupTumblr);
 
   // Remote login.
-  app.post('/login/remote', require('./views/login/index').loginRemote);
+  app.post('/login/remote/', require('./views/login/index').loginRemote);
 
   // Login/out.
   app.get('/login/', require('./views/login/index').init);

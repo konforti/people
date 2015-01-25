@@ -125,7 +125,7 @@ exports.read = function(req, res, next) {
  */
 exports.readCurrent = function(req, res, next) {
   var outcome = {};
-  
+
   var getRecord = function(callback) {
     req.app.db.models.User.findById(req.session.passport.user).populate('roles', 'name').exec(function(err, record) {
       if (err) {

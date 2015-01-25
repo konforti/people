@@ -9,11 +9,6 @@ html
     block neck
   body
 
-    ul.admin-menu
-      li.dropdown-header Admin Menu
-      li: a(href='/admin/users/') Users
-      li: a(href='/admin/roles/') Roles
-      li: a(href='/admin/statuses/') Statuses
     div.navbar.navbar-inverse.navbar-fixed-top
       div.container
         div.navbar-header
@@ -21,6 +16,12 @@ html
             img.navbar-logo(src='/media/logo-symbol-64x64.png')
             span.navbar-brand-label #{projectName}
           form.navbar-form.pull-right#_search
+
+    ul.admin-menu
+      li.dropdown-header Admin Menu
+      li: a(href='/admin/users/') Users
+      li: a(href='/admin/roles/') Roles
+      li: a(href='/admin/statuses/') Statuses
 
     div.page
       div.container

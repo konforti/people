@@ -11,8 +11,8 @@ var config = require('./config'),
     path = require('path'),
     passport = require('passport'),
     mongoose = require('mongoose'),
-    helmet = require('helmet');
-    //csrf = require('csurf');
+    helmet = require('helmet'),
+    csrf = require('csurf');
 
 //create express app
 var app = express();
@@ -55,12 +55,20 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-//app.use(csrf({ cookie: { signed: true } }));
+app.use(function(req, res, next){
+  if (config.csrfExclusion.indexOf(req.path) !== -1) {
+    req.csrfToken = function() {return '';}
+    next();
+  }
+  else {
+    (csrf())(req, res, next);
+  }
+});
 helmet(app);
 
 //response locals
 app.use(function(req, res, next) {
-  //res.cookie('_csrfToken', req.csrfToken());
+  res.cookie('_csrfToken', req.csrfToken());
   res.locals.user = {};
   res.locals.user.defaultReturnUrl = req.user && req.user.defaultReturnUrl();
   res.locals.user.username = req.user && req.user.username;
@@ -76,7 +84,7 @@ app.locals.cacheBreaker = 'br34k-01';
 //CORS middleware
 var allowCrossDomain = function(req, res, next) {
   res.header('Access-Control-Allow-Origin', config.allowDomain);
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+  res.header('Access-Control-Allow-Methods', 'GET, POST');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
 
   next();
