@@ -23,13 +23,15 @@ exports = module.exports = function(app, passport) {
   // List all users.
   app.get('/api/v1/people/', require('./rest/people').find);
   // Retrieve a user.
-  app.get('/api/v1/people/:uid', require('./rest/people').read);
+  app.get('/api/v1/people/:id', require('./rest/people').read);
+  // Retrieve current user.
+  app.get('/api/v1/people/current/:sid', require('./rest/people').readCurrent);
   // Update a User (isActive).
-  app.put('/api/v1/people/:uid/', require('./rest/people').update);
+  app.put('/api/v1/people/:id/', require('./rest/people').update);
   // Add role to a user.
-  app.post('/api/v1/people/:uid/roles/', require('./rest/people').createRoles);
+  app.post('/api/v1/people/:id/roles/', require('./rest/people').createRoles);
   // Remove role from a user.
-  app.delete('/api/v1/people/:uid/roles/:rid', require('./rest/people').deleteRoles);
+  app.delete('/api/v1/people/:id/roles/:role', require('./rest/people').deleteRoles);
 
   // Roles
   // List all roles.

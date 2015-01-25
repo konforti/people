@@ -118,6 +118,59 @@ exports.read = function(req, res, next) {
 };
 
 /**
+ * Retrieve a user by session id.
+ * @param req
+ * @param res
+ * @param next
+ */
+exports.readCurrent = function(req, res, next) {
+  var outcome = {};
+  
+  var getRecord = function(callback) {
+    req.app.db.models.User.findById(req.session.passport.user).populate('roles', 'name').exec(function(err, record) {
+      if (err) {
+        return callback(err);
+      }
+      outcome.record = record;
+      return callback(null, 'done');
+    });
+  };
+
+  var getRoles = function(callback) {
+    req.app.db.models.Role.find({}, 'name').sort('name').exec(function(err, roles) {
+      if (err) {
+        return callback(err, null);
+      }
+
+      outcome.roles = roles;
+      return callback(null, 'done');
+    });
+  };
+
+
+  var getStatusOptions = function(callback) {
+    req.app.db.models.Status.find({}, 'name').sort('name').exec(function(err, statuses) {
+      if (err) {
+        return callback(err, null);
+      }
+
+      outcome.statuses = statuses;
+      return callback(null, 'done');
+    });
+  };
+
+  var asyncFinally = function(err, results) {
+    if (err) {
+      return next(err);
+    }
+
+    res.send(outcome.record);
+  };
+
+  require('async').parallel([getRoles, getRecord, getStatusOptions], asyncFinally);
+};
+
+/**
  * Update a user.
  * @param req
  * @param res
@@ -128,6 +181,40 @@ exports.update = function(req, res, next){
 
   workflow.on('validate', function() {
     if (req.body.isActive) {}
+
+    workflow.emit('patchUser');
+  });
+
+  workflow.on('patchUser', function(user) {
+    var fieldsToSet = {};
+
+    if (req.body.isActive) {
+      fieldsToSet.isActive = req.body.isActive;
+
+      req.app.db.models.User.findByIdAndUpdate(req.params.id, fieldsToSet, function(err, user) {
+        if (err) {
+          return workflow.emit('exception', err);
+        }
+
+        workflow.outcome.record = user;
+        return workflow.emit('response');
+      });
+    }
+  });
+
+  workflow.emit('validate');
+};
+
+/**
+ * Add role to user.
+ * @param req
+ * @param res
+ * @param next
+ */
+exports.createRoles = function(req, res, next){
+  var workflow = req.app.utility.workflow(req, res);
+
+  workflow.on('validate', function() {
     if (req.body.role) {}
 
     workflow.emit('roleExistCheck');
@@ -169,21 +256,53 @@ exports.update = function(req, res, next){
   workflow.on('patchUser', function(user) {
     var fieldsToSet = {};
 
-    if (req.body.isActive) {
-      fieldsToSet.isActive = req.body.isActive;
-    }
-    console.log(user.roles);
     if (req.body.role) {
       user.roles.push(req.body.role);
       fieldsToSet.roles = user.roles;
+
+      req.app.db.models.User.findByIdAndUpdate(req.params.id, fieldsToSet, function(err, user) {
+        if (err) {
+          return workflow.emit('exception', err);
+        }
+
+        workflow.outcome.record = user;
+        return workflow.emit('response');
+      });
     }
-    console.log(user.roles);
-    console.log(fieldsToSet);
-    req.app.db.models.User.findByIdAndUpdate(req.params.id, fieldsToSet, function(err, user) {
-      if (err) {
-        return workflow.emit('exception', err);
-      }
-    });
+  });
+
+  workflow.emit('validate');
+};
+
+exports.deleteRoles = function(req, res, next){
+  var workflow = req.app.utility.workflow(req, res);
+
+  workflow.on('validate', function() {
+    if (req.params.role) {}
+
+    workflow.emit('patchUser');
+  });
+
+  workflow.on('patchUser', function(user) {
+    var fieldsToSet = {};
+
+    if (req.params.role) {
+      req.app.db.models.User.findById(req.params.id).exec(function(err, user) {
+        var index = user.roles.indexOf(req.params.role);
+        if (index != -1) {
+          user.roles.splice(index, 1);
+          fieldsToSet.roles = user.roles;
+          req.app.db.models.User.findByIdAndUpdate(req.params.id, fieldsToSet, function(err, user) {
+            if (err) {
+              return workflow.emit('exception', err);
+            }
+
+            workflow.outcome.record = user;
+            return workflow.emit('response');
+          });
+        }
+      });
+    }
   });
 
   workflow.emit('validate');

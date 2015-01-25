@@ -13,6 +13,7 @@ exports.loginAttempts = {
   forIpAndUser: 7,
   logExpiration: '20m'
 };
+exports.allowDomain = 'http://people.lh';
 exports.requireAccountVerification = false;
 exports.smtp = {
   from: {
