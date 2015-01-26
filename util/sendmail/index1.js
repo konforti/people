@@ -1,6 +1,20 @@
 'use strict';
 
 exports = module.exports = function(req, res, options) {
+  /* options = {
+    from: String,
+    to: String,
+    cc: String,
+    bcc: String,
+    text: String,
+    textPath String,
+    html: String,
+    htmlPath: String,
+    attachments: [String],
+    success: Function,
+    error: Function
+  } */
+
   var renderText = function(callback) {
     res.render(options.textPath, options.locals, function(err, text) {
       if (err) {
@@ -54,17 +68,9 @@ exports = module.exports = function(req, res, options) {
         }
       }
 
-      var nodemailer = require('nodemailer');
-      // create reusable transporter object using SMTP transport
-      var transporter = nodemailer.createTransport({
-        host: req.app.config.smtp.credentials.host,
-        auth: {
-          user: req.app.config.smtp.credentials.user,
-          pass: req.app.config.smtp.credentials.password
-        }
-      });
-      // setup e-mail data with unicode symbols
-      var mailOptions = {
+      var emailjs = require('emailjs/email');
+      var emailer = emailjs.server.connect( req.app.config.smtp.credentials );
+      emailer.send({
         from: options.from,
         to: options.to,
         'reply-to': options.replyTo || options.from,
@@ -73,15 +79,12 @@ exports = module.exports = function(req, res, options) {
         subject: options.subject,
         text: options.text,
         attachment: attachments
-      };
-
-      // send mail with defined transport object
-      transporter.sendMail(mailOptions, function(err, message){
-        if(err){
+      }, function(err, message) {
+        if (err) {
           options.error('Email failed to send. '+ err);
           return;
         }
-        else{
+        else {
           options.success(message);
           return;
         }

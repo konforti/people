@@ -34,6 +34,12 @@ exports = module.exports = function(app, mongoose) {
 
     return returnUrl;
   };
+  userSchema.statics.encryptResetToken = function(token, done) {
+    var crypto = require('crypto');
+    var hash = crypto.createHash('sha1').update(token).digest('hex');
+
+    done(hash);
+  }
   userSchema.statics.encryptPassword = function(password, done) {
     var bcrypt = require('bcrypt');
     bcrypt.genSalt(10, function(err, salt) {

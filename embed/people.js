@@ -103,6 +103,7 @@
     loginHTML += '<input id="login-name" type="textfield" placeholder="Name" value>';
     loginHTML += '<input id="login-pass" type="password" placeholder="Password" value>';
     loginHTML += '<button id="login-btn" type="button" name="button-login">Login</button>';
+    loginHTML += '<a class="to-forgot" href="javascript:void(0)">Forgot my password</a>';
     loginHTML += '</form>';
     loginHTML += '<span>New here? <a class="to-register" href="javascript:void(0)">click to register</a></span>';
     loginHTML += '</div>';
@@ -125,6 +126,32 @@
     $('#people-forms').html(registerHTML);
   }
 
+  function formsForgotBlock() {
+    var forgotHTML = '';
+    forgotHTML += '<div id="people-forgot">';
+    forgotHTML += '<form class="forgot">';
+    forgotHTML += '<input id="forgot-email" type="text" placeholder="Email" value>';
+    forgotHTML += '<button id="forgot-btn" type="button" name="button-forgot">Send to my mail</button>';
+    forgotHTML += '</form>';
+    forgotHTML += '<a class="to-login" href="javascript:void(0)">click to login</a>';
+    forgotHTML += '</div>';
+
+    $('#people-forms').html(forgotHTML);
+  }
+
+  function formsForgotResetBlock() {
+    var forgotResetHTML = '';
+    forgotResetHTML += '<div id="people-forgot-reset">';
+    forgotResetHTML += '<form class="forgot-reset">';
+    forgotResetHTML += '<input id="forgot-reset-token" type="text" placeholder="Verification Token">';
+    forgotResetHTML += '<input id="forgot-reset-pass" type="password" placeholder="New Password">';
+    forgotResetHTML += '<button id="forgot-reset-btn" type="button" name="button-forgot-reset">Update Password</button>';
+    forgotResetHTML += '</form>';
+    forgotResetHTML += '</div>';
+
+    $('#people-forms').html(forgotResetHTML);
+  }
+
   /**
    * Hide login/register forms.
    */
@@ -140,7 +167,7 @@
     $(document).on('click', '#login-btn', function() {
       var res = $.ajax({
         type: "POST",
-        url: 'http://localhost:3000/login/remote/',
+        url: 'http://localhost:3000/remote/login/',
         dataType: 'json',
         data:  {
           username: $('#login-name').val(),
@@ -157,7 +184,7 @@
     $(document).on('click', '#register-btn', function() {
       var res = $.ajax({
         type: "POST",
-        url: 'http://localhost:3000/signup/remote/',
+        url: 'http://localhost:3000/remote/signup/',
         dataType: 'json',
         data:  {
           username: $('#register-name').val(),
@@ -168,6 +195,41 @@
 
       res.done(function(data) {
         login(data);
+      });
+    });
+
+    $(document).on('click', '#forgot-btn', function() {
+      var res = $.ajax({
+        type: "POST",
+        url: 'http://localhost:3000/remote/forgot/',
+        dataType: 'json',
+        data:  {
+          email: $('#forgot-email').val()
+        }
+      });
+
+      res.done(function(data) {
+        if (data.success === true) {
+          formsForgotResetBlock();
+        }
+      });
+    });
+
+    $(document).on('click', '#forgot-reset-btn', function() {
+      var res = $.ajax({
+        type: "POST",
+        url: 'http://localhost:3000/remote/forgot/reset/',
+        dataType: 'json',
+        data:  {
+          token: $('#forgot-reset-token').val(),
+          password: $('#forgot-reset-pass').val()
+        }
+      });
+
+      res.done(function(data) {
+        if (data.success === true) {
+          formsLoginBlock();
+        }
       });
     });
 
@@ -185,6 +247,10 @@
 
     $(document).on('click', '.to-register', function() {
       formsRegisterBlock();
+    });
+
+    $(document).on('click', '.to-forgot', function() {
+      formsForgotBlock();
     });
 
     $(document).on('click','#people-logout', function() {
