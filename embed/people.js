@@ -1,4 +1,38 @@
-(function($) {
+'use strict';
+
+(function() {
+
+  var httpRequest;
+
+  /**
+   * Make AJAX request.
+   * @param method
+   * @param url
+   * @param data
+   * @param next
+   * @returns {boolean}
+   */
+  function makeRequest(method, url, data, next) {
+    httpRequest = new XMLHttpRequest();
+
+    if (!httpRequest) {
+      alert('Giving up :( Cannot create an XMLHTTP instance');
+      return false;
+    }
+
+    var str = [];
+    for (var p in data) {
+      if (data.hasOwnProperty(p)) {
+        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(data[p]));
+      }
+    }
+    data = str.join("&");
+
+    httpRequest.open(method, url);
+    httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    httpRequest.send(data);
+    httpRequest.onreadystatechange = next;
+  }
 
   /**
    * Set Cookies.
@@ -21,10 +55,14 @@
   function getCookie(cname) {
     var name = cname + "=";
     var ca = document.cookie.split(';');
-    for(var i = 0; i < ca.length; i++) {
+    for (var i = 0; i < ca.length; i++) {
       var c = ca[i];
-      while (c.charAt(0) == ' ') c = c.substring(1);
-      if (c.indexOf(name) == 0) return c.substring(name.length, c.length);
+      while (c.charAt(0) == ' ') {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0) {
+        return c.substring(name.length, c.length);
+      }
     }
     return "";
   }
@@ -34,7 +72,7 @@
    * @param name
    */
   function eraseCookie(name) {
-    setCookie(name,"",-1);
+    setCookie(name, "", -1);
   }
 
   /**
@@ -47,9 +85,6 @@
 
       // Save Shallow user to local storage.
       localStorage.setItem('people.user', JSON.stringify(data.user));
-
-      // Hide the login/register forms.
-      formsRemoveForms();
 
       // Show the logged-in user block.
       userBlock();
@@ -65,11 +100,13 @@
     }
   }
 
+  /**
+   * Logout current user.
+   */
   function Logout() {
     eraseCookie('people.sid');
     localStorage.removeItem('people.user');
     formsLoginBlock();
-    userBlockRemove();
   }
 
   /**
@@ -79,18 +116,14 @@
     var user = JSON.parse(localStorage.getItem('people.user'));
     if (user) {
       var userBlock = '';
-      userBlock += '<div id="user-block">';
+      userBlock += '<div class="people-block" id="user-block">';
       userBlock += '<div id="user-gravatar"><img src="' + user.gravatar + '"></div>';
       userBlock += '<span id="user-name">' + user.username + '</span>';
-      userBlock += '<span> | <a id="people-logout" href="javascript:void(0)">Log Out</a></span>';
+      userBlock += '<span> | <a class="to-logout" href="javascript:void(0)">Log Out</a></span>';
       userBlock += '</div>';
 
-      $('#people-dash').append(userBlock);
+      document.getElementById("people-dash").innerHTML = userBlock;
     }
-  }
-
-  function userBlockRemove() {
-    $('#people-dash').html('');
   }
 
   /**
@@ -98,164 +131,150 @@
    */
   function formsLoginBlock() {
     var loginHTML = '';
-    loginHTML += '<div id="people-login">';
+    loginHTML += '<div class="people-block" id="people-login">';
     loginHTML += '<form class="login">';
-    loginHTML += '<input id="login-name" type="textfield" placeholder="Name" value>';
-    loginHTML += '<input id="login-pass" type="password" placeholder="Password" value>';
-    loginHTML += '<button id="login-btn" type="button" name="button-login">Login</button>';
+    loginHTML += '<div class="form-field"><input id="login-name" type="textfield" placeholder="Name" value></div>';
+    loginHTML += '<div class="form-field"><input id="login-pass" type="password" placeholder="Password" value></div>';
+    loginHTML += '<button id="login-btn" type="button" name="button-login">Login</button> ';
     loginHTML += '<a class="to-forgot" href="javascript:void(0)">Forgot my password</a>';
     loginHTML += '</form>';
-    loginHTML += '<span>New here? <a class="to-register" href="javascript:void(0)">click to register</a></span>';
+    loginHTML += '<div>New here? <a class="to-register" href="javascript:void(0)">Register</a></div>';
     loginHTML += '</div>';
 
-    $('#people-forms').html(loginHTML);
+    document.getElementById("people-dash").innerHTML = loginHTML;
   }
 
   function formsRegisterBlock() {
     var registerHTML = '';
-    registerHTML += '<div id="people-register">';
+    registerHTML += '<div class="people-block" id="people-register">';
     registerHTML += '<form class="register">';
-    registerHTML += '<input id="register-name" type="textfield" placeholder="Name" value>';
-    registerHTML += '<input id="register-email" type="text" placeholder="Email" value>';
-    registerHTML += '<input id="register-pass" type="password" placeholder="Password" value>';
+    registerHTML += '<div class="form-field"><input id="register-name" type="textfield" placeholder="Name" value></div>';
+    registerHTML += '<div class="form-field"><input id="register-email" type="text" placeholder="Email" value></div>';
+    registerHTML += '<div class="form-field"><input id="register-pass" type="password" placeholder="Password" value></div>';
     registerHTML += '<button id="register-btn" type="button" name="button-register">Register</button>';
     registerHTML += '</form>';
-    registerHTML += '<span>Already a member? <a class="to-login" href="javascript:void(0)">click to login</a></span>';
+    registerHTML += '<span>Already a member? <a class="to-login" href="javascript:void(0)">Login</a></span>';
     registerHTML += '</div>';
 
-    $('#people-forms').html(registerHTML);
+    document.getElementById("people-dash").innerHTML = registerHTML;
   }
 
   function formsForgotBlock() {
     var forgotHTML = '';
-    forgotHTML += '<div id="people-forgot">';
-    forgotHTML += '<form class="forgot">';
-    forgotHTML += '<input id="forgot-email" type="text" placeholder="Email" value>';
+    forgotHTML += '<div class="people-block" id="people-forgot">';
+    forgotHTML += '<div class="form-field"><form class="forgot">';
+    forgotHTML += '<div class="form-field"><input id="forgot-email" type="text" placeholder="Email" value></div>';
     forgotHTML += '<button id="forgot-btn" type="button" name="button-forgot">Send to my mail</button>';
     forgotHTML += '</form>';
-    forgotHTML += '<a class="to-login" href="javascript:void(0)">click to login</a>';
+    forgotHTML += '<a class="to-login" href="javascript:void(0)">Back to login</a>';
     forgotHTML += '</div>';
 
-    $('#people-forms').html(forgotHTML);
+    document.getElementById("people-dash").innerHTML = forgotHTML;
   }
 
   function formsForgotResetBlock() {
     var forgotResetHTML = '';
-    forgotResetHTML += '<div id="people-forgot-reset">';
+    forgotResetHTML += '<div class="people-block" id="people-forgot-reset">';
     forgotResetHTML += '<form class="forgot-reset">';
-    forgotResetHTML += '<input id="forgot-reset-token" type="text" placeholder="Verification Token">';
-    forgotResetHTML += '<input id="forgot-reset-pass" type="password" placeholder="New Password">';
+    forgotResetHTML += '<div class="form-field"><input id="forgot-reset-token" type="text" placeholder="Verification Token"></div>';
+    forgotResetHTML += '<div class="form-field"><input id="forgot-reset-pass" type="password" placeholder="New Password"></div>';
     forgotResetHTML += '<button id="forgot-reset-btn" type="button" name="button-forgot-reset">Update Password</button>';
     forgotResetHTML += '</form>';
     forgotResetHTML += '</div>';
 
-    $('#people-forms').html(forgotResetHTML);
+    document.getElementById("people-dash").innerHTML = forgotResetHTML;
   }
 
   /**
    * Hide login/register forms.
    */
-  function formsRemoveForms() {
-    $('#people-forms').html('');
+  function removePeople() {
+    document.getElementById("people-dash").innerHTML = '';
   }
 
-  ////////////////////////////////
+  /**
+   * Events.
+   */
+  document.addEventListener("click", function(e) {
 
-  $(document).on('ready', function() {
+    // Elements ID
+    switch (e.target.id) {
+      case 'login-btn':
+        makeRequest('POST', 'http://localhost:3000/remote/login/', {
+          username: document.getElementById("login-name").value,
+          password: document.getElementById("login-pass").value
+        }, function() {
+          if (httpRequest.readyState === 4 && httpRequest.status === 200) {
+            login(JSON.parse(httpRequest.responseText));
+          }
+        });
+        break;
 
-    // login.
-    $(document).on('click', '#login-btn', function() {
-      var res = $.ajax({
-        type: "POST",
-        url: 'http://localhost:3000/remote/login/',
-        dataType: 'json',
-        data:  {
-          username: $('#login-name').val(),
-          password: $('#login-pass').val()
-        }
-      });
+      case 'register-btn':
+        makeRequest('POST', 'http://localhost:3000/remote/signup/', {
+          username: document.getElementById("register-name").value,
+          email:    document.getElementById("register-email").value,
+          password: document.getElementById("register-pass").value
+        }, function() {
+          if (httpRequest.readyState === 4 && httpRequest.status === 200) {
+            login(JSON.parse(httpRequest.responseText));
+          }
+        });
+        break;
 
-      res.done(function(data) {
-        login(data);
-      });
-    });
+      case 'forgot-btn':
+        makeRequest('POST', 'http://localhost:3000/remote/forgot/', {
+          email: document.getElementById("forgot-email").value
+        }, function() {
+          if (httpRequest.readyState === 4 && httpRequest.status === 200) {
+            var data = JSON.parse(httpRequest.responseText);
+            if (data.success === true) {
+              formsForgotResetBlock();
+            }
+          }
+        });
+        break;
 
-    // Register.
-    $(document).on('click', '#register-btn', function() {
-      var res = $.ajax({
-        type: "POST",
-        url: 'http://localhost:3000/remote/signup/',
-        dataType: 'json',
-        data:  {
-          username: $('#register-name').val(),
-          email: $('#register-email').val(),
-          password: $('#register-pass').val()
-        }
-      });
-
-      res.done(function(data) {
-        login(data);
-      });
-    });
-
-    $(document).on('click', '#forgot-btn', function() {
-      var res = $.ajax({
-        type: "POST",
-        url: 'http://localhost:3000/remote/forgot/',
-        dataType: 'json',
-        data:  {
-          email: $('#forgot-email').val()
-        }
-      });
-
-      res.done(function(data) {
-        if (data.success === true) {
-          formsForgotResetBlock();
-        }
-      });
-    });
-
-    $(document).on('click', '#forgot-reset-btn', function() {
-      var res = $.ajax({
-        type: "POST",
-        url: 'http://localhost:3000/remote/forgot/reset/',
-        dataType: 'json',
-        data:  {
-          token: $('#forgot-reset-token').val(),
-          password: $('#forgot-reset-pass').val()
-        }
-      });
-
-      res.done(function(data) {
-        if (data.success === true) {
-          formsLoginBlock();
-        }
-      });
-    });
-
-    if (getCookie('people.sid')) {
-      userBlock();
-    }
-    else {
-      localStorage.removeItem('peolple.user');
-      formsLoginBlock();
+      case 'forgot-reset-btn':
+        makeRequest('POST', 'http://localhost:3000/remote/forgot/reset/', {
+          token:    document.getElementById("forgot-reset-token").value,
+          password: document.getElementById("forgot-reset-pass").value
+        }, function() {
+          if (httpRequest.readyState === 4 && httpRequest.status === 200) {
+            var data = JSON.parse(httpRequest.responseText);
+            if (data.success === true) {
+              formsLoginBlock();
+            }
+          }
+        });
+        break;
     }
 
-    $(document).on('click', '.to-login', function() {
-      formsLoginBlock();
-    });
+    // Elements Class
+    switch (e.target.className) {
+      case 'to-login':
+        formsLoginBlock();
+        break;
 
-    $(document).on('click', '.to-register', function() {
-      formsRegisterBlock();
-    });
+      case 'to-register':
+        formsRegisterBlock();
+        break;
 
-    $(document).on('click', '.to-forgot', function() {
-      formsForgotBlock();
-    });
+      case 'to-forgot':
+        formsForgotBlock();
+        break;
 
-    $(document).on('click','#people-logout', function() {
-      Logout();
-    });
+      case 'to-logout':
+        Logout();
+        break;
+    }
   });
 
-})(jQuery);
+  if (getCookie('people.sid')) {
+    userBlock();
+  }
+  else {
+    localStorage.removeItem('peolple.user');
+    formsLoginBlock();
+  }
+})();

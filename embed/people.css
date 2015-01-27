@@ -1,7 +1,31 @@
-.hidden {
-  display: none;
+#people-dash {
+  font: normal 12px/30px sans-serif;
 }
 
-form input {
-  display: block;
+#people-dash .people-block {
+  display: inline-block;
+  background: rgba(0,0,0,.05);;
+  border: 1px solid rgba(0,0,0,.3);
+  border-radius: 2px;
+  margin: 10px;
+  padding: 50px;
+}
+
+#people-dash .form-field {
+  margin: 10px 0;
+}
+
+#people-dash .form-field input {
+  padding: 5px 10px;
+  border: 1px solid rgba(0,0,0,.3);
+  border-radius: 2px;
+}
+
+#people-dash button {
+  background: #2090ff;
+  padding: 5px 10px;
+  border: 1px solid rgba(0,0,0,.3);
+  border-radius: 2px;
+  color: #ffffff;
+
 }
