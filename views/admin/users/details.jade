@@ -70,7 +70,7 @@ block body
         button.btn.btn-primary.btn-update(type='button') Update
 
   script(type='text/template', id='tmpl-roles')
-      legend Groups
+      legend Roles
       div.alerts
         |<% _.each(errors, function(err) { %>
         div.alert.alert-danger.alert-dismissable
@@ -106,7 +106,7 @@ block body
           |<% } %>
           span.help-block <%- errfor.memberships %>
       div.form-role
-        button.btn.btn-primary.btn-save(type='button') Save Groups
+        button.btn.btn-primary.btn-save(type='button') Save Roles
 
   script(type='text/template', id='tmpl-password')
       legend Set Password
