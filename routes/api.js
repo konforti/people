@@ -40,7 +40,7 @@ exports = module.exports = function(app) {
   app.get('/api/v1/people/current/:sid', require('../rest/people').readCurrent);
   // Update a User (isActive).
   app.put('/api/v1/people/:id/', require('../rest/people').update);
-  // Add role to a user.
+  // Assign role to a user.
   app.post('/api/v1/people/:id/roles/', require('../rest/people').createRoles);
   // Remove role from a user.
   app.delete('/api/v1/people/:id/roles/:role', require('../rest/people').deleteRoles);

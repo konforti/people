@@ -29,7 +29,7 @@ exports.find = function(req, res, next){
 };
 
 exports.read = function(req, res, next){
-  req.app.db.models.Role.findById(req.params.id).exec(function(err, role) {
+  req.app.db.models.Role.findById(req.params.rid).exec(function(err, role) {
     if (err) {
       return next(err);
     }
