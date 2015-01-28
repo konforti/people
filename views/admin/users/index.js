@@ -105,6 +105,19 @@ exports.read = function(req, res, next){
     });
   };
 
+  var getUserFields = function(callback) {
+    //var fields = req.app.config.fields;
+    req.app.db.models.UserMeta.find({/*user: req.params.id*/}, 'name').sort('name').exec(function(err, fields) {
+      if (err) {
+        return callback(err, null);
+      }
+
+      outcome.fields = fields;
+      return callback(null, 'done');
+    });
+
+  };
+
   var asyncFinally = function(err, results) {
     if (err) {
       return next(err);
@@ -118,13 +131,14 @@ exports.read = function(req, res, next){
         data: {
           record: escape(JSON.stringify(outcome.record)),
           roles: outcome.roles,
-          statuses: outcome.statuses
+          statuses: outcome.statuses,
+          fields: outcome.fields
         }
       });
     }
   };
 
-  require('async').parallel([getRoles, getRecord, getStatusOptions], asyncFinally);
+  require('async').parallel([getRoles, getRecord, getStatusOptions, getUserFields], asyncFinally);
 };
 
 exports.create = function(req, res, next){

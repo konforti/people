@@ -83,38 +83,27 @@ exports.read = function(req, res, next) {
     });
   };
 
-  var getRoles = function(callback) {
-    req.app.db.models.Role.find({}, 'name').sort('name').exec(function(err, roles) {
+  var getUserFields = function(callback) {
+    var fields = req.app.config.fields;
+    req.app.db.models.UserMeta.find({user: req.params.id}).exec(function(err, fields) {
       if (err) {
         return callback(err, null);
       }
 
-      outcome.roles = roles;
+      outcome.fields = fields;
       return callback(null, 'done');
     });
-  };
-
-
-  var getStatusOptions = function(callback) {
-    req.app.db.models.Status.find({}, 'name').sort('name').exec(function(err, statuses) {
-      if (err) {
-        return callback(err, null);
-      }
-
-      outcome.statuses = statuses;
-      return callback(null, 'done');
-    });
-  };
+  }
 
   var asyncFinally = function(err, results) {
     if (err) {
       return next(err);
     }
 
-    res.send(outcome.record);
+    res.send({record: outcome.record, fields: outcome.fields});
   };
 
-  require('async').parallel([getRoles, getRecord, getStatusOptions], asyncFinally);
+  require('async').parallel([ getRecord, getUserFields], asyncFinally);
 };
 
 /**
@@ -127,47 +116,51 @@ exports.readCurrent = function(req, res, next) {
   var outcome = {};
 
   var getRecord = function(callback) {
-    req.app.db.models.User.findById(req.session.passport.user).populate('roles', 'name').exec(function(err, record) {
-      if (err) {
-        return callback(err);
-      }
-      outcome.record = record;
-      return callback(null, 'done');
-    });
-  };
-
-  var getRoles = function(callback) {
-    req.app.db.models.Role.find({}, 'name').sort('name').exec(function(err, roles) {
+    var collection = req.app.db.collection('sessions');
+    collection.find({_id: req.params.sid}).toArray(function(err, record) {
       if (err) {
         return callback(err, null);
       }
-
-      outcome.roles = roles;
-      return callback(null, 'done');
+      var session = JSON.parse(record[0].session);
+      req.app.db.models.User.findById(session.passport.user).populate('roles', 'name').exec(function(err, record) {
+        if (err) {
+          return callback(err);
+        }
+        outcome.record = record;
+        return callback(null, 'done');
+      });
     });
   };
 
-
-  var getStatusOptions = function(callback) {
-    req.app.db.models.Status.find({}, 'name').sort('name').exec(function(err, statuses) {
+  var getUserFields = function(callback) {
+    var fields = req.app.config.fields;
+    var collection = req.app.db.collection('sessions');
+    collection.find({_id: req.params.sid}).toArray(function(err, record) {
       if (err) {
         return callback(err, null);
       }
+      var session = JSON.parse(record[0].session);
+      req.app.db.models.UserMeta.find({user: session.passport.user}).exec(function(err, fields) {
+        if (err) {
+          return callback(err, null);
+        }
 
-      outcome.statuses = statuses;
-      return callback(null, 'done');
+        outcome.fields = fields;
+        return callback(null, 'done');
+      });
+
     });
-  };
+  }
 
   var asyncFinally = function(err, results) {
     if (err) {
       return next(err);
     }
 
-    res.send(outcome.record);
+    res.send({record: outcome.record, fields: outcome.fields});
   };
 
-  require('async').parallel([getRoles, getRecord, getStatusOptions], asyncFinally);
+  require('async').parallel([getRecord, getUserFields], asyncFinally);
 };
 
 /**

@@ -2,7 +2,7 @@
 
 exports = module.exports = function(app, mongoose) {
   var userMetaSchema = new mongoose.Schema({
-    user: { type: mongoose.Schema.ObjectId, ref: 'User' },
+    user: { type: String, ref: 'User' },
     key: { type: String, required: true },
     value: { type: String, default: '' }
   });

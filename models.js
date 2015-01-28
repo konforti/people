@@ -8,6 +8,7 @@ exports = module.exports = function(app, mongoose) {
 
   //then regular docs
   require('./schema/User')(app, mongoose);
+  require('./schema/UserMeta')(app, mongoose);
   require('./schema/Role')(app, mongoose);
   require('./schema/LoginAttempt')(app, mongoose);
 };
