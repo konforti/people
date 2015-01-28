@@ -106,8 +106,7 @@ exports.read = function(req, res, next){
   };
 
   var getUserFields = function(callback) {
-    //var fields = req.app.config.fields;
-    req.app.db.models.UserMeta.find({/*user: req.params.id*/}, 'name').sort('name').exec(function(err, fields) {
+    req.app.db.models.UserMeta.find({}, 'name').sort('name').exec(function(err, fields) {
       if (err) {
         return callback(err, null);
       }
@@ -253,6 +252,7 @@ exports.update = function(req, res, next){
   });
 
   workflow.on('patchUser', function() {
+
     var fieldsToSet = {
       isActive: req.body.isActive,
       username: req.body.username,
@@ -268,6 +268,17 @@ exports.update = function(req, res, next){
         return workflow.emit('exception', err);
       }
 
+      var fields = req.app.config.fields;
+      var extraFieldsToSet = {};
+      for (var i = 0, field; field = fields[0]; ++i) {
+        extraFieldsToSet[field.key] = req.body[field.key];
+
+        req.app.db.models.UserMeta.findOneAndUpdate({user: req.params.id, key: field.key}, extraFieldsToSet, function(err, user) {
+          if (err) {
+            return workflow.emit('exception', err);
+          }
+        });
+      }
     });
   });
 

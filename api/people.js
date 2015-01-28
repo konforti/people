@@ -84,7 +84,6 @@ exports.read = function(req, res, next) {
   };
 
   var getUserFields = function(callback) {
-    var fields = req.app.config.fields;
     req.app.db.models.UserMeta.find({user: req.params.id}).exec(function(err, fields) {
       if (err) {
         return callback(err, null);
@@ -133,7 +132,6 @@ exports.readCurrent = function(req, res, next) {
   };
 
   var getUserFields = function(callback) {
-    var fields = req.app.config.fields;
     var collection = req.app.db.collection('sessions');
     collection.find({_id: req.params.sid}).toArray(function(err, record) {
       if (err) {
