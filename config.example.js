@@ -6,26 +6,26 @@ exports.mongodb = {
 };
 exports.companyName = 'People, Inc.';
 exports.projectName = 'People';
-exports.systemEmail = 'your@email.com';
+exports.systemEmail = 'your@email.com';// Changes this.
 exports.cryptoKey = 'k3yb0ardc4t';
-exports.public_key = 'pk_BDBFEA65CB85DC41FF9E928E7886C';
-exports.secret_key = 'sk_A6D8FC87413B789E4E9E86FAC43A2';
+exports.public_key = 'pk_BDBFEA65CB85DC41FF9E928E7886C';// Changes this.
+exports.secret_key = 'sk_A6D8FC87413B789E4E9E86FAC43A2';// Changes this.
 exports.loginAttempts = {
   forIp: 50,
   forIpAndUser: 7,
   logExpiration: '20m'
 };
-exports.allowDomain = 'http://people.lh';
-exports.csrfExclusion = ['/remote/','/remote/*'];
+exports.allowDomain = 'http://people.lh';// Changes this.
+exports.csrfExclusion = ['/remote/','/api/'];
 exports.requireAccountVerification = false;
 exports.smtp = {
   from: {
     name: process.env.SMTP_FROM_NAME || exports.projectName +' Website',
-    address: process.env.SMTP_FROM_ADDRESS || 'your@email.com'
+    address: process.env.SMTP_FROM_ADDRESS || 'your@email.com'// Changes this.
   },
   credentials: {
-    user: process.env.SMTP_USERNAME || 'your@email.com',
-    password: process.env.SMTP_PASSWORD || 'bl4rg!',
+    user: process.env.SMTP_USERNAME || 'your@email.com',// Changes this.
+    password: process.env.SMTP_PASSWORD || 'bl4rg!',// Changes this.
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     ssl: true
   }

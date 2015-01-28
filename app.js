@@ -56,8 +56,14 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(function(req, res, next){
-  if (config.csrfExclusion.indexOf(req.path) !== -1) {
-    req.csrfToken = function() {return '';}
+  for(var path, i = 0; path = config.csrfExclusion[i]; i++) {
+    if (req.path.indexOf(path) !== -1) {
+      var exclude = true;
+      break;
+    }
+  };
+  if (typeof exclude !== 'undefined') {
+    req.csrfToken = function() {return '';};
     next();
   }
   else {
