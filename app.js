@@ -31,12 +31,12 @@ app.db.once('open', function () {
 });
 
 //config data models
-require('./models')(app, mongoose);
+require('./schema/models')(app, mongoose);
 
 //settings
 app.disable('x-powered-by');
 app.set('port', config.port);
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(__dirname, 'components/web'));
 app.set('view engine', 'jade');
 
 //middleware
@@ -101,17 +101,17 @@ app.use(allowCrossDomain);
 require('./passport')(app, passport);
 
 //setup routes
-require('./routes/api')(app);
+require('./components/api/routes')(app);
 
 //setup routes
-require('./routes/remote')(app);
+require('./components/remote/routes')(app);
 
 //setup routes
-require('./routes/web')(app, passport);
+require('./components/web/routes')(app, passport);
 
 
 //custom (friendly) error handler
-app.use(require('./views/http/index').http500);
+app.use(require('./components/web/http/index').http500);
 
 //setup utilities
 app.utility = {};

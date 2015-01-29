@@ -74,7 +74,7 @@ module.exports = function(grunt) {
          tasks: ['newer:uglify', 'newer:jshint:client']
       },
       serverJS: {
-         files: ['views/**/*.js'],
+         files: ['components/**/*.js'],
          tasks: ['newer:jshint:server']
       },
       clientLess: {
@@ -160,7 +160,7 @@ module.exports = function(grunt) {
         },
         src: [
           'schema/**/*.js',
-          'views/**/*.js'
+          'components/**/*.js'
         ]
       }
     },
