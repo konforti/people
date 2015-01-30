@@ -33,19 +33,19 @@ exports = module.exports = function(app) {
   // Require Authentication.
   app.all('/api/*', requireAuthentication);
   // List all users.
-  app.get('/api/v1/people/', require('./people').find);
+  app.get('/api/v1/persons/', require('./persons').find);
   // Retrieve current user.
-  app.get('/api/v1/people/current/:sid/', require('./people').readCurrent);
+  app.get('/api/v1/persons/current/:sid/', require('./persons').readCurrent);
   // Retrieve a user.
-  app.get('/api/v1/people/:id/', require('./people').read);
+  app.get('/api/v1/persons/:id/', require('./persons').read);
   // Update a User extra fields.
-  app.put('/api/v1/people/:id/fields', require('./people').updateFields);
+  app.put('/api/v1/persons/:id/fields', require('./persons').updateFields);
   // Update a User (isActive).
-  app.put('/api/v1/people/:id/', require('./people').update);
+  app.put('/api/v1/persons/:id/', require('./persons').update);
   // Assign role to a user.
-  app.post('/api/v1/people/:id/roles/', require('./people').createRoles);
+  app.post('/api/v1/persons/:id/roles/', require('./persons').createRoles);
   // Remove role from a user.
-  app.delete('/api/v1/people/:id/roles/:role', require('./people').deleteRoles);
+  app.delete('/api/v1/persons/:id/roles/:role', require('./persons').deleteRoles);
 
   // Roles
   // List all roles.

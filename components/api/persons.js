@@ -242,7 +242,7 @@ exports.updateFields = function(req, res, next){
       });
     }
 
-    require('./people').read(req, res, next);
+    require('./persons').read(req, res, next);
     //return workflow.emit('response');
   });
 
