@@ -106,15 +106,19 @@ exports.read = function(req, res, next){
   };
 
   var getUserFields = function(callback) {
-    req.app.db.models.UserMeta.find({}, 'name').sort('name').exec(function(err, fields) {
+    req.app.db.models.UserMeta.find({user: req.params.id}).sort('name').exec(function(err, fields) {
       if (err) {
         return callback(err, null);
       }
 
-      outcome.fields = fields;
+      outcome.fields = [];
+      for (var i = 0, field; field = req.app.config.fields[i]; ++i) {
+        outcome.fields[i] = field;
+        outcome.fields[i].value = typeof fields[i] !== 'undefined' ? fields[i].value : '';
+      }
+
       return callback(null, 'done');
     });
-
   };
 
   var asyncFinally = function(err, results) {
@@ -268,17 +272,24 @@ exports.update = function(req, res, next){
         return workflow.emit('exception', err);
       }
 
-      var fields = req.app.config.fields;
-      var extraFieldsToSet = {};
-      for (var i = 0, field; field = fields[0]; ++i) {
-        extraFieldsToSet[field.key] = req.body[field.key];
+      workflow.outcome.user = user;
 
-        req.app.db.models.UserMeta.findOneAndUpdate({user: req.params.id, key: field.key}, extraFieldsToSet, function(err, user) {
+      workflow.outcome.user.extra = [];
+      var fields = req.app.config.fields;
+      for (var i = 0, field; field = fields[i]; ++i) {
+        var extraFieldsToSet = {};
+        extraFieldsToSet.key = field.key;
+        extraFieldsToSet.value = req.body[field.key];
+        req.app.db.models.UserMeta.findOneAndUpdate({user: req.params.id, key: field.key}, extraFieldsToSet, {upsert: true}, function(err, userField) {
           if (err) {
             return workflow.emit('exception', err);
           }
+
+          workflow.outcome.user.extra += userField;
         });
       }
+
+      workflow.emit('response');
     });
   });
 

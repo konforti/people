@@ -52,3 +52,8 @@ exports.oauth = {
     secret: process.env.TUMBLR_OAUTH_SECRET || ''
   }
 };
+
+exports.fields = [
+  {key: 'firstName', name: 'First Name'},
+  {key: 'lastName', name: 'Last Name'}
+];

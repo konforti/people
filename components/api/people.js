@@ -84,15 +84,20 @@ exports.read = function(req, res, next) {
   };
 
   var getUserFields = function(callback) {
-    req.app.db.models.UserMeta.find({user: req.params.id}).exec(function(err, fields) {
+    req.app.db.models.UserMeta.find({user: req.params.id}).sort('name').exec(function(err, fields) {
       if (err) {
         return callback(err, null);
       }
 
-      outcome.fields = fields;
+      outcome.fields = [];
+      for (var i = 0, field; field = req.app.config.fields[i]; ++i) {
+        outcome.fields[i] = field;
+        outcome.fields[i].value = typeof fields[i] !== 'undefined' ? fields[i].value : '';
+      }
+
       return callback(null, 'done');
     });
-  }
+  };
 
   var asyncFinally = function(err, results) {
     if (err) {
@@ -143,12 +148,17 @@ exports.readCurrent = function(req, res, next) {
           return callback(err, null);
         }
 
-        outcome.fields = fields;
+        outcome.fields = [];
+        for (var i = 0, field; field = req.app.config.fields[i]; ++i) {
+          outcome.fields[i] = field;
+          outcome.fields[i].value = typeof fields[i] !== 'undefined' ? fields[i].value : '';
+        }
+
         return callback(null, 'done');
       });
 
     });
-  }
+  };
 
   var asyncFinally = function(err, results) {
     if (err) {
@@ -171,12 +181,12 @@ exports.update = function(req, res, next){
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function() {
-    if (req.body.isActive) {}
+    //if (req.body.isActive) {}
 
     workflow.emit('patchUser');
   });
 
-  workflow.on('patchUser', function(user) {
+  workflow.on('patchUser', function() {
     var fieldsToSet = {};
 
     if (req.body.isActive) {
@@ -197,6 +207,49 @@ exports.update = function(req, res, next){
 };
 
 /**
+ * Update a user extra fields.
+ * @param req
+ * @param res
+ * @param next
+ */
+exports.updateFields = function(req, res, next){
+  var workflow = req.app.utility.workflow(req, res);
+
+  workflow.on('validate', function() {
+    //if (req.body.isActive) {}
+
+    workflow.emit('patchUser');
+  });
+
+  workflow.on('patchUser', function() {
+    workflow.outcome.fields = [];
+    var fields = req.app.config.fields;
+
+    for (var i = 0, field; field = fields[i]; ++i) {
+
+      var extraFieldsToSet = {};
+      if (typeof req.body[field.key] !== 'undefined') {
+        extraFieldsToSet.key = field.key;
+        extraFieldsToSet.value = req.body[field.key];
+      }
+
+      req.app.db.models.UserMeta.findOneAndUpdate({user: req.params.id, key: field.key}, extraFieldsToSet, {upsert: true}, function(err, userField) {
+        if (err) {
+          return workflow.emit('exception', err);
+        }
+
+        workflow.outcome.fields += userField;
+      });
+    }
+
+    require('./people').read(req, res, next);
+    //return workflow.emit('response');
+  });
+
+  workflow.emit('validate');
+};
+
+/**
  * Add role to user.
  * @param req
  * @param res
@@ -206,7 +259,7 @@ exports.createRoles = function(req, res, next){
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function() {
-    if (req.body.role) {}
+    //if (req.body.role) {}
 
     workflow.emit('roleExistCheck');
   });
@@ -233,7 +286,7 @@ exports.createRoles = function(req, res, next){
       }
 
       user.roles.forEach(function(role, i, arr) {
-        if (role._id == req.body.role) {
+        if (role._id === req.body.role) {
 
           workflow.outcome.errfor.email = 'user already have this role';
           return workflow.emit('response');
@@ -269,7 +322,7 @@ exports.deleteRoles = function(req, res, next){
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function() {
-    if (req.params.role) {}
+    //if (req.params.role) {}
 
     workflow.emit('patchUser');
   });
@@ -280,7 +333,7 @@ exports.deleteRoles = function(req, res, next){
     if (req.params.role) {
       req.app.db.models.User.findById(req.params.id).exec(function(err, user) {
         var index = user.roles.indexOf(req.params.role);
-        if (index != -1) {
+        if (index !== -1) {
           user.roles.splice(index, 1);
           fieldsToSet.roles = user.roles;
           req.app.db.models.User.findByIdAndUpdate(req.params.id, fieldsToSet, function(err, user) {

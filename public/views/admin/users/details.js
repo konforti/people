@@ -184,11 +184,13 @@
       }
     },
     update: function() {
-      this.model.save({
-        isActive: this.$el.find('[name="isActive"]').val(),
-        username: this.$el.find('[name="username"]').val(),
-        email: this.$el.find('[name="email"]').val()
+      var toSave = {};
+      this.$el.find('.form-role input').each(function(i, el) {
+        var key = el.name;
+        var val = el.value;
+        toSave[key] = val;
       });
+      this.model.save(toSave);
     }
   });
 

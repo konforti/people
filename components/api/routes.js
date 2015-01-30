@@ -34,10 +34,12 @@ exports = module.exports = function(app) {
   app.all('/api/*', requireAuthentication);
   // List all users.
   app.get('/api/v1/people/', require('./people').find);
-  // Retrieve a user.
-  app.get('/api/v1/people/:id/', require('./people').read);
   // Retrieve current user.
   app.get('/api/v1/people/current/:sid/', require('./people').readCurrent);
+  // Retrieve a user.
+  app.get('/api/v1/people/:id/', require('./people').read);
+  // Update a User extra fields.
+  app.put('/api/v1/people/:id/fields', require('./people').updateFields);
   // Update a User (isActive).
   app.put('/api/v1/people/:id/', require('./people').update);
   // Assign role to a user.
