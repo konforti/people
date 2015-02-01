@@ -1,6 +1,6 @@
 'use strict';
 
-exports.forgotRemote = function(req, res, next){
+exports.forgot = function(req, res, next){
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function() {
@@ -70,7 +70,7 @@ exports.forgotRemote = function(req, res, next){
   workflow.emit('validate');
 };
 
-exports.forgotResetRemote = function(req, res, next){
+exports.forgotReset = function(req, res, next){
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function() {

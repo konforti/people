@@ -104,7 +104,7 @@ require('./passport')(app, passport);
 require('./components/api/routes')(app);
 
 //setup routes
-require('./components/remote/routes')(app);
+require('./components/remote/routes')(app, passport);
 
 //setup routes
 require('./components/web/routes')(app, passport);
