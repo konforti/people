@@ -301,29 +301,37 @@ exports.signupTwitter = function(req, res, next) {
 };
 
 exports.signupGitHub = function(req, res, next) {
-  req._passport.instance.authenticate('github', function(err, user, info) {
+  var workflow = req.app.utility.workflow(req, res);
+  req._passport.instance.authenticate('github', {callbackURL: '/remote/signup/github/callback/'}, function(err, user, info) {
+    if (err) {
+      return workflow.emit('exception', err);
+    }
+
     if (!info || !info.profile) {
-      return res.redirect('/signup/');
+      return workflow.outcome.errfor.username = 'No info';
     }
 
     req.app.db.models.User.findOne({'github.id': info.profile.id}, function(err, user) {
       if (err) {
-        return next(err);
+        return workflow.emit('exception', err);
       }
 
+      info.profile.avatar = info.profile._json.avatar_url;
+      req.session.socialProfile = info.profile;
+
       if (!user) {
-        req.session.socialProfile = info.profile;
-        res.render('signup/social', {email: info.profile.emails && info.profile.emails[0].value || ''});
+        // Register.
+        if (!info.profile.emails || !info.profile.emails[0].value) {
+          res.render('../remote/social/need-mail', {email: info.profile.emails && info.profile.emails[0].value || ''});
+        }
+        else {
+          signupSocial(req, res, next);
+        }
       }
       else {
-        res.render('signup/index', {
-          oauthMessage:  'We found a user linked to your GitHub account.',
-          oauthTwitter:  !!req.app.config.oauth.twitter.key,
-          oauthGitHub:   !!req.app.config.oauth.github.key,
-          oauthFacebook: !!req.app.config.oauth.facebook.key,
-          oauthGoogle:   !!req.app.config.oauth.google.key,
-          oauthTumblr:   !!req.app.config.oauth.tumblr.key
-        });
+        // Login.
+        workflow.user = user;
+        loginSocial(req, res, workflow);
       }
     });
   })(req, res, next);
@@ -367,60 +375,74 @@ exports.signupFacebook = function(req, res, next) {
 };
 
 exports.signupGoogle = function(req, res, next) {
-  req._passport.instance.authenticate('google', {callbackURL: '/signup/google/callback/'}, function(err, user, info) {
+  var workflow = req.app.utility.workflow(req, res);
+  req._passport.instance.authenticate('google', {callbackURL: '/remote/signup/google/callback/'}, function(err, user, info) {
+    if (err) {
+      return workflow.emit('exception', err);
+    }
+
     if (!info || !info.profile) {
-      return res.redirect('/signup/');
+      return workflow.outcome.errfor.username = 'No info';
     }
 
     req.app.db.models.User.findOne({'google.id': info.profile.id}, function(err, user) {
       if (err) {
-        return next(err);
+        return workflow.emit('exception', err);
       }
+
+      info.profile.avatar = info.profile._json.image.url + '?sz=100';
+      req.session.socialProfile = info.profile;
+
       if (!user) {
-        req.session.socialProfile = info.profile;
-        res.render('signup/social', {email: info.profile.emails && info.profile.emails[0].value || ''});
+        // Register.
+        if (!info.profile.emails || !info.profile.emails[0].value) {
+          res.render('../remote/social/need-mail', {email: info.profile.emails && info.profile.emails[0].value || ''});
+        }
+        else {
+          signupSocial(req, res, next);
+        }
       }
       else {
-        res.render('signup/index', {
-          oauthMessage:  'We found a user linked to your Google account.',
-          oauthTwitter:  !!req.app.config.oauth.twitter.key,
-          oauthGitHub:   !!req.app.config.oauth.github.key,
-          oauthFacebook: !!req.app.config.oauth.facebook.key,
-          oauthGoogle:   !!req.app.config.oauth.google.key,
-          oauthTumblr:   !!req.app.config.oauth.tumblr.key
-        });
+        // Login.
+        workflow.user = user;
+        loginSocial(req, res, workflow);
       }
     });
   })(req, res, next);
 };
 
 exports.signupTumblr = function(req, res, next) {
-  req._passport.instance.authenticate('tumblr', {callbackURL: '/signup/tumblr/callback/'}, function(err, user, info) {
-    if (!info || !info.profile) {
-      return res.redirect('/signup/');
+  var workflow = req.app.utility.workflow(req, res);
+  req._passport.instance.authenticate('tumblr', {callbackURL: '/remote/signup/tumblr/callback/'}, function(err, user, info) {
+    if (err) {
+      return workflow.emit('exception', err);
     }
 
-    if (!info.profile.hasOwnProperty('id')) {
-      info.profile.id = info.profile.username;
+    if (!info || !info.profile) {
+      return workflow.outcome.errfor.username = 'No info';
     }
 
     req.app.db.models.User.findOne({'tumblr.id': info.profile.id}, function(err, user) {
       if (err) {
-        return next(err);
+        return workflow.emit('exception', err);
       }
+
+      //info.profile.avatar = info.profile._json.image.url + '?sz=100';
+      req.session.socialProfile = info.profile;
+
       if (!user) {
-        req.session.socialProfile = info.profile;
-        res.render('signup/social', {email: info.profile.emails && info.profile.emails[0].value || ''});
+        // Register.
+        if (!info.profile.emails || !info.profile.emails[0].value) {
+          res.render('../remote/social/need-mail', {email: info.profile.emails && info.profile.emails[0].value || ''});
+        }
+        else {
+          signupSocial(req, res, next);
+        }
       }
       else {
-        res.render('signup/index', {
-          oauthMessage:  'We found a user linked to your Tumblr account.',
-          oauthTwitter:  !!req.app.config.oauth.twitter.key,
-          oauthGitHub:   !!req.app.config.oauth.github.key,
-          oauthFacebook: !!req.app.config.oauth.facebook.key,
-          oauthGoogle:   !!req.app.config.oauth.google.key,
-          oauthTumblr:   !!req.app.config.oauth.tumblr.key
-        });
+        // Login.
+        workflow.user = user;
+        loginSocial(req, res, workflow);
       }
     });
   })(req, res, next);
@@ -559,7 +581,7 @@ var loginSocial = function(req, res, workflow) {
     }
 
     workflow.user.avatar = '';
-    if (req.session.socialProfile && req.session.socialProfile.provider) {
+    if (req.session.socialProfile && req.session.socialProfile.avatar) {
       workflow.user.avatar = req.session.socialProfile.avatar;
     }
     else {
