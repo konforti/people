@@ -159,12 +159,11 @@
     loginHTML += '<button id="login-btn" type="button" name="button-login">Login</button> ';
     loginHTML += '<a class="to-forgot" href="javascript:void(0)">Forgot my password</a>';
     loginHTML += '</form>';
-    loginHTML += '<div>New here? <a class="to-register" href="javascript:void(0)">Register</a></div>';
-    loginHTML += '<div>Or Login using:';
+    loginHTML += '<h4>Or login using: </h4>';
     for (var i = 0, name; name = socials[i]; ++i ) {
-      loginHTML += '<a class="social-login" id="login-'+ name +'" href="javascript:void(0)">'+ name.charAt(0).toUpperCase() + name.slice(1); +'</a>';
+      loginHTML += '<a class="social-login" id="login-'+ name +'" href="javascript:void(0)">' + name.charAt(0).toUpperCase() + name.slice(1) + '</a>';
     }
-    loginHTML += '</div>';
+    loginHTML += '<div>New here? <a class="to-register" href="javascript:void(0)">Register</a></div>';
     loginHTML += '</div>';
 
     document.getElementById("people-dash").innerHTML = loginHTML;
@@ -180,11 +179,11 @@
     registerHTML += '<div class="form-field"><input id="register-pass" type="password" placeholder="Password" value></div>';
     registerHTML += '<button id="register-btn" type="button" name="button-register">Register</button>';
     registerHTML += '</form>';
-    registerHTML += '<span>Already a member? <a class="to-login" href="javascript:void(0)">Login</a></span>';
-    loginHTML += '<div>Or Login using:';
+    registerHTML += '<h4>Or Login with: </h4>';
     for (var i = 0, name; name = socials[i]; ++i ) {
-      loginHTML += '<a class="social-login" id="login-'+ name +'" href="javascript:void(0)">'+ name.charAt(0).toUpperCase() + name.slice(1); +'</a>';
+      registerHTML += '<a class="social-login" id="login-'+ name +'" href="javascript:void(0)">'+ name.charAt(0).toUpperCase() + name.slice(1) +'</a>';
     }
+    registerHTML += '<div>Already a member? <a class="to-login" href="javascript:void(0)">Login</a></div>';
     registerHTML += '</div>';
 
     document.getElementById("people-dash").innerHTML = registerHTML;
