@@ -1,7 +1,6 @@
 'use strict';
 
 (function() {
-  console.log(document);
   var httpRequest;
   var baseUrl = 'http://localhost:3000';
 
@@ -127,7 +126,6 @@
   function Logout() {
     eraseCookie('people.sid');
     localStorage.removeItem('people.user');
-    localStorage.removeItem('people.info');
     formsLoginBlock();
   }
 
@@ -139,7 +137,7 @@
     if (user) {
       var userBlock = '';
       userBlock += '<div class="people-block" id="user-block">';
-      userBlock += '<div id="user-gravatar"><img src="' + user.gravatar + '"></div>';
+      userBlock += '<div id="user-avatar"><img src="' + user.avatar + '"></div>';
       userBlock += '<span id="user-name">' + user.username + '</span>';
       userBlock += '<span> | <a class="to-logout" href="javascript:void(0)">Log Out</a></span>';
       userBlock += '</div>';
@@ -152,6 +150,7 @@
    * login/register block.
    */
   function formsLoginBlock() {
+    var socials = JSON.parse(localStorage.getItem('people.info')).socials;
     var loginHTML = '';
     loginHTML += '<div class="people-block" id="people-login">';
     loginHTML += '<form class="login">';
@@ -161,13 +160,18 @@
     loginHTML += '<a class="to-forgot" href="javascript:void(0)">Forgot my password</a>';
     loginHTML += '</form>';
     loginHTML += '<div>New here? <a class="to-register" href="javascript:void(0)">Register</a></div>';
-    loginHTML += '<div>Or <a id="login-facebook" href="javascript:void(0)">Facebook</a></div>';
+    loginHTML += '<div>Or Login using:';
+    for (var i = 0, name; name = socials[i]; ++i ) {
+      loginHTML += '<a class="social-login" id="login-'+ name +'" href="javascript:void(0)">'+ name.charAt(0).toUpperCase() + name.slice(1); +'</a>';
+    }
+    loginHTML += '</div>';
     loginHTML += '</div>';
 
     document.getElementById("people-dash").innerHTML = loginHTML;
   }
 
   function formsRegisterBlock() {
+    var socials = JSON.parse(localStorage.getItem('people.info')).socials;
     var registerHTML = '';
     registerHTML += '<div class="people-block" id="people-register">';
     registerHTML += '<form class="register">';
@@ -177,6 +181,10 @@
     registerHTML += '<button id="register-btn" type="button" name="button-register">Register</button>';
     registerHTML += '</form>';
     registerHTML += '<span>Already a member? <a class="to-login" href="javascript:void(0)">Login</a></span>';
+    loginHTML += '<div>Or Login using:';
+    for (var i = 0, name; name = socials[i]; ++i ) {
+      loginHTML += '<a class="social-login" id="login-'+ name +'" href="javascript:void(0)">'+ name.charAt(0).toUpperCase() + name.slice(1); +'</a>';
+    }
     registerHTML += '</div>';
 
     document.getElementById("people-dash").innerHTML = registerHTML;
@@ -215,12 +223,18 @@
     document.getElementById("people-dash").innerHTML = '';
   }
 
+  /**
+   * Receive message from popup.
+   * @param event
+   */
   function receiveMessage(event) {
-    if (event.origin !== "http://localhost:3000") {
+    //window.removeEventListener("message", receiveMessage, false);
+
+    if (event.origin !== baseUrl) {
       return;
     }
 
-    location.reload();
+    login(event.data);
   }
 
   /**
@@ -230,29 +244,6 @@
 
     // Elements ID
     switch (e.target.id) {
-
-      case 'login-facebook':
-
-        var url = baseUrl + '/remote/signup/facebook/',
-          width = 1000,
-          height = 650,
-          top = (window.outerHeight - height) / 2,
-          left = (window.outerWidth - width) / 2;
-        window.open(url, 'facebook_login', 'width=' + width + ',height=' + height + ',scrollbars=0,top=' + top + ',left=' + left);
-        //location.href = baseUrl + '/remote/signup/facebook/';
-
-        window.addEventListener("message", receiveMessage, false);
-
-        oncookieset('people.social', function() {
-          location.reload();
-        });
-
-        //makeRequest('GET', baseUrl + '/remote/signup/facebook/', {}, function() {
-        //  if (httpRequest.readyState === 4 && httpRequest.status === 200) {
-        //    login(JSON.parse(httpRequest.responseText));
-        //  }
-        //});
-        break;
 
       case 'login-btn':
         makeRequest('POST', baseUrl + '/remote/login/', {
@@ -307,6 +298,21 @@
 
     // Elements Class
     switch (e.target.className) {
+
+      case 'social-login':
+        var name = e.target.id.replace('login-', '');
+
+        var url = baseUrl + '/remote/signup/'+ name +'/',
+          width = 1000,
+          height = 650,
+          top = (window.outerHeight - height) / 2,
+          left = (window.outerWidth - width) / 2;
+        window.open(url, '', 'width=' + width + ',height=' + height + ',scrollbars=0,top=' + top + ',left=' + left);
+
+        window.addEventListener("message", receiveMessage, false);
+        break;
+
+
       case 'to-login':
         formsLoginBlock();
         break;

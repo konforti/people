@@ -48,7 +48,13 @@
       },{
         success: function(model, response) {
           if (response.success) {
-            location.href = '/';
+            $('.row').html('<div class="page-header"><h1>Signed Up Successfully</h1></div>')
+            try {
+              opener.postMessage(response, response.allowDomain);
+            }
+            catch (e) {
+              //alert(e);
+            }
           }
           else {
             model.set(response);
@@ -60,16 +66,5 @@
 
   $(document).ready(function() {
     app.signupView = new app.SignupView();
-
-    function broadcastEvent() {
-      try {
-        opener.postMessage('', 'http://aaa.lh');
-      }
-      catch (e) {
-        //alert(e);
-      }
-    }
-
-    broadcastEvent();
   });
 }());

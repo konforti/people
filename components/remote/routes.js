@@ -25,7 +25,7 @@ exports = module.exports = function(app, passport) {
   app.post('/remote/signup/social/', require('./index').signupSocial);
 
   app.get('/remote/signup/twitter/', passport.authenticate('twitter', { callbackURL: '/remote/signup/twitter/callback/' }));
-  app.get('/remote/remote/signup/twitter/callback/', require('./index').signupTwitter);
+  app.get('/remote/signup/twitter/callback/', require('./index').signupTwitter);
 
   app.get('/remote/signup/github/', passport.authenticate('github', { callbackURL: '/remote/signup/github/callback/', scope: ['user:email'] }));
   app.get('/remote/signup/github/callback/', require('./index').signupGitHub);
