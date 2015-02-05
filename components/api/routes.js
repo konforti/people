@@ -24,10 +24,28 @@ function requireAuthentication(req, res, next) {
 }
 
 /**
+ * unsaveUninitialized().
+ * @param req
+ * @param res
+ * @param next
+ * @returns {*}
+ */
+function unsaveUninitialized(req, res, next) {
+  if (Object.keys(req.session.passport).length === 0) {
+    delete req.session.passport;
+  }
+
+  return next();
+}
+
+/**
  *
  * @type {Function}
  */
 exports = module.exports = function(app) {
+
+  // Prevent empty sessions store.
+  app.all('/api/*', unsaveUninitialized);
 
   // People
   // Require Authentication.
