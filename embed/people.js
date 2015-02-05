@@ -44,9 +44,6 @@ var people = people || {};
       }
     };
 
-    //var sid = people.getCookie('people.sid');
-    //httpRequest.withCredentials = true;
-    //httpRequest.setRequestHeader('Cookie', 'connect.sid=s%3AA9wc1F5AlpY4u0xW5itGSr3hJExAH8pN.Q%2FssNI%2BAgNSnYdfZlyqmkgkDcIooE9rmXjC8NmU93Dg');
     httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     httpRequest.send(body);
   };

@@ -1,5 +1,7 @@
 'use strict';
 
+var signature = require('cookie-signature');
+
 /**
  *
  * @param req
@@ -158,9 +160,9 @@ exports.signup = function(req, res) {
           }
 
           var gravatarHash = require('crypto').createHash('md5').update(req.email).digest('hex');
+          var sid = signature.sign(req.sessionID, req.app.config.cryptoKey);
 
-          workflow.outcome.defaultReturnUrl = user.defaultReturnUrl();
-          workflow.outcome.sid = req.sessionID;
+          workflow.outcome.sid = sid;
           workflow.outcome.user = {
             email:    user.email,
             username: user.username,
@@ -263,7 +265,9 @@ exports.login = function(req, res, next) {
           }
 
           var gravatarHash = require('crypto').createHash('md5').update(user.email).digest('hex');
-          workflow.outcome.sid = req.sessionID;
+          var sid = signature.sign(req.sessionID, req.app.config.cryptoKey);
+
+          workflow.outcome.sid = sid;
           workflow.outcome.user = {
             email:    user.email,
             username: user.username,
@@ -634,9 +638,11 @@ var loginSocial = function(req, res, workflow) {
       workflow.user.avatar = 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g';
     }
 
+    var sid = signature.sign(req.sessionID, req.app.config.cryptoKey);
+
     workflow.outcome.success = !workflow.hasErrors();
     workflow.outcome.allowDomain = req.app.config.allowDomain;
-    workflow.outcome.sid = req.sessionID;
+    workflow.outcome.sid = sid;
     workflow.outcome.user = {
       email:    workflow.user.email,
       username: workflow.user.username,
@@ -663,7 +669,9 @@ exports.readProfile = function(req, res, next) {
 
   var getRecord = function(callback) {
     var collection = req.app.db.collection('sessions');
-    collection.find({_id: req.query.sid}).toArray(function(err, record) {
+    var sid = signature.unsign(req.query.sid, req.app.config.cryptoKey);
+
+    collection.find({_id: sid}).toArray(function(err, record) {
       if (err) {
         return callback(err, null);
       }
@@ -683,7 +691,9 @@ exports.readProfile = function(req, res, next) {
 
   var getUserFields = function(callback) {
     var collection = req.app.db.collection('sessions');
-    collection.find({_id: req.query.sid}).toArray(function(err, record) {
+    var sid = signature.unsign(req.query.sid, req.app.config.cryptoKey);
+
+    collection.find({_id: sid}).toArray(function(err, record) {
       if (err) {
         return callback(err, null);
       }
@@ -742,7 +752,9 @@ exports.updateProfile = function(req, res, next) {
 
   workflow.on('getUID', function(callback) {
     var collection = req.app.db.collection('sessions');
-    collection.find({_id: req.body.sid}).toArray(function(err, record) {
+    var sid = signature.unsign(req.body.sid, req.app.config.cryptoKey);
+
+    collection.find({_id: sid}).toArray(function(err, record) {
       if (err) {
         return callback(err, null);
       }

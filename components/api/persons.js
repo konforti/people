@@ -1,5 +1,7 @@
 'use strict';
 
+var signature = require('cookie-signature');
+
 /**
  * List all users.
  * @param req
@@ -116,14 +118,20 @@ exports.read = function(req, res, next) {
  * @param res
  * @param next
  */
-exports.readCurrent = function(req, res, next) {
+exports.readCurrent = function(req, res, next) {console.log(req.params);
   var outcome = {};
 
   var getRecord = function(callback) {
     var collection = req.app.db.collection('sessions');
-    collection.find({_id: req.params.sid}).toArray(function(err, record) {
+    var sid = signature.unsign(req.params.sid, req.app.config.cryptoKey);
+
+    collection.find({_id: sid}).toArray(function(err, record) {
       if (err) {
         return callback(err, null);
+      }
+
+      if (!record || !record[0]) {
+        return callback('No Record', null);
       }
       var session = JSON.parse(record[0].session);
       req.app.db.models.User.findById(session.passport.user).populate('roles', 'name').exec(function(err, record) {
@@ -138,10 +146,17 @@ exports.readCurrent = function(req, res, next) {
 
   var getUserFields = function(callback) {
     var collection = req.app.db.collection('sessions');
-    collection.find({_id: req.params.sid}).toArray(function(err, record) {
+    var sid = signature.unsign(req.params.sid, req.app.config.cryptoKey);
+
+    collection.find({_id: sid}).toArray(function(err, record) {
       if (err) {
         return callback(err, null);
       }
+
+      if (!record || !record[0]) {
+        return callback('No Record', null);
+      }
+
       var session = JSON.parse(record[0].session);
       req.app.db.models.UserMeta.find({user: session.passport.user}).exec(function(err, fields) {
         if (err) {
