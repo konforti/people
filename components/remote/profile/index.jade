@@ -1,0 +1,25 @@
+div.row
+  div.col-sm-8
+    div#header
+    div.page-header
+      h1
+        a(href='/admin/users/') Users
+        |  / #{data.record.username}
+    form#profile
+      div.form-role
+        label Username:
+        input.form-control(type='text', name='username', value!='#{data.record.username}')
+        span.help-block
+      div.form-role
+        label Email:
+        input.form-control(type='text', name='email', value!='#{data.record.email}')
+        span.help-block
+      for field in data.fields
+        div.form-role
+          label #{field.name}:
+          input.form-control(type='text', name='#{field.key}', value!='#{field.value}')
+          span.help-block
+      div.form-role
+        button#update-btn.btn.btn-primary.btn-update(type='button') Update
+
+  //script(type='text/template', id='data-record') !{data.record}

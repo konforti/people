@@ -48,20 +48,20 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser(config.cryptoKey));
 app.use(session({
-  resave: true,
-  saveUninitialized: true,
+  resave: false,
+  saveUninitialized: false,
   secret: config.cryptoKey,
   store: new mongoStore({ url: config.mongodb.uri })
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(function(req, res, next){
+app.use(function(req, res, next) {
   for(var path, i = 0; path = config.csrfExclusion[i]; i++) {
-    if (req.path.indexOf(path) !== -1) {
+    if (req.path.indexOf(path) === 0) {
       var exclude = true;
       break;
     }
-  };
+  }
   if (typeof exclude !== 'undefined') {
     req.csrfToken = function() {return '';};
     next();
@@ -90,8 +90,9 @@ app.locals.cacheBreaker = 'br34k-01';
 //CORS middleware
 var allowCrossDomain = function(req, res, next) {
   res.header('Access-Control-Allow-Origin', config.allowDomain);
-  res.header('Access-Control-Allow-Methods', 'GET, POST');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
+  //res.header('Access-Control-Allow-Credentials', 'true');
 
   next();
 }

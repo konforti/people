@@ -1,5 +1,10 @@
 'use strict';
 
+/**
+ *
+ * @param req
+ * @param res
+ */
 exports.info = function(req, res) {
   var workflow = req.app.utility.workflow(req, res);
   workflow.on('validate', function() {
@@ -23,6 +28,11 @@ exports.info = function(req, res) {
   workflow.emit('validate');
 };
 
+/**
+ *
+ * @param req
+ * @param res
+ */
 exports.signup = function(req, res) {
   var workflow = req.app.utility.workflow(req, res);
 
@@ -154,7 +164,7 @@ exports.signup = function(req, res) {
           workflow.outcome.user = {
             email:    user.email,
             username: user.username,
-            gravatar: 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g'
+            avatar: 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g'
           };
           workflow.emit('response');
         });
@@ -165,7 +175,12 @@ exports.signup = function(req, res) {
   workflow.emit('validate');
 };
 
-exports.login = function(req, res) {
+/**
+ *
+ * @param req
+ * @param res
+ */
+exports.login = function(req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function() {
@@ -252,8 +267,9 @@ exports.login = function(req, res) {
           workflow.outcome.user = {
             email:    user.email,
             username: user.username,
-            gravatar: 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g'
+            avatar: 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g'
           };
+
           workflow.emit('response');
         });
       }
@@ -263,6 +279,12 @@ exports.login = function(req, res) {
   workflow.emit('validate');
 };
 
+/**
+ *
+ * @param req
+ * @param res
+ * @param next
+ */
 exports.signupTwitter = function(req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
   req._passport.instance.authenticate('twitter', {callbackURL: '/remote/signup/twitter/callback/'}, function(err, user, info) {
@@ -300,6 +322,12 @@ exports.signupTwitter = function(req, res, next) {
   })(req, res, next);
 };
 
+/**
+ *
+ * @param req
+ * @param res
+ * @param next
+ */
 exports.signupGitHub = function(req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
   req._passport.instance.authenticate('github', {callbackURL: '/remote/signup/github/callback/'}, function(err, user, info) {
@@ -337,6 +365,12 @@ exports.signupGitHub = function(req, res, next) {
   })(req, res, next);
 };
 
+/**
+ *
+ * @param req
+ * @param res
+ * @param next
+ */
 exports.signupFacebook = function(req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
   req._passport.instance.authenticate('facebook', {callbackURL: '/remote/signup/facebook/callback/'}, function(err, user, info) {
@@ -374,6 +408,12 @@ exports.signupFacebook = function(req, res, next) {
   })(req, res, next);
 };
 
+/**
+ *
+ * @param req
+ * @param res
+ * @param next
+ */
 exports.signupGoogle = function(req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
   req._passport.instance.authenticate('google', {callbackURL: '/remote/signup/google/callback/'}, function(err, user, info) {
@@ -411,6 +451,12 @@ exports.signupGoogle = function(req, res, next) {
   })(req, res, next);
 };
 
+/**
+ *
+ * @param req
+ * @param res
+ * @param next
+ */
 exports.signupTumblr = function(req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
   req._passport.instance.authenticate('tumblr', {callbackURL: '/remote/signup/tumblr/callback/'}, function(err, user, info) {
@@ -497,22 +543,21 @@ var signupSocial = exports.signupSocial = function(req, res, next) {
   });
 
   workflow.on('duplicateEmailCheck', function() {
-    var email =
-      req.app.db.models.User.findOne({email: workflow.email.toLowerCase()}, function(err, user) {
-        if (err) {
-          return workflow.emit('exception', err);
-        }
+    req.app.db.models.User.findOne({email: workflow.email.toLowerCase()}, function(err, user) {
+      if (err) {
+        return workflow.emit('exception', err);
+      }
 
-        if (user) {
-          workflow.outcome.errfor.email = 'email already registered';
-        }
+      if (user) {
+        workflow.outcome.errfor.email = 'email already registered';
+      }
 
-        if (workflow.hasErrors()) {
-          return workflow.emit('response');
-        }
+      if (workflow.hasErrors()) {
+        return workflow.emit('response');
+      }
 
-        workflow.emit('createUser');
-      });
+      workflow.emit('createUser');
+    });
   });
 
   workflow.on('createUser', function() {
@@ -586,7 +631,7 @@ var loginSocial = function(req, res, workflow) {
     }
     else {
       var gravatarHash = require('crypto').createHash('md5').update(req.email).digest('hex');
-      workflow.user.avatar = 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g'
+      workflow.user.avatar = 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g';
     }
 
     workflow.outcome.success = !workflow.hasErrors();
@@ -606,4 +651,158 @@ var loginSocial = function(req, res, workflow) {
       workflow.emit('response');
     }
   });
-}
+};
+
+/**
+ * Profile().
+ * @param req
+ * @param res
+ */
+exports.readProfile = function(req, res, next) {
+  var outcome = {};
+
+  var getRecord = function(callback) {
+    var collection = req.app.db.collection('sessions');
+    collection.find({_id: req.query.sid}).toArray(function(err, record) {
+      if (err) {
+        return callback(err, null);
+      }
+      if (record && record[0]) {
+        var session = JSON.parse(record[0].session);
+
+        req.app.db.models.User.findById(session.passport.user).exec(function(err, record) {
+          if (err) {
+            return callback(err);
+          }
+          outcome.record = record;
+          return callback(null, 'done');
+        });
+      }
+    });
+  };
+
+  var getUserFields = function(callback) {
+    var collection = req.app.db.collection('sessions');
+    collection.find({_id: req.query.sid}).toArray(function(err, record) {
+      if (err) {
+        return callback(err, null);
+      }
+
+      if (record && record[0]) {
+        var session = JSON.parse(record[0].session);
+        req.app.db.models.UserMeta.find({user: session.passport.user}).exec(function(err, fields) {
+          if (err) {
+            return callback(err, null);
+          }
+
+          outcome.fields = [];
+          for (var i = 0, field; field = req.app.config.fields[i]; ++i) {
+            outcome.fields[i] = field;
+            outcome.fields[i].value = typeof fields[i] !== 'undefined' ? fields[i].value : '';
+          }
+
+          return callback(null, 'done');
+        });
+      }
+    });
+  };
+
+  var asyncFinally = function(err, results) {
+    if (err) {
+      return next(err);
+    }
+
+    req.app.render('../remote/profile/index', {
+        data: {
+          record: outcome.record,
+          fields: outcome.fields
+        }
+      }, function(err, html) {
+
+        res.send(html);
+      }
+    );
+  };
+
+  require('async').parallel([getRecord, getUserFields], asyncFinally);
+};
+
+/**
+ * Update a user.
+ * @param req
+ * @param res
+ * @param next
+ */
+exports.updateProfile = function(req, res, next) {
+  var workflow = req.app.utility.workflow(req, res);
+
+  workflow.on('validate', function() {
+    workflow.emit('getUID');
+  });
+
+  workflow.on('getUID', function(callback) {
+    var collection = req.app.db.collection('sessions');
+    collection.find({_id: req.body.sid}).toArray(function(err, record) {
+      if (err) {
+        return callback(err, null);
+      }
+
+      if (record && record[0]) {
+        var session = JSON.parse(record[0].session);
+        workflow.emit('patchUser', session.passport.user);
+      }
+    });
+  });
+
+  workflow.on('patchUser', function(uid) {
+    var fieldsToSet = {};
+
+    fieldsToSet.username = req.body.username;
+    fieldsToSet.email = req.body.email;
+
+    req.app.db.models.User.findByIdAndUpdate(uid, fieldsToSet, function(err, user) {
+      if (err) {
+        return workflow.emit('exception', err);
+      }
+
+      workflow.outcome.record = user;
+      return workflow.emit('response');
+    });
+
+    workflow.emit('patchUFields', uid);
+  });
+
+  workflow.on('patchFields', function(uid) {
+    workflow.outcome.fields = [];
+    var fields = req.app.config.fields;
+
+    for (var i = 0, field; field = fields[i]; ++i) {
+
+      var extraFieldsToSet = {};
+      if (typeof req.body[field.key] !== 'undefined') {
+        extraFieldsToSet.key = field.key;
+        extraFieldsToSet.value = req.body[field.key];
+      }
+
+      req.app.db.models.UserMeta.findOneAndUpdate({user: uid, key: field.key}, extraFieldsToSet, {upsert: true}, function(err, userField) {
+        if (err) {
+          return workflow.emit('exception', err);
+        }
+
+        workflow.outcome.fields += userField;
+      });
+    }
+
+    req.app.render('../remote/profile/index', {
+        data: {
+          record: workflow.outcome.record,
+          fields: workflow.outcome.fields
+        }
+      }, function(err, html) {
+        res.send(html);
+      }
+    );
+  });
+
+  workflow.emit('validate');
+};

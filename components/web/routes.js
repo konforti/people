@@ -51,6 +51,8 @@ exports = module.exports = function(app, passport) {
   app.get('/signup/github/callback/', require('./signup/index').signupGitHub);
   app.get('/signup/facebook/', passport.authenticate('facebook', { callbackURL: '/signup/facebook/callback/', scope: ['email'] }));
   app.get('/signup/facebook/callback/', require('./signup/index').signupFacebook);
+
+
   app.get('/signup/google/', passport.authenticate('google', { callbackURL: '/signup/google/callback/', scope: ['profile email'] }));
   app.get('/signup/google/callback/', require('./signup/index').signupGoogle);
   app.get('/signup/tumblr/', passport.authenticate('tumblr', { callbackURL: '/signup/tumblr/callback/' }));

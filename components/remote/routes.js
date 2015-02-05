@@ -5,7 +5,7 @@
  * @type {Function}
  */
 exports = module.exports = function(app, passport) {
-
+  //app.all('/remote*', checkSess);
   // Remote info.
   app.get('/remote/info/', require('./index').info);
 
@@ -38,5 +38,10 @@ exports = module.exports = function(app, passport) {
 
   app.get('/remote/signup/tumblr/', passport.authenticate('tumblr', { callbackURL: '/remote/signup/tumblr/callback/' }));
   app.get('/remote/signup/tumblr/callback/', require('./index').signupTumblr);
+
+  // Profile form.
+  app.get('/remote/profile/', require('./index').readProfile);
+  app.post('/remote/profile/', require('./index').updateProfile);
+
 
 };

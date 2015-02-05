@@ -11,6 +11,10 @@
   padding: 50px;
 }
 
+#people-dash .people-block #user-avatar img {
+  width: 100px;
+}
+
 #people-dash .form-field {
   margin: 10px 0;
 }
