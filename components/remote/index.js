@@ -668,52 +668,29 @@ exports.readProfile = function(req, res, next) {
   var outcome = {};
 
   var getRecord = function(callback) {
-    var collection = req.app.db.collection('sessions');
-    var sid = signature.unsign(req.query.sid, req.app.config.cryptoKey);
-
-    collection.find({_id: sid}).toArray(function(err, record) {
+    console.log(req.session);
+    req.app.db.models.User.findById(req.session.passport.user).exec(function(err, record) {
       if (err) {
-        return callback(err, null);
+        return callback(err);
       }
-      if (record && record[0]) {
-        var session = JSON.parse(record[0].session);
-
-        req.app.db.models.User.findById(session.passport.user).exec(function(err, record) {
-          if (err) {
-            return callback(err);
-          }
-          outcome.record = record;
-          return callback(null, 'done');
-        });
-      }
+      outcome.record = record;
+      return callback(null, 'done');
     });
   };
 
   var getUserFields = function(callback) {
-    var collection = req.app.db.collection('sessions');
-    var sid = signature.unsign(req.query.sid, req.app.config.cryptoKey);
-
-    collection.find({_id: sid}).toArray(function(err, record) {
+    req.app.db.models.UserMeta.find({user: req.session.passport.user}).exec(function(err, fields) {
       if (err) {
         return callback(err, null);
       }
 
-      if (record && record[0]) {
-        var session = JSON.parse(record[0].session);
-        req.app.db.models.UserMeta.find({user: session.passport.user}).exec(function(err, fields) {
-          if (err) {
-            return callback(err, null);
-          }
-
-          outcome.fields = [];
-          for (var i = 0, field; field = req.app.config.fields[i]; ++i) {
-            outcome.fields[i] = field;
-            outcome.fields[i].value = typeof fields[i] !== 'undefined' ? fields[i].value : '';
-          }
-
-          return callback(null, 'done');
-        });
+      outcome.fields = [];
+      for (var i = 0, field; field = req.app.config.fields[i]; ++i) {
+        outcome.fields[i] = field;
+        outcome.fields[i].value = typeof fields[i] !== 'undefined' ? fields[i].value : '';
       }
+
+      return callback(null, 'done');
     });
   };
 
@@ -760,23 +737,7 @@ exports.updateProfile = function(req, res, next) {
       return workflow.emit('response');
     }
 
-    workflow.emit('getUID');
-  });
-
-  workflow.on('getUID', function(callback) {
-    var collection = req.app.db.collection('sessions');
-    var sid = signature.unsign(req.body.sid, req.app.config.cryptoKey);
-
-    collection.find({_id: sid}).toArray(function(err, record) {
-      if (err) {
-        return callback(err, null);
-      }
-
-      if (record && record[0]) {
-        var session = JSON.parse(record[0].session);
-        workflow.emit('patchUser', session.passport.user);
-      }
-    });
+    workflow.emit('patchUser');
   });
 
   workflow.on('patchUser', function(uid) {
@@ -785,7 +746,7 @@ exports.updateProfile = function(req, res, next) {
     fieldsToSet.username = req.body.username;
     fieldsToSet.email = req.body.email;
 
-    req.app.db.models.User.findByIdAndUpdate(uid, fieldsToSet, function(err, user) {
+    req.app.db.models.User.findByIdAndUpdate(req.session.passport.user, fieldsToSet, function(err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -818,7 +779,7 @@ exports.updateProfile = function(req, res, next) {
       });
     }
 
-    var csrfToken = crypto.pseudoRandomBytes(8).toString('hex');
+    var csrfToken = crypto.pseudoRandomBytes(16).toString('hex');
     req.session.remoteToken = csrfToken;
 
     req.app.render('../remote/profile/index', {
