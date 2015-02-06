@@ -14,16 +14,10 @@ exports.forgot = function(req, res, next){
 
   workflow.on('generateToken', function() {
       var crypto = require('crypto');
-      crypto.randomBytes(8, function(err, buf) {
-        if (err) {
-          return next(err);
-        }
-
-        var token = buf.toString('hex');
-        req.app.db.models.User.encryptResetToken(token, function(hash) {
-          workflow.emit('patchUser', token, hash);
-        });
-      });
+    var token = crypto.pseudoRandomBytes(8).toString('hex');
+    req.app.db.models.User.encryptResetToken(token, function(hash) {
+      workflow.emit('patchUser', token, hash);
+    });
     });
 
     workflow.on('patchUser', function(token, hash) {

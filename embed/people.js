@@ -44,6 +44,7 @@ var people = people || {};
       }
     };
 
+    httpRequest.withCredentials = true;
     httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     httpRequest.send(body);
   };

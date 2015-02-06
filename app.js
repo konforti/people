@@ -67,7 +67,9 @@ app.use(function(req, res, next) {
     next();
   }
   else {
-    (csrf())(req, res, next);
+    (csrf({value: function(req) {
+      return req.cookies._csrfToken;
+    }}))(req, res, next);
   }
 });
 helmet(app);
@@ -92,7 +94,7 @@ var allowCrossDomain = function(req, res, next) {
   res.header('Access-Control-Allow-Origin', config.allowDomain);
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
-  //res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Credentials', 'true');
 
   next();
 }

@@ -1,5 +1,5 @@
 'use strict';
-
+var crypto = require('crypto');
 var signature = require('cookie-signature');
 
 /**
@@ -159,7 +159,7 @@ exports.signup = function(req, res) {
             return workflow.emit('exception', err);
           }
 
-          var gravatarHash = require('crypto').createHash('md5').update(req.email).digest('hex');
+          var gravatarHash = crypto.createHash('md5').update(req.email).digest('hex');
           var sid = signature.sign(req.sessionID, req.app.config.cryptoKey);
 
           workflow.outcome.sid = sid;
@@ -264,7 +264,7 @@ exports.login = function(req, res, next) {
             return workflow.emit('exception', err);
           }
 
-          var gravatarHash = require('crypto').createHash('md5').update(user.email).digest('hex');
+          var gravatarHash = crypto.createHash('md5').update(user.email).digest('hex');
           var sid = signature.sign(req.sessionID, req.app.config.cryptoKey);
 
           workflow.outcome.sid = sid;
@@ -634,7 +634,7 @@ var loginSocial = function(req, res, workflow) {
       workflow.user.avatar = req.session.socialProfile.avatar;
     }
     else {
-      var gravatarHash = require('crypto').createHash('md5').update(req.email).digest('hex');
+      var gravatarHash = crypto.createHash('md5').update(req.email).digest('hex');
       workflow.user.avatar = 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g';
     }
 

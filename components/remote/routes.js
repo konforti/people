@@ -8,11 +8,39 @@
  * @returns {*}
  */
 function unsaveUninitialized(req, res, next) {
-  if (req.url.indexOf('/remote/login/') !== 0 && req.url.indexOf('/remote/signup/') !== 0) {
-    if (Object.keys(req.session.passport).length === 0) {
-      delete req.session.passport;
+  //if (!req.query.sid && !req.body.sid) {
+    if (req.url.indexOf('/remote/login/') !== 0 && req.url.indexOf('/remote/signup/') !== 0) {
+      if (Object.keys(req.session.passport).length === 0) {
+        delete req.session.passport;
+      }
     }
-  }
+  //}
+  //else {
+  //  var signature = require('cookie-signature');
+  //  var collection = req.app.db.collection('sessions');
+  //  var cookie = req.body.sid || req.query.sid;
+  //  var sid = signature.unsign(cookie, req.app.config.cryptoKey);
+  //
+  //  collection.find({_id: sid}).toArray(function(err, record) {
+  //    if (err) {
+  //      return;
+  //    }
+  //
+  //    if (record && record[0]) {
+  //      console.log(req.sessionID);
+  //      console.log(req.session);
+  //      req.sessionID = record[0]._id;
+  //      //var session = JSON.parse(record[0].session);
+  //      //req.session.passport = session.passport;
+  //      console.log(req.sessionID);
+  //      console.log(req.session);
+  //      console.log(req._passport);
+  //
+  //    }
+  //
+  //
+  //  });
+  //}
 
   return next();
 }

@@ -118,7 +118,7 @@ exports.read = function(req, res, next) {
  * @param res
  * @param next
  */
-exports.readCurrent = function(req, res, next) {console.log(req.params);
+exports.readCurrent = function(req, res, next) {
   var outcome = {};
 
   var getRecord = function(callback) {
@@ -257,7 +257,7 @@ exports.updateFields = function(req, res, next){
       });
     }
 
-    require('./persons').read(req, res, next);
+    exports.read(req, res, next);
     //return workflow.emit('response');
   });
 
