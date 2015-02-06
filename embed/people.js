@@ -419,6 +419,5 @@ var people = people || {};
 
   if (!people.getCookie('people.sid')) {
     localStorage.removeItem('people.user');
-    localStorage.removeItem('people.info');
   }
 })();
