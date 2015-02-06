@@ -24,7 +24,7 @@ function unsaveUninitialized(req, res, next) {
 exports = module.exports = function(app, passport) {
 
   // Prevent empty sessions store.
-  app.all('/remote*', unsaveUninitialized);
+  //app.all('/remote*', unsaveUninitialized);
 
   // Remote info.
   app.get('/remote/info/', require('./index').info);

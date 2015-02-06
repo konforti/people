@@ -722,8 +722,12 @@ exports.readProfile = function(req, res, next) {
       return next(err);
     }
 
+    var csrfToken = crypto.pseudoRandomBytes(16).toString('hex');
+    req.session.remoteToken = csrfToken;
+
     req.app.render('../remote/profile/index', {
         data: {
+          csrfToken: csrfToken,
           record: outcome.record,
           fields: outcome.fields
         }
@@ -747,6 +751,15 @@ exports.updateProfile = function(req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function() {
+
+    if (req.body.csrf !== req.session.remoteToken) {
+      workflow.outcome.errfor.form = 'invalid csrf token';
+    }
+
+    if (workflow.hasErrors()) {
+      return workflow.emit('response');
+    }
+
     workflow.emit('getUID');
   });
 
@@ -805,8 +818,12 @@ exports.updateProfile = function(req, res, next) {
       });
     }
 
+    var csrfToken = crypto.pseudoRandomBytes(8).toString('hex');
+    req.session.remoteToken = csrfToken;
+
     req.app.render('../remote/profile/index', {
         data: {
+          csrfToken: csrfToken,
           record: workflow.outcome.record,
           fields: workflow.outcome.fields
         }

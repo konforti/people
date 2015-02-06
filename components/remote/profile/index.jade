@@ -2,6 +2,8 @@ div.title
   h2 #{data.record.username}
 form#profile
   div.form-role
+    input.form-control(type='hidden', name='csrf', value!='#{data.csrfToken}')
+  div.form-role
     label Username:
     input.form-control(type='text', name='username', value!='#{data.record.username}')
     span.help-block

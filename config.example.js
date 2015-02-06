@@ -16,7 +16,7 @@ exports.loginAttempts = {
   logExpiration: '20m'
 };
 exports.allowDomain = 'http://people.lh';// Changes this.
-exports.csrfExclusion = ['/api/'];
+exports.csrfExclusion = ['/remote/','/api/'];
 exports.requireAccountVerification = false;
 exports.smtp = {
   from: {
