@@ -188,7 +188,7 @@ var people = people || {};
     loginHTML += '</form>';
     loginHTML += '<h4>Or login using: </h4>';
     for (var i = 0, name; name = socials[i]; ++i ) {
-      loginHTML += '<a class="social-login" id="login-'+ name +'" href="javascript:void(0)">' + name.charAt(0).toUpperCase() + name.slice(1) + '</a>';
+      loginHTML += '<a class="social-login" id="login-'+ name +'" href="javascript:void(0)">' + name.charAt(0).toUpperCase() + name.slice(1) + '</a> ';
     }
     loginHTML += '<div>New here? <a class="to-register" href="javascript:void(0)">Register</a></div>';
 
@@ -276,16 +276,20 @@ var people = people || {};
   /**
    * Logged-in user profile.
    */
-  people.userProfile = function() {
+  people.userProfile = function(data) {
     if (people.getCookie('people.sid')) {
       var user = JSON.parse(localStorage.getItem('people.user'));
       if (user) {
-        var html = '';
-        people.makeRequest('GET', people.baseUrl + '/remote/profile/', {sid: people.getCookie('people.sid')}, function(data) {
-          html = data.responseText;
+        if (data && data.html) {
           var el = document.getElementById("people-profile");
-          if (el) el.innerHTML = html;
-        });
+          if (el) el.innerHTML = data.html;
+        }
+        else {
+          people.makeRequest('GET', people.baseUrl + '/remote/profile/', {sid: people.getCookie('people.sid')}, function(data) {
+            var el = document.getElementById("people-profile");
+            if (el) el.innerHTML = data.responseText;
+          });
+        }
       }
     }
   };
@@ -343,7 +347,7 @@ var people = people || {};
           email: document.getElementById("forgot-email").value
         }, function(data) {
           if (JSON.parse(data.responseText).success === true) {
-            people.loginBlock('reset');
+            people.loginBlock({form: 'reset'});
           }
         });
         break;
@@ -359,15 +363,30 @@ var people = people || {};
         });
         break;
 
-      case 'update-btn':
+      case 'update-profile-btn':
         var elms = document.querySelectorAll('form#profile input');
         var values = {sid: people.getCookie('people.sid')};
         for (var i = 0, el; el = elms[i]; ++i ) {
           values[el.name] = el.value;
         }
         people.makeRequest('POST', people.baseUrl + '/remote/profile/', values, function(data) {
-          if (JSON.parse(data.responseText).success === true) {
-            people.userProfile();
+          data = JSON.parse(data.responseText);
+          if (data.success === true) {
+            people.userProfile(data);
+          }
+        });
+        break;
+
+      case 'update-password-btn':
+        var elms = document.querySelectorAll('form#password input');
+        var values = {sid: people.getCookie('people.sid')};
+        for (var i = 0, el; el = elms[i]; ++i ) {
+          values[el.name] = el.value;
+        }
+        people.makeRequest('POST', people.baseUrl + '/remote/password/', values, function(data) {
+          data = JSON.parse(data.responseText);
+          if (data.success === true) {
+            people.userProfile(data);
           }
         });
         break;
@@ -395,11 +414,11 @@ var people = people || {};
         break;
 
       case 'to-register':
-        people.loginBlock({register: true});
+        people.loginBlock({form: 'register'});
         break;
 
       case 'to-forgot':
-        people.loginBlock('forgot');
+        people.loginBlock({form: 'forgot'});
         break;
 
       case 'to-logout':

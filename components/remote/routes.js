@@ -62,6 +62,7 @@ exports = module.exports = function(app, passport) {
   // Profile form.
   app.get('/remote/profile/', require('./index').readProfile);
   app.post('/remote/profile/', require('./index').updateProfile);
+  app.post('/remote/password/', require('./index').updatePassword);
 
 
 };

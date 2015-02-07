@@ -1,8 +1,7 @@
 div.title
   h2 #{data.record.username}
 form#profile
-  div.form-role
-    input.form-control(type='hidden', name='csrf', value!='#{data.csrfToken}')
+  input.form-control(type='hidden', name='csrf', value!='#{data.csrfToken}')
   div.form-role
     label Username:
     input.form-control(type='text', name='username', value!='#{data.record.username}')
@@ -17,6 +16,20 @@ form#profile
       input.form-control(type='text', name='#{field.key}', value!='#{field.value}')
       span.help-block
   div.form-role
-    button#update-btn.btn.btn-primary.btn-update(type='button') Update
+    button#update-profile-btn.btn.btn-primary.btn-update(type='button') Update profile
+
+h4 Change Password
+form#password
+  input.form-control(type='hidden', name='csrf', value!='#{data.csrfToken}')
+  div.form-role
+    label New Password:
+    input.form-control(type='password', name='newPassword', value!='')
+    span.help-block
+  div.form-role
+    label Confirm new Password:
+    input.form-control(type='password', name='confirm', value!='')
+    span.help-block
+  div.form-role
+    button#update-password-btn.btn.btn-primary.btn-password(type='button') Update Password
 
   //script(type='text/template', id='data-record') !{data.record}

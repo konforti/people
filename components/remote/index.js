@@ -668,7 +668,6 @@ exports.readProfile = function(req, res, next) {
   var outcome = {};
 
   var getRecord = function(callback) {
-    console.log(req.session);
     req.app.db.models.User.findById(req.session.passport.user).exec(function(err, record) {
       if (err) {
         return callback(err);
@@ -719,7 +718,7 @@ exports.readProfile = function(req, res, next) {
 };
 
 /**
- * Update a user.
+ * Update a user profile.
  * @param req
  * @param res
  * @param next
@@ -731,6 +730,10 @@ exports.updateProfile = function(req, res, next) {
 
     if (req.body.csrf !== req.session.remoteToken) {
       workflow.outcome.errfor.form = 'invalid csrf token';
+    }
+
+    if (req.sessionID !== req.body.sid) {
+      workflow.outcome.errfor.session = 'invalid session';
     }
 
     if (workflow.hasErrors()) {
@@ -789,7 +792,94 @@ exports.updateProfile = function(req, res, next) {
           fields: workflow.outcome.fields
         }
       }, function(err, html) {
-        res.send(html);
+        delete workflow.outcome.record;
+        delete workflow.outcome.fields;
+        workflow.outcome.html = html;
+        workflow.emit('response');
+      }
+    );
+  });
+
+  workflow.emit('validate');
+};
+
+/**
+ * Update a user password.
+ * @param req
+ * @param res
+ * @param next
+ */
+exports.updatePassword = function(req, res, next) {
+  var workflow = req.app.utility.workflow(req, res);
+
+  workflow.on('validate', function() {
+
+    if (req.body.csrf !== req.session.remoteToken) {
+      workflow.outcome.errfor.form = 'invalid csrf token';
+    }
+
+    if (req.body.newPassword !== req.body.confirm) {
+      workflow.outcome.errfor.password = 'password not match';
+    }
+
+    if (req.sessionID !== signature.unsign(req.body.sid, req.app.config.cryptoKey)) {
+      workflow.outcome.errfor.session = 'invalid session';
+    }
+
+    if (workflow.hasErrors()) {
+      return workflow.emit('response');
+    }
+
+    workflow.emit('patchUser');
+  });
+
+  workflow.on('patchUser', function() {
+    var fieldsToSet = {};
+    req.app.db.models.User.encryptPassword(req.body.newPassword, function(err, hash) {
+      if (err) {
+        return workflow.emit('exception', err);
+      }
+
+      fieldsToSet.password = hash;
+      req.app.db.models.User.findByIdAndUpdate(req.session.passport.user, fieldsToSet, function(err, user) {
+        if (err) {
+          return workflow.emit('exception', err);
+        }
+
+        workflow.outcome.record = user;
+        workflow.emit('patchFields');
+      });
+    });
+  });
+
+  workflow.on('patchFields', function() {console.log('sddfg');
+    workflow.outcome.fields = [];
+    var fields = req.app.config.fields;
+
+    for (var i = 0, field; field = fields[i]; ++i) {
+      req.app.db.models.UserMeta.findOne({user: req.session.passport.user, key: field.key}, function(err, userField) {
+        if (err) {
+          return workflow.emit('exception', err);
+        }
+
+        workflow.outcome.fields += userField;
+      });
+    }
+
+    var csrfToken = crypto.pseudoRandomBytes(16).toString('hex');
+    req.session.remoteToken = csrfToken;
+
+    req.app.render('../remote/profile/index', {
+        data: {
+          csrfToken: csrfToken,
+          record: workflow.outcome.record,
+          fields: workflow.outcome.fields
+        }
+      }, function(err, html) {
+        delete workflow.outcome.record;
+        delete workflow.outcome.fields;
+        workflow.outcome.html = html;
+        workflow.emit('response');
       }
     );
   });

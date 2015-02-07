@@ -1,5 +1,7 @@
 'use strict';
 
+var crypto = require('crypto');
+
 exports.forgot = function(req, res, next){
   var workflow = req.app.utility.workflow(req, res);
 
@@ -13,11 +15,10 @@ exports.forgot = function(req, res, next){
   });
 
   workflow.on('generateToken', function() {
-      var crypto = require('crypto');
     var token = crypto.pseudoRandomBytes(8).toString('hex');
-    req.app.db.models.User.encryptResetToken(token, function(hash) {
-      workflow.emit('patchUser', token, hash);
-    });
+    var hash = crypto.createHash('sha1').update(token).digest('hex');
+
+    workflow.emit('patchUser', token, hash);
     });
 
     workflow.on('patchUser', function(token, hash) {
@@ -84,24 +85,23 @@ exports.forgotReset = function(req, res, next){
   });
 
   workflow.on('findUser', function() {
-    req.app.db.models.User.encryptResetToken(req.body.token, function(hash) {
-      var conditions = {
-        resetPasswordToken: hash,
-        resetPasswordExpires: { $gt: Date.now() }
-      };
+    var hash = crypto.createHash('sha1').update(req.body.token).digest('hex');
+    var conditions = {
+      resetPasswordToken: hash,
+      resetPasswordExpires: { $gt: Date.now() }
+    };
 
-      req.app.db.models.User.findOne(conditions, function(err, user) {
-        if (err) {
-          return workflow.emit('exception', err);
-        }
+    req.app.db.models.User.findOne(conditions, function(err, user) {
+      if (err) {
+        return workflow.emit('exception', err);
+      }
 
-        if (!user) {
-          workflow.outcome.errors.push('Invalid request.');
-          return workflow.emit('response');
-        }
+      if (!user) {
+        workflow.outcome.errors.push('Invalid request.');
+        return workflow.emit('response');
+      }
 
-        workflow.emit('patchUser', user);
-      });
+      workflow.emit('patchUser', user);
     });
   });
 
