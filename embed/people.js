@@ -139,7 +139,7 @@ var people = people || {};
   /**
    * Logout current user.
    */
-  people.Logout = function() {
+  people.logout = function() {
     people.eraseCookie('people.sid');
     localStorage.removeItem('people.user');
     people.loginBlock();
@@ -280,15 +280,16 @@ var people = people || {};
     if (people.getCookie('people.sid')) {
       var user = JSON.parse(localStorage.getItem('people.user'));
       if (user) {
-        if (data && data.html) {
-          var el = document.getElementById("people-profile");
-          if (el) el.innerHTML = data.html;
-        }
-        else {
-          people.makeRequest('GET', people.baseUrl + '/remote/profile/', {sid: people.getCookie('people.sid')}, function(data) {
-            var el = document.getElementById("people-profile");
-            if (el) el.innerHTML = data.responseText;
-          });
+        var el = document.getElementById("people-profile");
+        if (el) {
+          if (data && data.html) {
+            el.innerHTML = data.html;
+          }
+          else {
+            people.makeRequest('GET', people.baseUrl + '/remote/profile/', {sid: people.getCookie('people.sid')}, function(data) {
+              el.innerHTML = data.responseText;
+            });
+          }
         }
       }
     }
@@ -422,7 +423,15 @@ var people = people || {};
         break;
 
       case 'to-logout':
-        people.Logout();
+        people.logout();
+        break;
+
+      case 'verify-email':
+        people.makeRequest('POST', people.baseUrl + '/remote/verification/', {}, function(data) {
+          if (JSON.parse(data.responseText).success === true) {
+            // Message.
+          }
+        });
         break;
     }
   });

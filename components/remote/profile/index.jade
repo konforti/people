@@ -9,6 +9,8 @@ form#profile
   div.form-role
     label Email:
     input.form-control(type='text', name='email', value!='#{data.record.email}')
+    if !data.record.isVerified || data.record.isVerified === 'no'
+      span.verify-email Verify
     span.help-block
   for field in data.fields
     div.form-role

@@ -45,8 +45,8 @@ exports.forgot = function(req, res, next){
       from: req.app.config.smtp.from.name +' <'+ req.app.config.smtp.from.address +'>',
       to: user.email,
       subject: 'Reset your '+ req.app.config.projectName +' password',
-      textPath: 'remote/forgot/email-text',
-      htmlPath: 'remote/forgot/email-html',
+      textPath: '../remote/forgot/email-text',
+      htmlPath: '../remote/forgot/email-html',
       locals: {
         username: user.username,
         resetCode: token,
