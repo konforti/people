@@ -1,34 +1,34 @@
 'use strict';
 
-var sendVerificationEmail = function(req, res, options) {
+var sendVerificationEmail = function (req, res, options) {
   req.app.utility.sendmail(req, res, {
-    from: req.app.config.smtp.from.name +' <'+ req.app.config.smtp.from.address +'>',
+    from: req.app.config.smtp.from.name + ' <' + req.app.config.smtp.from.address + '>',
     to: options.email,
-    subject: 'Verify Your '+ req.app.config.projectName +' Account',
+    subject: 'Verify Your ' + req.app.config.projectName + ' Account',
     textPath: 'account/verification/email-text',
     htmlPath: 'account/verification/email-html',
     locals: {
-      verifyURL: req.protocol +'://'+ req.headers.host +'/account/verification/' + options.verificationToken + '/',
+      verifyURL: req.protocol + '://' + req.headers.host + '/account/verification/' + options.verificationToken + '/',
       projectName: req.app.config.projectName
     },
-    success: function() {
+    success: function () {
       options.onSuccess();
     },
-    error: function(err) {
+    error: function (err) {
       options.onError(err);
     }
   });
 };
 
-exports.init = function(req, res, next){
+exports.init = function (req, res, next) {
   if (req.user.isVerified === 'yes') {
     return res.redirect(req.user.defaultReturnUrl());
   }
 
   var workflow = req.app.utility.workflow(req, res);
 
-  workflow.on('renderPage', function() {
-    req.app.db.models.User.findById(req.user.id, 'email').exec(function(err, user) {
+  workflow.on('renderPage', function () {
+    req.app.db.models.User.findById(req.user.id, 'email').exec(function (err, user) {
       if (err) {
         return next(err);
       }
@@ -41,7 +41,7 @@ exports.init = function(req, res, next){
     });
   });
 
-  workflow.on('generateTokenOrRender', function() {
+  workflow.on('generateTokenOrRender', function () {
     if (req.user.verificationToken !== '') {
       return workflow.emit('renderPage');
     }
@@ -49,15 +49,15 @@ exports.init = function(req, res, next){
     workflow.emit('generateToken');
   });
 
-  workflow.on('generateToken', function() {
+  workflow.on('generateToken', function () {
     var crypto = require('crypto');
-    crypto.randomBytes(21, function(err, buf) {
+    crypto.randomBytes(21, function (err, buf) {
       if (err) {
         return next(err);
       }
 
       var token = buf.toString('hex');
-      req.app.db.models.User.encryptPassword(token, function(err, hash) {
+      req.app.db.models.User.encryptPassword(token, function (err, hash) {
         if (err) {
           return next(err);
         }
@@ -67,9 +67,9 @@ exports.init = function(req, res, next){
     });
   });
 
-  workflow.on('patchUser', function(token, hash) {
-    var fieldsToSet = { verificationToken: hash };
-    req.app.db.models.User.findByIdAndUpdate(req.user.id, fieldsToSet, function(err, user) {
+  workflow.on('patchUser', function (token, hash) {
+    var fieldsToSet = {verificationToken: hash};
+    req.app.db.models.User.findByIdAndUpdate(req.user.id, fieldsToSet, function (err, user) {
       if (err) {
         return next(err);
       }
@@ -77,10 +77,10 @@ exports.init = function(req, res, next){
       sendVerificationEmail(req, res, {
         email: req.user.email,
         verificationToken: token,
-        onSuccess: function() {
+        onSuccess: function () {
           return workflow.emit('renderPage');
         },
-        onError: function(err) {
+        onError: function (err) {
           return next(err);
         }
       });
@@ -90,14 +90,14 @@ exports.init = function(req, res, next){
   workflow.emit('generateTokenOrRender');
 };
 
-exports.resendVerification = function(req, res, next){
+exports.resendVerification = function (req, res, next) {
   if (req.user.isVerified === 'yes') {
     return res.redirect(req.user.defaultReturnUrl());
   }
 
   var workflow = req.app.utility.workflow(req, res);
 
-  workflow.on('validate', function() {
+  workflow.on('validate', function () {
     if (!req.body.email) {
       workflow.outcome.errfor.email = 'required';
     }
@@ -112,8 +112,11 @@ exports.resendVerification = function(req, res, next){
     workflow.emit('duplicateEmailCheck');
   });
 
-  workflow.on('duplicateEmailCheck', function() {
-    req.app.db.models.User.findOne({ email: req.body.email.toLowerCase(), _id: { $ne: req.user.id } }, function(err, user) {
+  workflow.on('duplicateEmailCheck', function () {
+    req.app.db.models.User.findOne({
+      email: req.body.email.toLowerCase(),
+      _id: {$ne: req.user.id}
+    }, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -127,9 +130,9 @@ exports.resendVerification = function(req, res, next){
     });
   });
 
-  workflow.on('patchUser', function() {
-    var fieldsToSet = { email: req.body.email.toLowerCase() };
-    req.app.db.models.User.findByIdAndUpdate(req.user.id, fieldsToSet, function(err, user) {
+  workflow.on('patchUser', function () {
+    var fieldsToSet = {email: req.body.email.toLowerCase()};
+    req.app.db.models.User.findByIdAndUpdate(req.user.id, fieldsToSet, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -139,15 +142,15 @@ exports.resendVerification = function(req, res, next){
     });
   });
 
-  workflow.on('generateToken', function() {
+  workflow.on('generateToken', function () {
     var crypto = require('crypto');
-    crypto.randomBytes(21, function(err, buf) {
+    crypto.randomBytes(21, function (err, buf) {
       if (err) {
         return next(err);
       }
 
       var token = buf.toString('hex');
-      req.app.db.models.User.encryptPassword(token, function(err, hash) {
+      req.app.db.models.User.encryptPassword(token, function (err, hash) {
         if (err) {
           return next(err);
         }
@@ -157,9 +160,9 @@ exports.resendVerification = function(req, res, next){
     });
   });
 
-  workflow.on('patchUser', function(token, hash) {
-    var fieldsToSet = { verificationToken: hash };
-    req.app.db.models.User.findByIdAndUpdate(req.user.id, fieldsToSet, function(err, user) {
+  workflow.on('patchUser', function (token, hash) {
+    var fieldsToSet = {verificationToken: hash};
+    req.app.db.models.User.findByIdAndUpdate(req.user.id, fieldsToSet, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -167,11 +170,11 @@ exports.resendVerification = function(req, res, next){
       sendVerificationEmail(req, res, {
         email: workflow.user.email,
         verificationToken: token,
-        onSuccess: function() {
+        onSuccess: function () {
           workflow.emit('response');
         },
-        onError: function(err) {
-          workflow.outcome.errors.push('Error Sending: '+ err);
+        onError: function (err) {
+          workflow.outcome.errors.push('Error Sending: ' + err);
           workflow.emit('response');
         }
       });
@@ -181,14 +184,14 @@ exports.resendVerification = function(req, res, next){
   workflow.emit('validate');
 };
 
-exports.verify = function(req, res, next){
-  req.app.db.models.User.validatePassword(req.params.token, req.user.verificationToken, function(err, isValid) {
+exports.verify = function (req, res, next) {
+  req.app.db.models.User.validatePassword(req.params.token, req.user.verificationToken, function (err, isValid) {
     if (!isValid) {
       return res.redirect(req.user.defaultReturnUrl());
     }
 
-    var fieldsToSet = { isVerified: 'yes', verificationToken: '' };
-    req.app.db.models.User.findByIdAndUpdate(req.user._id, fieldsToSet, function(err, account) {
+    var fieldsToSet = {isVerified: 'yes', verificationToken: ''};
+    req.app.db.models.User.findByIdAndUpdate(req.user._id, fieldsToSet, function (err, account) {
       if (err) {
         return next(err);
       }

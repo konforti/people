@@ -2,32 +2,57 @@
 
 var crypto = require('crypto');
 
-exports.forgot = function(req, res, next){
+exports.forgot = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
-  workflow.on('validate', function() {
+  workflow.on('validate', function () {
     if (!req.body.email) {
       workflow.outcome.errfor.email = 'required';
+    }
+    else if (!/^[a-zA-Z0-9\-\_\.\+]+@[a-zA-Z0-9\-\_\.]+\.[a-zA-Z0-9\-\_]+$/.test(req.body.email)) {
+      workflow.outcome.errfor.email = 'invalid email format';
+    }
+
+    if (workflow.hasErrors()) {
       return workflow.emit('response');
     }
 
-    workflow.emit('generateToken');
+    workflow.emit('emailExistCheck');
   });
 
-  workflow.on('generateToken', function() {
-    var token = crypto.pseudoRandomBytes(8).toString('hex');
-    var hash = crypto.createHash('sha1').update(token).digest('hex');
+  workflow.on('emailExistCheck', function () {
+    req.app.db.models.User.findOne({email: req.body.email.toLowerCase()}, function (err, user) {
+      if (err) {
+        return workflow.emit('exception', err);
+      }
 
-    workflow.emit('patchUser', token, hash);
+      if (!user) {
+        workflow.outcome.errfor.email = 'email not exist';
+        return workflow.emit('response');
+      }
+
+      workflow.emit('generateToken');
     });
+  });
 
-    workflow.on('patchUser', function(token, hash) {
-    var conditions = { email: req.body.email.toLowerCase() };
+  workflow.on('generateToken', function () {
+    crypto.randomBytes(384, function (err, buf) {
+      if (err) {
+        return next(err);
+      }
+      var token = buf.toString('base64');
+      var hash = crypto.createHmac('sha256', req.app.config.cryptoKey).update(token).digest('base64');
+      workflow.emit('patchUser', token, hash);
+    });
+  });
+
+  workflow.on('patchUser', function (token, hash) {
+    var conditions = {email: req.body.email.toLowerCase()};
     var fieldsToSet = {
       resetPasswordToken: hash,
-      resetPasswordExpires: Date.now() + 10000000
+      resetPasswordExpires: Date.now() + (60 * 60 * 1000)
     };
-    req.app.db.models.User.findOneAndUpdate(conditions, fieldsToSet, function(err, user) {
+    req.app.db.models.User.findOneAndUpdate(conditions, fieldsToSet, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -40,11 +65,11 @@ exports.forgot = function(req, res, next){
     });
   });
 
-  workflow.on('sendEmail', function(token, user) {
+  workflow.on('sendEmail', function (token, user) {
     req.app.utility.sendmail(req, res, {
-      from: req.app.config.smtp.from.name +' <'+ req.app.config.smtp.from.address +'>',
+      from: req.app.config.smtp.from.name + ' <' + req.app.config.smtp.from.address + '>',
       to: user.email,
-      subject: 'Reset your '+ req.app.config.projectName +' password',
+      subject: 'Reset your ' + req.app.config.projectName + ' password',
       textPath: '../remote/forgot/email-text',
       htmlPath: '../remote/forgot/email-html',
       locals: {
@@ -52,12 +77,12 @@ exports.forgot = function(req, res, next){
         resetCode: token,
         projectName: req.app.config.projectName
       },
-      success: function(message) {
-        workflow.emit('response');
+      success: function (message) {
+        return workflow.emit('response');
       },
-      error: function(err) {
-        workflow.outcome.errors.push('Error Sending: '+ err);
-        workflow.emit('response');
+      error: function (err) {
+        workflow.outcome.errors.push('Error Sending: ' + err);
+        return workflow.emit('response');
       }
     });
   });
@@ -65,10 +90,10 @@ exports.forgot = function(req, res, next){
   workflow.emit('validate');
 };
 
-exports.forgotReset = function(req, res, next){
+exports.forgotReset = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
-  workflow.on('validate', function() {
+  workflow.on('validate', function () {
     if (!req.body.token) {
       workflow.outcome.errfor.token = 'required';
     }
@@ -84,14 +109,13 @@ exports.forgotReset = function(req, res, next){
     workflow.emit('findUser');
   });
 
-  workflow.on('findUser', function() {
-    var hash = crypto.createHash('sha1').update(req.body.token).digest('hex');
+  workflow.on('findUser', function () {
+    var hash = crypto.createHmac('sha256', req.app.config.cryptoKey).update(req.body.token).digest('base64');
     var conditions = {
       resetPasswordToken: hash,
-      resetPasswordExpires: { $gt: Date.now() }
+      resetPasswordExpires: {$gt: Date.now()}
     };
-
-    req.app.db.models.User.findOne(conditions, function(err, user) {
+    req.app.db.models.User.findOne(conditions, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -105,14 +129,14 @@ exports.forgotReset = function(req, res, next){
     });
   });
 
-  workflow.on('patchUser', function(user) {
-    req.app.db.models.User.encryptPassword(req.body.password, function(err, hash) {
+  workflow.on('patchUser', function (user) {
+    req.app.db.models.User.encryptPassword(req.body.password, function (err, hash) {
       if (err) {
         return workflow.emit('exception', err);
       }
 
-      var fieldsToSet = { password: hash, resetPasswordToken: '' };
-      req.app.db.models.User.findByIdAndUpdate(user._id, fieldsToSet, function(err, user) {
+      var fieldsToSet = {password: hash, resetPasswordToken: ''};
+      req.app.db.models.User.findByIdAndUpdate(user._id, fieldsToSet, function (err, user) {
         if (err) {
           return workflow.emit('exception', err);
         }

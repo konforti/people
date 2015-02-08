@@ -7,13 +7,13 @@ var signature = require('cookie-signature');
  * @param req
  * @param res
  */
-exports.info = function(req, res) {
+exports.info = function (req, res) {
   var workflow = req.app.utility.workflow(req, res);
-  workflow.on('validate', function() {
+  workflow.on('validate', function () {
     workflow.emit('getInfo');
   });
 
-  workflow.on('getInfo', function() {
+  workflow.on('getInfo', function () {
     var socials = [];
     for (var name in req.app.config.oauth) {
       if (req.app.config.oauth[name].key) {
@@ -35,10 +35,10 @@ exports.info = function(req, res) {
  * @param req
  * @param res
  */
-exports.signup = function(req, res, next) {
+exports.signup = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
-  workflow.on('validate', function() {
+  workflow.on('validate', function () {
     if (!req.body.username) {
       workflow.outcome.errfor.username = 'required';
     }
@@ -64,8 +64,8 @@ exports.signup = function(req, res, next) {
     workflow.emit('duplicateUsernameCheck');
   });
 
-  workflow.on('duplicateUsernameCheck', function() {
-    req.app.db.models.User.findOne({username: req.body.username}, function(err, user) {
+  workflow.on('duplicateUsernameCheck', function () {
+    req.app.db.models.User.findOne({username: req.body.username}, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -79,8 +79,8 @@ exports.signup = function(req, res, next) {
     });
   });
 
-  workflow.on('duplicateEmailCheck', function() {
-    req.app.db.models.User.findOne({email: req.body.email.toLowerCase()}, function(err, user) {
+  workflow.on('duplicateEmailCheck', function () {
+    req.app.db.models.User.findOne({email: req.body.email.toLowerCase()}, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -94,19 +94,19 @@ exports.signup = function(req, res, next) {
     });
   });
 
-  workflow.on('createUser', function() {
-    req.app.db.models.User.encryptPassword(req.body.password, function(err, hash) {
+  workflow.on('createUser', function () {
+    req.app.db.models.User.encryptPassword(req.body.password, function (err, hash) {
       if (err) {
         return workflow.emit('exception', err);
       }
 
-      crypto.randomBytes(21, function(err, buf) {
+      crypto.randomBytes(21, function (err, buf) {
         if (err) {
           return next(err);
         }
 
         var token = buf.toString('hex');
-        req.app.db.models.User.encryptPassword(token, function(err, hash) {
+        req.app.db.models.User.encryptPassword(token, function (err, hash) {
           if (err) {
             return next(err);
           }
@@ -116,14 +116,14 @@ exports.signup = function(req, res, next) {
             isVerified: 'no',
             verificationToken: hash,
             username: req.body.username,
-            email:    req.body.email.toLowerCase(),
+            email: req.body.email.toLowerCase(),
             password: hash,
-            search:   [
+            search: [
               req.body.username,
               req.body.email
             ]
           };
-          req.app.db.models.User.create(fieldsToSet, function(err, user) {
+          req.app.db.models.User.create(fieldsToSet, function (err, user) {
             if (err) {
               return workflow.emit('exception', err);
             }
@@ -136,15 +136,15 @@ exports.signup = function(req, res, next) {
     });
   });
 
-  workflow.on('sendWelcomeEmail', function(token) {
+  workflow.on('sendWelcomeEmail', function (token) {
 
     require('../verification').sendVerificationEmail(req, res, {
       email: req.body.email.toLowerCase(),
       verificationToken: token,
-      onSuccess: function() {
+      onSuccess: function () {
         workflow.emit('logUserIn');
       },
-      onError: function(err) {
+      onError: function (err) {
         console.log('Error Sending Welcome Email: ' + err);
         workflow.emit('exception', err);
         workflow.emit('logUserIn');
@@ -152,8 +152,8 @@ exports.signup = function(req, res, next) {
     });
   });
 
-  workflow.on('logUserIn', function() {
-    req._passport.instance.authenticate('local', function(err, user, info) {
+  workflow.on('logUserIn', function () {
+    req._passport.instance.authenticate('local', function (err, user, info) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -163,7 +163,7 @@ exports.signup = function(req, res, next) {
         return workflow.emit('response');
       }
       else {
-        req.login(user, function(err) {
+        req.login(user, function (err) {
           if (err) {
             return workflow.emit('exception', err);
           }
@@ -173,7 +173,7 @@ exports.signup = function(req, res, next) {
 
           workflow.outcome.sid = sid;
           workflow.outcome.user = {
-            email:    user.email,
+            email: user.email,
             username: user.username,
             avatar: 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g'
           };
@@ -191,10 +191,10 @@ exports.signup = function(req, res, next) {
  * @param req
  * @param res
  */
-exports.login = function(req, res, next) {
+exports.login = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
-  workflow.on('validate', function() {
+  workflow.on('validate', function () {
     if (!req.body.username) {
       workflow.outcome.errfor.username = 'required';
     }
@@ -210,10 +210,10 @@ exports.login = function(req, res, next) {
     workflow.emit('abuseFilter');
   });
 
-  workflow.on('abuseFilter', function() {
-    var getIpCount = function(done) {
+  workflow.on('abuseFilter', function () {
+    var getIpCount = function (done) {
       var conditions = {ip: req.ip};
-      req.app.db.models.LoginAttempt.count(conditions, function(err, count) {
+      req.app.db.models.LoginAttempt.count(conditions, function (err, count) {
         if (err) {
           return done(err);
         }
@@ -222,9 +222,9 @@ exports.login = function(req, res, next) {
       });
     };
 
-    var getIpUserCount = function(done) {
+    var getIpUserCount = function (done) {
       var conditions = {ip: req.ip, user: req.body.username};
-      req.app.db.models.LoginAttempt.count(conditions, function(err, count) {
+      req.app.db.models.LoginAttempt.count(conditions, function (err, count) {
         if (err) {
           return done(err);
         }
@@ -233,7 +233,7 @@ exports.login = function(req, res, next) {
       });
     };
 
-    var asyncFinally = function(err, results) {
+    var asyncFinally = function (err, results) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -250,15 +250,15 @@ exports.login = function(req, res, next) {
     require('async').parallel({ip: getIpCount, ipUser: getIpUserCount}, asyncFinally);
   });
 
-  workflow.on('attemptLogin', function() {
-    req._passport.instance.authenticate('local', function(err, user, info) {
+  workflow.on('attemptLogin', function () {
+    req._passport.instance.authenticate('local', function (err, user, info) {
       if (err) {
         return workflow.emit('exception', err);
       }
 
       if (!user) {
         var fieldsToSet = {ip: req.ip, user: req.body.username};
-        req.app.db.models.LoginAttempt.create(fieldsToSet, function(err, doc) {
+        req.app.db.models.LoginAttempt.create(fieldsToSet, function (err, doc) {
           if (err) {
             return workflow.emit('exception', err);
           }
@@ -268,7 +268,7 @@ exports.login = function(req, res, next) {
         });
       }
       else {
-        req.login(user, function(err) {
+        req.login(user, function (err) {
           if (err) {
             return workflow.emit('exception', err);
           }
@@ -278,7 +278,7 @@ exports.login = function(req, res, next) {
 
           workflow.outcome.sid = sid;
           workflow.outcome.user = {
-            email:    user.email,
+            email: user.email,
             username: user.username,
             avatar: 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g'
           };

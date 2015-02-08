@@ -2,7 +2,7 @@
 
 var people = people || {};
 
-(function() {
+(function () {
   people.baseUrl = 'http://localhost:3000';
 
   /**
@@ -13,7 +13,7 @@ var people = people || {};
    * @param next
    * @returns {boolean}
    */
-  people.makeRequest = function(method, url, data, next) {
+  people.makeRequest = function (method, url, data, next) {
     var httpRequest = new XMLHttpRequest(),
       body = '',
       query = '';
@@ -38,7 +38,7 @@ var people = people || {};
     }
 
     httpRequest.open(method, url + query, true);
-    httpRequest.onreadystatechange = function() {
+    httpRequest.onreadystatechange = function () {
       if (httpRequest.readyState === 4 && httpRequest.status === 200) {
         next(httpRequest);
       }
@@ -55,7 +55,7 @@ var people = people || {};
    * @param cvalue
    * @param exdays
    */
-  people.setCookie = function(name, value, exdays) {
+  people.setCookie = function (name, value, exdays) {
     var d = new Date();
     d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
     var expires = "expires=" + d.toUTCString();
@@ -67,7 +67,7 @@ var people = people || {};
    * @param cname
    * @returns {string}
    */
-  people.getCookie = function(name) {
+  people.getCookie = function (name) {
     var name = name + "=";
     var ca = document.cookie.split(';');
     for (var i = 0; i < ca.length; i++) {
@@ -86,7 +86,7 @@ var people = people || {};
    * Erase Cookie.
    * @param name
    */
-  people.eraseCookie = function(name) {
+  people.eraseCookie = function (name) {
     people.setCookie(name, "", -1);
   };
 
@@ -97,14 +97,15 @@ var people = people || {};
    * @returns {*}
    */
   people.cookieRegistry = [];
-  people.oncookieset = function(name, callback) {
+  people.oncookieset = function (name, callback) {
     setTimeout(people.oncookieset, 100);
     if (people.cookieRegistry[name]) {
       if (people.getCookie(name) != people.cookieRegistry[name]) {
         people.cookieRegistry[name] = people.getCookie(name);
         return callback();
       }
-    } else {
+    }
+    else {
       people.cookieRegistry[name] = people.getCookie(name);
     }
   };
@@ -112,7 +113,7 @@ var people = people || {};
   /**
    * After user login process.
    */
-  people.login = function(data) {
+  people.login = function (data) {
     if (data.success === true) {
       // Set cookies.
       people.setCookie('people.sid', data.sid, 14);
@@ -139,7 +140,7 @@ var people = people || {};
   /**
    * Logout current user.
    */
-  people.logout = function() {
+  people.logout = function () {
     people.eraseCookie('people.sid');
     localStorage.removeItem('people.user');
     people.loginBlock();
@@ -150,7 +151,7 @@ var people = people || {};
   /**
    * Logged-in user block.
    */
-  people.userBlock = function() {
+  people.userBlock = function () {
     if (people.getCookie('people.sid')) {
       var user = JSON.parse(localStorage.getItem('people.user'));
       if (user) {
@@ -170,7 +171,7 @@ var people = people || {};
   /**
    *
    */
-  people.userBlockRemove = function() {
+  people.userBlockRemove = function () {
     var el = document.getElementById("people-user");
     if (el) el.innerHTML = '';
   };
@@ -178,7 +179,7 @@ var people = people || {};
   /**
    * login/register block.
    */
-  people.loginForm = function(socials) {
+  people.loginForm = function (socials) {
     var loginHTML = '';
     loginHTML += '<form class="login">';
     loginHTML += '<div class="form-field"><input id="login-name" type="textfield" placeholder="Name" value></div>';
@@ -187,15 +188,15 @@ var people = people || {};
     loginHTML += '<a class="to-forgot" href="javascript:void(0)">Forgot my password</a>';
     loginHTML += '</form>';
     loginHTML += '<h4>Or login using: </h4>';
-    for (var i = 0, name; name = socials[i]; ++i ) {
-      loginHTML += '<a class="social-login" id="login-'+ name +'" href="javascript:void(0)">' + name.charAt(0).toUpperCase() + name.slice(1) + '</a> ';
+    for (var i = 0, name; name = socials[i]; ++i) {
+      loginHTML += '<a class="social-login" id="login-' + name + '" href="javascript:void(0)">' + name.charAt(0).toUpperCase() + name.slice(1) + '</a> ';
     }
     loginHTML += '<div>New here? <a class="to-register" href="javascript:void(0)">Register</a></div>';
 
     return loginHTML;
   };
 
-  people.registerForm = function(socials) {
+  people.registerForm = function (socials) {
     var registerHTML = '';
     registerHTML += '<form class="register">';
     registerHTML += '<div class="form-field"><input id="register-name" type="textfield" placeholder="Name" value></div>';
@@ -204,18 +205,18 @@ var people = people || {};
     registerHTML += '<button id="register-btn" type="button" name="button-register">Register</button>';
     registerHTML += '</form>';
     registerHTML += '<h4>Or Login with: </h4>';
-    for (var i = 0, name; name = socials[i]; ++i ) {
-      registerHTML += '<a class="social-login" id="login-'+ name +'" href="javascript:void(0)">'+ name.charAt(0).toUpperCase() + name.slice(1) +'</a>';
+    for (var i = 0, name; name = socials[i]; ++i) {
+      registerHTML += '<a class="social-login" id="login-' + name + '" href="javascript:void(0)">' + name.charAt(0).toUpperCase() + name.slice(1) + '</a>';
     }
     registerHTML += '<div>Already a member? <a class="to-login" href="javascript:void(0)">Login</a></div>';
 
     return registerHTML;
   };
 
-  people.forgotForm = function() {
+  people.forgotForm = function () {
     var forgotHTML = '';
     forgotHTML += '<form class="forgot">';
-    forgotHTML += '<div class="form-field"><input id="forgot-email" type="text" placeholder="Email" value></div>';
+    forgotHTML += '<div class="form-field"><input id="forgot-email" type="email" placeholder="Email" value></div>';
     forgotHTML += '<button id="forgot-btn" type="button" name="button-forgot">Send to my mail</button>';
     forgotHTML += '</form>';
     forgotHTML += '<a class="to-login" href="javascript:void(0)">Back to login</a>';
@@ -223,10 +224,10 @@ var people = people || {};
     return forgotHTML;
   };
 
-  people.forgotResetForm = function() {
+  people.forgotResetForm = function () {
     var forgotResetHTML = '';
     forgotResetHTML += '<form class="forgot-reset">';
-    forgotResetHTML += '<div class="form-field"><input id="forgot-reset-token" type="text" placeholder="Verification Token"></div>';
+    forgotResetHTML += '<div class="form-field"><textarea id="forgot-reset-token" placeholder="Verification Token"></textarea></div>';
     forgotResetHTML += '<div class="form-field"><input id="forgot-reset-pass" type="password" placeholder="New Password"></div>';
     forgotResetHTML += '<button id="forgot-reset-btn" type="button" name="button-forgot-reset">Update Password</button>';
     forgotResetHTML += '</form>';
@@ -237,12 +238,12 @@ var people = people || {};
   /**
    *
    */
-  people.loginBlockRemove = function() {
+  people.loginBlockRemove = function () {
     var el = document.getElementById("people-login");
     if (el) el.innerHTML = '';
   };
 
-  people.loginBlock = function(options) {
+  people.loginBlock = function (options) {
     if (!people.getCookie('people.sid')) {
       options = options || {};
       var form = options.form || 'login';
@@ -276,7 +277,7 @@ var people = people || {};
   /**
    * Logged-in user profile.
    */
-  people.userProfile = function(data) {
+  people.userProfile = function (data) {
     if (people.getCookie('people.sid')) {
       var user = JSON.parse(localStorage.getItem('people.user'));
       if (user) {
@@ -286,7 +287,7 @@ var people = people || {};
             el.innerHTML = data.html;
           }
           else {
-            people.makeRequest('GET', people.baseUrl + '/remote/profile/', {sid: people.getCookie('people.sid')}, function(data) {
+            people.makeRequest('GET', people.baseUrl + '/remote/profile/', {sid: people.getCookie('people.sid')}, function (data) {
               el.innerHTML = data.responseText;
             });
           }
@@ -298,7 +299,7 @@ var people = people || {};
   /**
    *
    */
-  people.userProfileRemove = function() {
+  people.userProfileRemove = function () {
     var el = document.getElementById("people-profile");
     if (el) el.innerHTML = '';
   };
@@ -307,7 +308,7 @@ var people = people || {};
    * Receive message from popup.
    * @param event
    */
-  people.receiveMessage = function(event) {
+  people.receiveMessage = function (event) {
     //window.removeEventListener("message", receiveMessage, false);
     if (event.origin !== people.baseUrl) {
       return;
@@ -319,7 +320,7 @@ var people = people || {};
   /**
    * Events.
    */
-  document.addEventListener("click", function(e) {
+  document.addEventListener("click", function (e) {
 
     // Elements ID
     switch (e.target.id) {
@@ -328,7 +329,7 @@ var people = people || {};
         people.makeRequest('POST', people.baseUrl + '/remote/login/', {
           username: document.getElementById("login-name").value,
           password: document.getElementById("login-pass").value
-        }, function(data) {
+        }, function (data) {
           people.login(JSON.parse(data.responseText));
         });
         break;
@@ -336,9 +337,9 @@ var people = people || {};
       case 'register-btn':
         people.makeRequest('POST', people.baseUrl + '/remote/signup/', {
           username: document.getElementById("register-name").value,
-          email:    document.getElementById("register-email").value,
+          email: document.getElementById("register-email").value,
           password: document.getElementById("register-pass").value
-        }, function(data) {
+        }, function (data) {
           people.login(JSON.parse(data.responseText));
         });
         break;
@@ -346,7 +347,7 @@ var people = people || {};
       case 'forgot-btn':
         people.makeRequest('POST', people.baseUrl + '/remote/forgot/', {
           email: document.getElementById("forgot-email").value
-        }, function(data) {
+        }, function (data) {
           if (JSON.parse(data.responseText).success === true) {
             people.loginBlock({form: 'reset'});
           }
@@ -355,9 +356,9 @@ var people = people || {};
 
       case 'forgot-reset-btn':
         people.makeRequest('POST', people.baseUrl + '/remote/forgot/reset/', {
-          token:    document.getElementById("forgot-reset-token").value,
+          token: document.getElementById("forgot-reset-token").value,
           password: document.getElementById("forgot-reset-pass").value
-        }, function(data) {
+        }, function (data) {
           if (JSON.parse(data.responseText).success === true) {
             people.loginBlock();
           }
@@ -367,10 +368,10 @@ var people = people || {};
       case 'update-profile-btn':
         var elms = document.querySelectorAll('form#profile input');
         var values = {sid: people.getCookie('people.sid')};
-        for (var i = 0, el; el = elms[i]; ++i ) {
+        for (var i = 0, el; el = elms[i]; ++i) {
           values[el.name] = el.value;
         }
-        people.makeRequest('POST', people.baseUrl + '/remote/profile/', values, function(data) {
+        people.makeRequest('POST', people.baseUrl + '/remote/profile/', values, function (data) {
           data = JSON.parse(data.responseText);
           if (data.success === true) {
             people.userProfile(data);
@@ -381,10 +382,10 @@ var people = people || {};
       case 'update-password-btn':
         var elms = document.querySelectorAll('form#password input');
         var values = {sid: people.getCookie('people.sid')};
-        for (var i = 0, el; el = elms[i]; ++i ) {
+        for (var i = 0, el; el = elms[i]; ++i) {
           values[el.name] = el.value;
         }
-        people.makeRequest('POST', people.baseUrl + '/remote/password/', values, function(data) {
+        people.makeRequest('POST', people.baseUrl + '/remote/password/', values, function (data) {
           data = JSON.parse(data.responseText);
           if (data.success === true) {
             people.userProfile(data);
@@ -399,7 +400,7 @@ var people = people || {};
       case 'social-login':
         var name = e.target.id.replace('login-', '');
 
-        var url = people.baseUrl + '/remote/signup/'+ name +'/',
+        var url = people.baseUrl + '/remote/signup/' + name + '/',
           width = 1000,
           height = 650,
           top = (window.outerHeight - height) / 2,
@@ -408,7 +409,6 @@ var people = people || {};
 
         window.addEventListener("message", people.receiveMessage, false);
         break;
-
 
       case 'to-login':
         people.loginBlock();
@@ -427,7 +427,7 @@ var people = people || {};
         break;
 
       case 'verify-email':
-        people.makeRequest('POST', people.baseUrl + '/remote/verification/', {}, function(data) {
+        people.makeRequest('POST', people.baseUrl + '/remote/verification/', {}, function (data) {
           if (JSON.parse(data.responseText).success === true) {
             // Message.
           }
@@ -437,7 +437,7 @@ var people = people || {};
   });
 
   if (localStorage.getItem('people.info') === null) {
-    people.makeRequest('GET', people.baseUrl + '/remote/info/', {}, function(data) {
+    people.makeRequest('GET', people.baseUrl + '/remote/info/', {}, function (data) {
       var res = JSON.parse(data.responseText);
       if (res.success === true) {
         localStorage.setItem('people.info', JSON.stringify(res.info));

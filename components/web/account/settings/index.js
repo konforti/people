@@ -1,10 +1,10 @@
 'use strict';
 
-var renderSettings = function(req, res, next, oauthMessage) {
+var renderSettings = function (req, res, next, oauthMessage) {
   var outcome = {};
 
-  var getUserData = function(callback) {
-    req.app.db.models.User.findById(req.user.id, 'username email twitter.id github.id facebook.id google.id tumblr.id').exec(function(err, user) {
+  var getUserData = function (callback) {
+    req.app.db.models.User.findById(req.user.id, 'username email twitter.id github.id facebook.id google.id tumblr.id').exec(function (err, user) {
       if (err) {
         callback(err, null);
       }
@@ -14,7 +14,7 @@ var renderSettings = function(req, res, next, oauthMessage) {
     });
   };
 
-  var asyncFinally = function(err, results) {
+  var asyncFinally = function (err, results) {
     if (err) {
       return next(err);
     }
@@ -41,17 +41,17 @@ var renderSettings = function(req, res, next, oauthMessage) {
   require('async').parallel([getUserData], asyncFinally);
 };
 
-exports.init = function(req, res, next){
+exports.init = function (req, res, next) {
   renderSettings(req, res, next, '');
 };
 
-exports.connectTwitter = function(req, res, next){
-  req._passport.instance.authenticate('twitter', function(err, user, info) {
+exports.connectTwitter = function (req, res, next) {
+  req._passport.instance.authenticate('twitter', function (err, user, info) {
     if (!info || !info.profile) {
       return res.redirect('/account/settings/');
     }
 
-    req.app.db.models.User.findOne({ 'twitter.id': info.profile.id, _id: { $ne: req.user.id } }, function(err, user) {
+    req.app.db.models.User.findOne({'twitter.id': info.profile.id, _id: {$ne: req.user.id}}, function (err, user) {
       if (err) {
         return next(err);
       }
@@ -60,7 +60,7 @@ exports.connectTwitter = function(req, res, next){
         renderSettings(req, res, next, 'Another user has already connected with that Twitter account.');
       }
       else {
-        req.app.db.models.User.findByIdAndUpdate(req.user.id, { 'twitter.id': info.profile.id }, function(err, user) {
+        req.app.db.models.User.findByIdAndUpdate(req.user.id, {'twitter.id': info.profile.id}, function (err, user) {
           if (err) {
             return next(err);
           }
@@ -72,13 +72,13 @@ exports.connectTwitter = function(req, res, next){
   })(req, res, next);
 };
 
-exports.connectGitHub = function(req, res, next){
-  req._passport.instance.authenticate('github', function(err, user, info) {
+exports.connectGitHub = function (req, res, next) {
+  req._passport.instance.authenticate('github', function (err, user, info) {
     if (!info || !info.profile) {
       return res.redirect('/account/settings/');
     }
 
-    req.app.db.models.User.findOne({ 'github.id': info.profile.id, _id: { $ne: req.user.id } }, function(err, user) {
+    req.app.db.models.User.findOne({'github.id': info.profile.id, _id: {$ne: req.user.id}}, function (err, user) {
       if (err) {
         return next(err);
       }
@@ -87,7 +87,7 @@ exports.connectGitHub = function(req, res, next){
         renderSettings(req, res, next, 'Another user has already connected with that GitHub account.');
       }
       else {
-        req.app.db.models.User.findByIdAndUpdate(req.user.id, { 'github.id': info.profile.id }, function(err, user) {
+        req.app.db.models.User.findByIdAndUpdate(req.user.id, {'github.id': info.profile.id}, function (err, user) {
           if (err) {
             return next(err);
           }
@@ -99,13 +99,13 @@ exports.connectGitHub = function(req, res, next){
   })(req, res, next);
 };
 
-exports.connectFacebook = function(req, res, next){
-  req._passport.instance.authenticate('facebook', { callbackURL: '/account/settings/facebook/callback/' }, function(err, user, info) {
+exports.connectFacebook = function (req, res, next) {
+  req._passport.instance.authenticate('facebook', {callbackURL: '/account/settings/facebook/callback/'}, function (err, user, info) {
     if (!info || !info.profile) {
       return res.redirect('/account/settings/');
     }
 
-    req.app.db.models.User.findOne({ 'facebook.id': info.profile.id, _id: { $ne: req.user.id } }, function(err, user) {
+    req.app.db.models.User.findOne({'facebook.id': info.profile.id, _id: {$ne: req.user.id}}, function (err, user) {
       if (err) {
         return next(err);
       }
@@ -114,7 +114,7 @@ exports.connectFacebook = function(req, res, next){
         renderSettings(req, res, next, 'Another user has already connected with that Facebook account.');
       }
       else {
-        req.app.db.models.User.findByIdAndUpdate(req.user.id, { 'facebook.id': info.profile.id }, function(err, user) {
+        req.app.db.models.User.findByIdAndUpdate(req.user.id, {'facebook.id': info.profile.id}, function (err, user) {
           if (err) {
             return next(err);
           }
@@ -126,13 +126,13 @@ exports.connectFacebook = function(req, res, next){
   })(req, res, next);
 };
 
-exports.connectGoogle = function(req, res, next){
-  req._passport.instance.authenticate('google', { callbackURL: '/account/settings/google/callback/' }, function(err, user, info) {
+exports.connectGoogle = function (req, res, next) {
+  req._passport.instance.authenticate('google', {callbackURL: '/account/settings/google/callback/'}, function (err, user, info) {
     if (!info || !info.profile) {
       return res.redirect('/account/settings/');
     }
 
-    req.app.db.models.User.findOne({ 'google.id': info.profile.id, _id: { $ne: req.user.id } }, function(err, user) {
+    req.app.db.models.User.findOne({'google.id': info.profile.id, _id: {$ne: req.user.id}}, function (err, user) {
       if (err) {
         return next(err);
       }
@@ -141,7 +141,7 @@ exports.connectGoogle = function(req, res, next){
         renderSettings(req, res, next, 'Another user has already connected with that Google account.');
       }
       else {
-        req.app.db.models.User.findByIdAndUpdate(req.user.id, { 'google.id': info.profile.id }, function(err, user) {
+        req.app.db.models.User.findByIdAndUpdate(req.user.id, {'google.id': info.profile.id}, function (err, user) {
           if (err) {
             return next(err);
           }
@@ -153,8 +153,8 @@ exports.connectGoogle = function(req, res, next){
   })(req, res, next);
 };
 
-exports.connectTumblr = function(req, res, next){
-  req._passport.instance.authenticate('tumblr', { callbackURL: '/account/settings/tumblr/callback/' }, function(err, user, info) {
+exports.connectTumblr = function (req, res, next) {
+  req._passport.instance.authenticate('tumblr', {callbackURL: '/account/settings/tumblr/callback/'}, function (err, user, info) {
     if (!info || !info.profile) {
       return res.redirect('/account/settings/');
     }
@@ -163,7 +163,7 @@ exports.connectTumblr = function(req, res, next){
       info.profile.id = info.profile.username;
     }
 
-    req.app.db.models.User.findOne({ 'tumblr.id': info.profile.id, _id: { $ne: req.user.id } }, function(err, user) {
+    req.app.db.models.User.findOne({'tumblr.id': info.profile.id, _id: {$ne: req.user.id}}, function (err, user) {
       if (err) {
         return next(err);
       }
@@ -172,7 +172,7 @@ exports.connectTumblr = function(req, res, next){
         renderSettings(req, res, next, 'Another user has already connected with that Tumblr account.');
       }
       else {
-        req.app.db.models.User.findByIdAndUpdate(req.user.id, { 'tumblr.id': info.profile.id }, function(err, user) {
+        req.app.db.models.User.findByIdAndUpdate(req.user.id, {'tumblr.id': info.profile.id}, function (err, user) {
           if (err) {
             return next(err);
           }
@@ -184,8 +184,8 @@ exports.connectTumblr = function(req, res, next){
   })(req, res, next);
 };
 
-exports.disconnectTwitter = function(req, res, next){
-  req.app.db.models.User.findByIdAndUpdate(req.user.id, { twitter: { id: undefined } }, function(err, user) {
+exports.disconnectTwitter = function (req, res, next) {
+  req.app.db.models.User.findByIdAndUpdate(req.user.id, {twitter: {id: undefined}}, function (err, user) {
     if (err) {
       return next(err);
     }
@@ -194,8 +194,8 @@ exports.disconnectTwitter = function(req, res, next){
   });
 };
 
-exports.disconnectGitHub = function(req, res, next){
-  req.app.db.models.User.findByIdAndUpdate(req.user.id, { github: { id: undefined } }, function(err, user) {
+exports.disconnectGitHub = function (req, res, next) {
+  req.app.db.models.User.findByIdAndUpdate(req.user.id, {github: {id: undefined}}, function (err, user) {
     if (err) {
       return next(err);
     }
@@ -204,8 +204,8 @@ exports.disconnectGitHub = function(req, res, next){
   });
 };
 
-exports.disconnectFacebook = function(req, res, next){
-  req.app.db.models.User.findByIdAndUpdate(req.user.id, { facebook: { id: undefined } }, function(err, user) {
+exports.disconnectFacebook = function (req, res, next) {
+  req.app.db.models.User.findByIdAndUpdate(req.user.id, {facebook: {id: undefined}}, function (err, user) {
     if (err) {
       return next(err);
     }
@@ -214,8 +214,8 @@ exports.disconnectFacebook = function(req, res, next){
   });
 };
 
-exports.disconnectGoogle = function(req, res, next){
-  req.app.db.models.User.findByIdAndUpdate(req.user.id, { google: { id: undefined } }, function(err, user) {
+exports.disconnectGoogle = function (req, res, next) {
+  req.app.db.models.User.findByIdAndUpdate(req.user.id, {google: {id: undefined}}, function (err, user) {
     if (err) {
       return next(err);
     }
@@ -224,8 +224,8 @@ exports.disconnectGoogle = function(req, res, next){
   });
 };
 
-exports.disconnectTumblr = function(req, res, next){
-  req.app.db.models.User.findByIdAndUpdate(req.user.id, { tumblr: { id: undefined } }, function(err, user) {
+exports.disconnectTumblr = function (req, res, next) {
+  req.app.db.models.User.findByIdAndUpdate(req.user.id, {tumblr: {id: undefined}}, function (err, user) {
     if (err) {
       return next(err);
     }
@@ -234,10 +234,10 @@ exports.disconnectTumblr = function(req, res, next){
   });
 };
 
-exports.update = function(req, res, next){
+exports.update = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
-  workflow.on('validate', function() {
+  workflow.on('validate', function () {
     if (!req.body.first) {
       workflow.outcome.errfor.first = 'required';
     }
@@ -253,13 +253,13 @@ exports.update = function(req, res, next){
     workflow.emit('patchAccount');
   });
 
-  workflow.on('patchAccount', function() {
+  workflow.on('patchAccount', function () {
     var fieldsToSet = {
       name: {
         first: req.body.first,
         middle: req.body.middle,
         last: req.body.last,
-        full: req.body.first +' '+ req.body.last
+        full: req.body.first + ' ' + req.body.last
       },
       company: req.body.company,
       phone: req.body.phone,
@@ -273,9 +273,9 @@ exports.update = function(req, res, next){
         req.body.zip
       ]
     };
-    var options = { select: 'name company phone zip' };
+    var options = {select: 'name company phone zip'};
 
-    req.app.db.models.User.findByIdAndUpdate(req.user.id, fieldsToSet, options, function(err, account) {
+    req.app.db.models.User.findByIdAndUpdate(req.user.id, fieldsToSet, options, function (err, account) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -288,10 +288,10 @@ exports.update = function(req, res, next){
   workflow.emit('validate');
 };
 
-exports.identity = function(req, res, next){
+exports.identity = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
-  workflow.on('validate', function() {
+  workflow.on('validate', function () {
     if (!req.body.username) {
       workflow.outcome.errfor.username = 'required';
     }
@@ -313,8 +313,8 @@ exports.identity = function(req, res, next){
     workflow.emit('duplicateUsernameCheck');
   });
 
-  workflow.on('duplicateUsernameCheck', function() {
-    req.app.db.models.User.findOne({ username: req.body.username, _id: { $ne: req.user.id } }, function(err, user) {
+  workflow.on('duplicateUsernameCheck', function () {
+    req.app.db.models.User.findOne({username: req.body.username, _id: {$ne: req.user.id}}, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -328,8 +328,11 @@ exports.identity = function(req, res, next){
     });
   });
 
-  workflow.on('duplicateEmailCheck', function() {
-    req.app.db.models.User.findOne({ email: req.body.email.toLowerCase(), _id: { $ne: req.user.id } }, function(err, user) {
+  workflow.on('duplicateEmailCheck', function () {
+    req.app.db.models.User.findOne({
+      email: req.body.email.toLowerCase(),
+      _id: {$ne: req.user.id}
+    }, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -343,7 +346,7 @@ exports.identity = function(req, res, next){
     });
   });
 
-  workflow.on('patchUser', function() {
+  workflow.on('patchUser', function () {
     var fieldsToSet = {
       username: req.body.username,
       email: req.body.email.toLowerCase(),
@@ -352,9 +355,9 @@ exports.identity = function(req, res, next){
         req.body.email
       ]
     };
-    var options = { select: 'username email twitter.id github.id facebook.id google.id' };
+    var options = {select: 'username email twitter.id github.id facebook.id google.id'};
 
-    req.app.db.models.User.findByIdAndUpdate(req.user.id, fieldsToSet, options, function(err, user) {
+    req.app.db.models.User.findByIdAndUpdate(req.user.id, fieldsToSet, options, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -364,10 +367,10 @@ exports.identity = function(req, res, next){
   workflow.emit('validate');
 };
 
-exports.password = function(req, res, next){
+exports.password = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
-  workflow.on('validate', function() {
+  workflow.on('validate', function () {
     if (!req.body.newPassword) {
       workflow.outcome.errfor.newPassword = 'required';
     }
@@ -387,14 +390,14 @@ exports.password = function(req, res, next){
     workflow.emit('patchUser');
   });
 
-  workflow.on('patchUser', function() {
-    req.app.db.models.User.encryptPassword(req.body.newPassword, function(err, hash) {
+  workflow.on('patchUser', function () {
+    req.app.db.models.User.encryptPassword(req.body.newPassword, function (err, hash) {
       if (err) {
         return workflow.emit('exception', err);
       }
 
-      var fieldsToSet = { password: hash };
-      req.app.db.models.User.findByIdAndUpdate(req.user.id, fieldsToSet, function(err, user) {
+      var fieldsToSet = {password: hash};
+      req.app.db.models.User.findByIdAndUpdate(req.user.id, fieldsToSet, function (err, user) {
         if (err) {
           return workflow.emit('exception', err);
         }

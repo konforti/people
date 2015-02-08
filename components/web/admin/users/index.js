@@ -1,9 +1,9 @@
 'use strict';
 
-exports.find = function(req, res, next){
+exports.find = function (req, res, next) {
   var outcome = {};
 
-  var getResults = function(callback) {
+  var getResults = function (callback) {
     req.query.username = req.query.username ? req.query.username : '';
     req.query.limit = req.query.limit ? parseInt(req.query.limit, null) : 20;
     req.query.page = req.query.page ? parseInt(req.query.page, null) : 1;
@@ -11,7 +11,7 @@ exports.find = function(req, res, next){
 
     var filters = {};
     if (req.query.username) {
-      filters.username = new RegExp('^.*?'+ req.query.username +'.*$', 'i');
+      filters.username = new RegExp('^.*?' + req.query.username + '.*$', 'i');
     }
 
     if (req.query.isActive) {
@@ -24,7 +24,7 @@ exports.find = function(req, res, next){
       limit: req.query.limit,
       page: req.query.page,
       sort: req.query.sort
-    }, function(err, results) {
+    }, function (err, results) {
       if (err) {
         return callback(err);
       }
@@ -34,8 +34,8 @@ exports.find = function(req, res, next){
     });
   };
 
-  var getStatusOptions = function(callback) {
-    req.app.db.models.Status.find({}, 'name').sort('name').exec(function(err, statuses) {
+  var getStatusOptions = function (callback) {
+    req.app.db.models.Status.find({}, 'name').sort('name').exec(function (err, statuses) {
       if (err) {
         return callback(err, null);
       }
@@ -45,7 +45,7 @@ exports.find = function(req, res, next){
     });
   };
 
-  var asyncFinally = function(err, results) {
+  var asyncFinally = function (err, results) {
     if (err) {
       return next(err);
     }
@@ -69,11 +69,11 @@ exports.find = function(req, res, next){
   require('async').parallel([getResults, getStatusOptions], asyncFinally);
 };
 
-exports.read = function(req, res, next){
+exports.read = function (req, res, next) {
   var outcome = {};
 
-  var getRecord = function(callback) {
-    req.app.db.models.User.findById(req.params.id).populate('roles', 'name').exec(function(err, record) {
+  var getRecord = function (callback) {
+    req.app.db.models.User.findById(req.params.id).populate('roles', 'name').exec(function (err, record) {
       if (err) {
         return callback(err);
       }
@@ -82,8 +82,8 @@ exports.read = function(req, res, next){
     });
   };
 
-  var getRoles = function(callback) {
-    req.app.db.models.Role.find({}, 'name').sort('name').exec(function(err, roles) {
+  var getRoles = function (callback) {
+    req.app.db.models.Role.find({}, 'name').sort('name').exec(function (err, roles) {
       if (err) {
         return callback(err, null);
       }
@@ -93,9 +93,8 @@ exports.read = function(req, res, next){
     });
   };
 
-
-  var getStatusOptions = function(callback) {
-    req.app.db.models.Status.find({}, 'name').sort('name').exec(function(err, statuses) {
+  var getStatusOptions = function (callback) {
+    req.app.db.models.Status.find({}, 'name').sort('name').exec(function (err, statuses) {
       if (err) {
         return callback(err, null);
       }
@@ -105,8 +104,8 @@ exports.read = function(req, res, next){
     });
   };
 
-  var getUserFields = function(callback) {
-    req.app.db.models.UserMeta.find({user: req.params.id}).sort('name').exec(function(err, fields) {
+  var getUserFields = function (callback) {
+    req.app.db.models.UserMeta.find({user: req.params.id}).sort('name').exec(function (err, fields) {
       if (err) {
         return callback(err, null);
       }
@@ -121,7 +120,7 @@ exports.read = function(req, res, next){
     });
   };
 
-  var asyncFinally = function(err, results) {
+  var asyncFinally = function (err, results) {
     if (err) {
       return next(err);
     }
@@ -144,10 +143,10 @@ exports.read = function(req, res, next){
   require('async').parallel([getRoles, getRecord, getStatusOptions, getUserFields], asyncFinally);
 };
 
-exports.create = function(req, res, next){
+exports.create = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
-  workflow.on('validate', function() {
+  workflow.on('validate', function () {
     if (!req.body.username) {
       workflow.outcome.errors.push('Please enter a username.');
       return workflow.emit('response');
@@ -161,8 +160,8 @@ exports.create = function(req, res, next){
     workflow.emit('duplicateUsernameCheck');
   });
 
-  workflow.on('duplicateUsernameCheck', function() {
-    req.app.db.models.User.findOne({ username: req.body.username }, function(err, user) {
+  workflow.on('duplicateUsernameCheck', function () {
+    req.app.db.models.User.findOne({username: req.body.username}, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -176,14 +175,14 @@ exports.create = function(req, res, next){
     });
   });
 
-  workflow.on('createUser', function() {
+  workflow.on('createUser', function () {
     var fieldsToSet = {
       username: req.body.username,
       search: [
         req.body.username
       ]
     };
-    req.app.db.models.User.create(fieldsToSet, function(err, user) {
+    req.app.db.models.User.create(fieldsToSet, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -196,10 +195,10 @@ exports.create = function(req, res, next){
   workflow.emit('validate');
 };
 
-exports.update = function(req, res, next){
+exports.update = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
-  workflow.on('validate', function() {
+  workflow.on('validate', function () {
     if (!req.body.isActive) {
       req.body.isActive = 'no';
     }
@@ -225,8 +224,8 @@ exports.update = function(req, res, next){
     workflow.emit('duplicateUsernameCheck');
   });
 
-  workflow.on('duplicateUsernameCheck', function() {
-    req.app.db.models.User.findOne({ username: req.body.username, _id: { $ne: req.params.id } }, function(err, user) {
+  workflow.on('duplicateUsernameCheck', function () {
+    req.app.db.models.User.findOne({username: req.body.username, _id: {$ne: req.params.id}}, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -240,8 +239,11 @@ exports.update = function(req, res, next){
     });
   });
 
-  workflow.on('duplicateEmailCheck', function() {
-    req.app.db.models.User.findOne({ email: req.body.email.toLowerCase(), _id: { $ne: req.params.id } }, function(err, user) {
+  workflow.on('duplicateEmailCheck', function () {
+    req.app.db.models.User.findOne({
+      email: req.body.email.toLowerCase(),
+      _id: {$ne: req.params.id}
+    }, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -255,7 +257,7 @@ exports.update = function(req, res, next){
     });
   });
 
-  workflow.on('patchUser', function() {
+  workflow.on('patchUser', function () {
 
     var fieldsToSet = {
       isActive: req.body.isActive,
@@ -267,7 +269,7 @@ exports.update = function(req, res, next){
       ]
     };
 
-    req.app.db.models.User.findByIdAndUpdate(req.params.id, fieldsToSet, function(err, user) {
+    req.app.db.models.User.findByIdAndUpdate(req.params.id, fieldsToSet, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -280,7 +282,10 @@ exports.update = function(req, res, next){
         var extraFieldsToSet = {};
         extraFieldsToSet.key = field.key;
         extraFieldsToSet.value = req.body[field.key];
-        req.app.db.models.UserMeta.findOneAndUpdate({user: req.params.id, key: field.key}, extraFieldsToSet, {upsert: true}, function(err, userField) {
+        req.app.db.models.UserMeta.findOneAndUpdate({
+          user: req.params.id,
+          key: field.key
+        }, extraFieldsToSet, {upsert: true}, function (err, userField) {
           if (err) {
             return workflow.emit('exception', err);
           }
@@ -296,10 +301,10 @@ exports.update = function(req, res, next){
   workflow.emit('validate');
 };
 
-exports.roles = function(req, res, next){
+exports.roles = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
-  workflow.on('validate', function() {
+  workflow.on('validate', function () {
     if (!req.user.isMemberOf('root')) {
       workflow.outcome.errors.push('You may not change the role memberships of admins.');
       return workflow.emit('response');
@@ -313,17 +318,17 @@ exports.roles = function(req, res, next){
     workflow.emit('patchUser');
   });
 
-  workflow.on('patchUser', function() {
+  workflow.on('patchUser', function () {
     var fieldsToSet = {
       roles: req.body.roles
     };
 
-    req.app.db.models.User.findByIdAndUpdate(req.params.id, fieldsToSet, function(err, user) {
+    req.app.db.models.User.findByIdAndUpdate(req.params.id, fieldsToSet, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
 
-      user.populate('roles', 'name', function(err, user) {
+      user.populate('roles', 'name', function (err, user) {
         if (err) {
           return workflow.emit('exception', err);
         }
@@ -337,10 +342,10 @@ exports.roles = function(req, res, next){
   workflow.emit('validate');
 };
 
-exports.password = function(req, res, next){
+exports.password = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
-  workflow.on('validate', function() {
+  workflow.on('validate', function () {
     if (!req.body.newPassword) {
       workflow.outcome.errfor.newPassword = 'required';
     }
@@ -360,14 +365,14 @@ exports.password = function(req, res, next){
     workflow.emit('patchUser');
   });
 
-  workflow.on('patchUser', function() {
-    req.app.db.models.User.encryptPassword(req.body.newPassword, function(err, hash) {
+  workflow.on('patchUser', function () {
+    req.app.db.models.User.encryptPassword(req.body.newPassword, function (err, hash) {
       if (err) {
         return workflow.emit('exception', err);
       }
 
-      var fieldsToSet = { password: hash };
-      req.app.db.models.User.findByIdAndUpdate(req.params.id, fieldsToSet, function(err, user) {
+      var fieldsToSet = {password: hash};
+      req.app.db.models.User.findByIdAndUpdate(req.params.id, fieldsToSet, function (err, user) {
         if (err) {
           return workflow.emit('exception', err);
         }
@@ -383,10 +388,10 @@ exports.password = function(req, res, next){
   workflow.emit('validate');
 };
 
-exports.newNote = function(req, res, next){
+exports.newNote = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
-  workflow.on('validate', function() {
+  workflow.on('validate', function () {
     if (!req.body.data) {
       workflow.outcome.errors.push('Data is required.');
       return workflow.emit('response');
@@ -395,7 +400,7 @@ exports.newNote = function(req, res, next){
     workflow.emit('addNote');
   });
 
-  workflow.on('addNote', function() {
+  workflow.on('addNote', function () {
     var noteToAdd = {
       data: req.body.data,
       userCreated: {
@@ -405,7 +410,7 @@ exports.newNote = function(req, res, next){
       }
     };
 
-    req.app.db.models.User.findByIdAndUpdate(req.params.id, { $push: { notes: noteToAdd } }, function(err, user) {
+    req.app.db.models.User.findByIdAndUpdate(req.params.id, {$push: {notes: noteToAdd}}, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -418,10 +423,10 @@ exports.newNote = function(req, res, next){
   workflow.emit('validate');
 };
 
-exports.newStatus = function(req, res, next){
+exports.newStatus = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
-  workflow.on('validate', function() {
+  workflow.on('validate', function () {
     if (!req.body.id) {
       workflow.outcome.errors.push('Please choose a status.');
     }
@@ -433,7 +438,7 @@ exports.newStatus = function(req, res, next){
     workflow.emit('addStatus');
   });
 
-  workflow.on('addStatus', function() {
+  workflow.on('addStatus', function () {
     var statusToAdd = {
       id: req.body.id,
       name: req.body.name,
@@ -444,7 +449,10 @@ exports.newStatus = function(req, res, next){
       }
     };
 
-    req.app.db.models.User.findByIdAndUpdate(req.params.id, { status: statusToAdd, $push: { statusLog: statusToAdd } }, function(err, user) {
+    req.app.db.models.User.findByIdAndUpdate(req.params.id, {
+      status: statusToAdd,
+      $push: {statusLog: statusToAdd}
+    }, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -457,10 +465,10 @@ exports.newStatus = function(req, res, next){
   workflow.emit('validate');
 };
 
-exports.delete = function(req, res, next){
+exports.delete = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
-  workflow.on('validate', function() {
+  workflow.on('validate', function () {
 
     if (req.user._id === req.params.id) {
       workflow.outcome.errors.push('You may not delete yourself from user.');
@@ -470,8 +478,8 @@ exports.delete = function(req, res, next){
     workflow.emit('deleteUser');
   });
 
-  workflow.on('deleteUser', function(err) {
-    req.app.db.models.User.findByIdAndRemove(req.params.id, function(err, user) {
+  workflow.on('deleteUser', function (err) {
+    req.app.db.models.User.findByIdAndRemove(req.params.id, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }

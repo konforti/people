@@ -1,61 +1,61 @@
 doctype html
 html
-  head
-    block head
-      title #{title}
-    meta(name='viewport', content='width=device-width, initial-scale=1.0')
-    link(rel='stylesheet', href='/layouts/core.min.css?#{cacheBreaker}')
-    link(rel='stylesheet', href='/layouts/admin.min.css?#{cacheBreaker}')
-    block neck
-  body
+    head
+        block head
+            title #{title}
+        meta(name='viewport', content='width=device-width, initial-scale=1.0')
+        link(rel='stylesheet', href='/layouts/core.min.css?#{cacheBreaker}')
+        link(rel='stylesheet', href='/layouts/admin.min.css?#{cacheBreaker}')
+        block neck
+    body
 
-    div.navbar.navbar-inverse.navbar-fixed-top
-      div.container
-        div.navbar-header
-          a.navbar-brand(href='/admin/')
-            img.navbar-logo(src='/media/logo-symbol-64x64.png')
-            span.navbar-brand-label #{projectName}
-          form.navbar-form.pull-right#_search
+        div.navbar.navbar-inverse.navbar-fixed-top
+            div.container
+                div.navbar-header
+                    a.navbar-brand(href='/admin/')
+                        img.navbar-logo(src='/media/logo-symbol-64x64.png')
+                        span.navbar-brand-label #{projectName}
+                    form.navbar-form.pull-right#_search
 
-    ul.admin-menu
-      li.dropdown-header Admin Menu
-      li: a(href='/admin/users/') Users
-      li: a(href='/admin/roles/') Roles
-      li: a(href='/admin/statuses/') Statuses
+        ul.admin-menu
+            li.dropdown-header Admin Menu
+            li: a(href='/admin/users/') Users
+            li: a(href='/admin/roles/') Roles
+            li: a(href='/admin/statuses/') Statuses
 
-    div.page
-      div.container
-        block body
+        div.page
+            div.container
+                block body
 
-    div.footer
-      div.container
-        div.inner
-          span.copyright.pull-right
-            |&#169; #{copyrightYear} #{copyrightName}
-          ul.links
-            li: a(href='/') Home
-            li: a(href='/logout/') Sign Out
-          div.clearfix
+        div.footer
+            div.container
+                div.inner
+                    span.copyright.pull-right
+                        | &#169; #{copyrightYear} #{copyrightName}
+                    ul.links
+                        li: a(href='/') Home
+                        li: a(href='/logout/') Sign Out
+                    div.clearfix
 
-    div.ajax-spinner
-      img(src='/media/ajax-pulse.gif')
+        div.ajax-spinner
+            img(src='/media/ajax-pulse.gif')
 
-    script(type='text/template', id='tmpl-_search')
-      div.dropdown
-        input.form-control(name='_search', type='text', placeholder='Search People', tab-index='1')
-        ul#_search-results-rows.dropdown-menu
-    script(type='text/template', id='tmpl-_search-results-row')
-      |<% if (type && type == 'header') { %>
-      |<%- name %>
-      |<% } else { %>
-      a(href!='<%= url %>') <%- name %>
-      |<% } %>
-    script(type='text/template', id='tmpl-_search-results-empty-row')
-      li.dropdown-header no docs matched
+        script(type='text/template', id='tmpl-_search')
+            div.dropdown
+                input.form-control(name='_search', type='text', placeholder='Search People', tab-index='1')
+                ul#_search-results-rows.dropdown-menu
+        script(type='text/template', id='tmpl-_search-results-row')
+            | <% if (type && type == 'header') { %>
+            | <%- name %>
+            | <% } else { %>
+            a(href!='<%= url %>') <%- name %>
+            | <% } %>
+        script(type='text/template', id='tmpl-_search-results-empty-row')
+            li.dropdown-header no docs matched
 
-    //if lte IE 9
-      script(src='/layouts/ie-sucks.min.js?#{cacheBreaker}')
-    script(src='/layouts/core.min.js?#{cacheBreaker}')
-    script(src='/layouts/admin.min.js?#{cacheBreaker}')
+        //if lte IE 9
+          script(src='/layouts/ie-sucks.min.js?#{cacheBreaker}')
+        script(src='/layouts/core.min.js?#{cacheBreaker}')
+        script(src='/layouts/admin.min.js?#{cacheBreaker}')
 
-    block feet
+        block feet

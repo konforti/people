@@ -1,6 +1,6 @@
 'use strict';
 
-var getReturnUrl = function(req) {
+var getReturnUrl = function (req) {
   var returnUrl = req.user.defaultReturnUrl();
   if (req.session.returnUrl) {
     returnUrl = req.session.returnUrl;
@@ -9,7 +9,7 @@ var getReturnUrl = function(req) {
   return returnUrl;
 };
 
-exports.init = function(req, res){
+exports.init = function (req, res) {
   if (req.isAuthenticated()) {
     res.redirect(getReturnUrl(req));
   }
@@ -25,10 +25,10 @@ exports.init = function(req, res){
   }
 };
 
-exports.login = function(req, res){
+exports.login = function (req, res) {
   var workflow = req.app.utility.workflow(req, res);
 
-  workflow.on('validate', function() {
+  workflow.on('validate', function () {
     if (!req.body.username) {
       workflow.outcome.errfor.username = 'required';
     }
@@ -44,10 +44,10 @@ exports.login = function(req, res){
     workflow.emit('abuseFilter');
   });
 
-  workflow.on('abuseFilter', function() {
-    var getIpCount = function(done) {
-      var conditions = { ip: req.ip };
-      req.app.db.models.LoginAttempt.count(conditions, function(err, count) {
+  workflow.on('abuseFilter', function () {
+    var getIpCount = function (done) {
+      var conditions = {ip: req.ip};
+      req.app.db.models.LoginAttempt.count(conditions, function (err, count) {
         if (err) {
           return done(err);
         }
@@ -56,9 +56,9 @@ exports.login = function(req, res){
       });
     };
 
-    var getIpUserCount = function(done) {
-      var conditions = { ip: req.ip, user: req.body.username };
-      req.app.db.models.LoginAttempt.count(conditions, function(err, count) {
+    var getIpUserCount = function (done) {
+      var conditions = {ip: req.ip, user: req.body.username};
+      req.app.db.models.LoginAttempt.count(conditions, function (err, count) {
         if (err) {
           return done(err);
         }
@@ -67,7 +67,7 @@ exports.login = function(req, res){
       });
     };
 
-    var asyncFinally = function(err, results) {
+    var asyncFinally = function (err, results) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -81,18 +81,18 @@ exports.login = function(req, res){
       }
     };
 
-    require('async').parallel({ ip: getIpCount, ipUser: getIpUserCount }, asyncFinally);
+    require('async').parallel({ip: getIpCount, ipUser: getIpUserCount}, asyncFinally);
   });
 
-  workflow.on('attemptLogin', function() {
-    req._passport.instance.authenticate('local', function(err, user, info) {
+  workflow.on('attemptLogin', function () {
+    req._passport.instance.authenticate('local', function (err, user, info) {
       if (err) {
         return workflow.emit('exception', err);
       }
 
       if (!user) {
-        var fieldsToSet = { ip: req.ip, user: req.body.username };
-        req.app.db.models.LoginAttempt.create(fieldsToSet, function(err, doc) {
+        var fieldsToSet = {ip: req.ip, user: req.body.username};
+        req.app.db.models.LoginAttempt.create(fieldsToSet, function (err, doc) {
           if (err) {
             return workflow.emit('exception', err);
           }
@@ -102,7 +102,7 @@ exports.login = function(req, res){
         });
       }
       else {
-        req.login(user, function(err) {
+        req.login(user, function (err) {
           if (err) {
             return workflow.emit('exception', err);
           }
@@ -116,13 +116,13 @@ exports.login = function(req, res){
   workflow.emit('validate');
 };
 
-exports.loginTwitter = function(req, res, next){
-  req._passport.instance.authenticate('twitter', function(err, user, info) {
+exports.loginTwitter = function (req, res, next) {
+  req._passport.instance.authenticate('twitter', function (err, user, info) {
     if (!info || !info.profile) {
       return res.redirect('/login/');
     }
 
-    req.app.db.models.User.findOne({ 'twitter.id': info.profile.id }, function(err, user) {
+    req.app.db.models.User.findOne({'twitter.id': info.profile.id}, function (err, user) {
       if (err) {
         return next(err);
       }
@@ -138,7 +138,7 @@ exports.loginTwitter = function(req, res, next){
         });
       }
       else {
-        req.login(user, function(err) {
+        req.login(user, function (err) {
           if (err) {
             return next(err);
           }
@@ -150,13 +150,13 @@ exports.loginTwitter = function(req, res, next){
   })(req, res, next);
 };
 
-exports.loginGitHub = function(req, res, next){
-  req._passport.instance.authenticate('github', function(err, user, info) {
+exports.loginGitHub = function (req, res, next) {
+  req._passport.instance.authenticate('github', function (err, user, info) {
     if (!info || !info.profile) {
       return res.redirect('/login/');
     }
 
-    req.app.db.models.User.findOne({ 'github.id': info.profile.id }, function(err, user) {
+    req.app.db.models.User.findOne({'github.id': info.profile.id}, function (err, user) {
       if (err) {
         return next(err);
       }
@@ -172,7 +172,7 @@ exports.loginGitHub = function(req, res, next){
         });
       }
       else {
-        req.login(user, function(err) {
+        req.login(user, function (err) {
           if (err) {
             return next(err);
           }
@@ -184,13 +184,13 @@ exports.loginGitHub = function(req, res, next){
   })(req, res, next);
 };
 
-exports.loginFacebook = function(req, res, next){
-  req._passport.instance.authenticate('facebook', { callbackURL: '/login/facebook/callback/' }, function(err, user, info) {
+exports.loginFacebook = function (req, res, next) {
+  req._passport.instance.authenticate('facebook', {callbackURL: '/login/facebook/callback/'}, function (err, user, info) {
     if (!info || !info.profile) {
       return res.redirect('/login/');
     }
 
-    req.app.db.models.User.findOne({ 'facebook.id': info.profile.id }, function(err, user) {
+    req.app.db.models.User.findOne({'facebook.id': info.profile.id}, function (err, user) {
       if (err) {
         return next(err);
       }
@@ -206,7 +206,7 @@ exports.loginFacebook = function(req, res, next){
         });
       }
       else {
-        req.login(user, function(err) {
+        req.login(user, function (err) {
           if (err) {
             return next(err);
           }
@@ -218,13 +218,13 @@ exports.loginFacebook = function(req, res, next){
   })(req, res, next);
 };
 
-exports.loginGoogle = function(req, res, next){
-  req._passport.instance.authenticate('google', { callbackURL: '/login/google/callback/' }, function(err, user, info) {
+exports.loginGoogle = function (req, res, next) {
+  req._passport.instance.authenticate('google', {callbackURL: '/login/google/callback/'}, function (err, user, info) {
     if (!info || !info.profile) {
       return res.redirect('/login/');
     }
 
-    req.app.db.models.User.findOne({ 'google.id': info.profile.id }, function(err, user) {
+    req.app.db.models.User.findOne({'google.id': info.profile.id}, function (err, user) {
       if (err) {
         return next(err);
       }
@@ -240,7 +240,7 @@ exports.loginGoogle = function(req, res, next){
         });
       }
       else {
-        req.login(user, function(err) {
+        req.login(user, function (err) {
           if (err) {
             return next(err);
           }
@@ -252,8 +252,8 @@ exports.loginGoogle = function(req, res, next){
   })(req, res, next);
 };
 
-exports.loginTumblr = function(req, res, next){
-  req._passport.instance.authenticate('tumblr', { callbackURL: '/login/tumblr/callback/' }, function(err, user, info) {
+exports.loginTumblr = function (req, res, next) {
+  req._passport.instance.authenticate('tumblr', {callbackURL: '/login/tumblr/callback/'}, function (err, user, info) {
     if (!info || !info.profile) {
       return res.redirect('/login/');
     }
@@ -262,7 +262,7 @@ exports.loginTumblr = function(req, res, next){
       info.profile.id = info.profile.username;
     }
 
-    req.app.db.models.User.findOne({ 'tumblr.id': info.profile.id }, function(err, user) {
+    req.app.db.models.User.findOne({'tumblr.id': info.profile.id}, function (err, user) {
       if (err) {
         return next(err);
       }
@@ -278,7 +278,7 @@ exports.loginTumblr = function(req, res, next){
         });
       }
       else {
-        req.login(user, function(err) {
+        req.login(user, function (err) {
           if (err) {
             return next(err);
           }

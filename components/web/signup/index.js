@@ -1,6 +1,6 @@
 'use strict';
 
-exports.init = function(req, res){
+exports.init = function (req, res) {
   if (req.isAuthenticated()) {
     res.redirect(req.user.defaultReturnUrl());
   }
@@ -16,11 +16,10 @@ exports.init = function(req, res){
   }
 };
 
-
-exports.signup = function(req, res){
+exports.signup = function (req, res) {
   var workflow = req.app.utility.workflow(req, res);
 
-  workflow.on('validate', function() {
+  workflow.on('validate', function () {
     if (!req.body.username) {
       workflow.outcome.errfor.username = 'required';
     }
@@ -46,8 +45,8 @@ exports.signup = function(req, res){
     workflow.emit('duplicateUsernameCheck');
   });
 
-  workflow.on('duplicateUsernameCheck', function() {
-    req.app.db.models.User.findOne({ username: req.body.username }, function(err, user) {
+  workflow.on('duplicateUsernameCheck', function () {
+    req.app.db.models.User.findOne({username: req.body.username}, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -61,8 +60,8 @@ exports.signup = function(req, res){
     });
   });
 
-  workflow.on('duplicateEmailCheck', function() {
-    req.app.db.models.User.findOne({ email: req.body.email.toLowerCase() }, function(err, user) {
+  workflow.on('duplicateEmailCheck', function () {
+    req.app.db.models.User.findOne({email: req.body.email.toLowerCase()}, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -76,8 +75,8 @@ exports.signup = function(req, res){
     });
   });
 
-  workflow.on('createUser', function() {
-    req.app.db.models.User.encryptPassword(req.body.password, function(err, hash) {
+  workflow.on('createUser', function () {
+    req.app.db.models.User.encryptPassword(req.body.password, function (err, hash) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -92,7 +91,7 @@ exports.signup = function(req, res){
           req.body.email
         ]
       };
-      req.app.db.models.User.create(fieldsToSet, function(err, user) {
+      req.app.db.models.User.create(fieldsToSet, function (err, user) {
         if (err) {
           return workflow.emit('exception', err);
         }
@@ -103,31 +102,31 @@ exports.signup = function(req, res){
     });
   });
 
-  workflow.on('sendWelcomeEmail', function() {
+  workflow.on('sendWelcomeEmail', function () {
     req.app.utility.sendmail(req, res, {
-      from: req.app.config.smtp.from.name +' <'+ req.app.config.smtp.from.address +'>',
+      from: req.app.config.smtp.from.name + ' <' + req.app.config.smtp.from.address + '>',
       to: req.body.email,
-      subject: 'Your '+ req.app.config.projectName +' Account',
+      subject: 'Your ' + req.app.config.projectName + ' Account',
       textPath: 'signup/email-text',
       htmlPath: 'signup/email-html',
       locals: {
         username: req.body.username,
         email: req.body.email,
-        loginURL: req.protocol +'://'+ req.headers.host +'/login/',
+        loginURL: req.protocol + '://' + req.headers.host + '/login/',
         projectName: req.app.config.projectName
       },
-      success: function(message) {
+      success: function (message) {
         workflow.emit('logUserIn');
       },
-      error: function(err) {
-        console.log('Error Sending Welcome Email: '+ err);
+      error: function (err) {
+        console.log('Error Sending Welcome Email: ' + err);
         workflow.emit('logUserIn');
       }
     });
   });
 
-  workflow.on('logUserIn', function() {
-    req._passport.instance.authenticate('local', function(err, user, info) {
+  workflow.on('logUserIn', function () {
+    req._passport.instance.authenticate('local', function (err, user, info) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -137,7 +136,7 @@ exports.signup = function(req, res){
         return workflow.emit('response');
       }
       else {
-        req.login(user, function(err) {
+        req.login(user, function (err) {
           if (err) {
             return workflow.emit('exception', err);
           }
@@ -152,20 +151,20 @@ exports.signup = function(req, res){
   workflow.emit('validate');
 };
 
-exports.signupTwitter = function(req, res, next) {
-  req._passport.instance.authenticate('twitter', function(err, user, info) {
+exports.signupTwitter = function (req, res, next) {
+  req._passport.instance.authenticate('twitter', function (err, user, info) {
     if (!info || !info.profile) {
       return res.redirect('/signup/');
     }
 
-    req.app.db.models.User.findOne({ 'twitter.id': info.profile.id }, function(err, user) {
+    req.app.db.models.User.findOne({'twitter.id': info.profile.id}, function (err, user) {
       if (err) {
         return next(err);
       }
 
       if (!user) {
         req.session.socialProfile = info.profile;
-        res.render('signup/social', { email: '' });
+        res.render('signup/social', {email: ''});
       }
       else {
         res.render('signup/index', {
@@ -181,20 +180,20 @@ exports.signupTwitter = function(req, res, next) {
   })(req, res, next);
 };
 
-exports.signupGitHub = function(req, res, next) {
-  req._passport.instance.authenticate('github', function(err, user, info) {
+exports.signupGitHub = function (req, res, next) {
+  req._passport.instance.authenticate('github', function (err, user, info) {
     if (!info || !info.profile) {
       return res.redirect('/signup/');
     }
 
-    req.app.db.models.User.findOne({ 'github.id': info.profile.id }, function(err, user) {
+    req.app.db.models.User.findOne({'github.id': info.profile.id}, function (err, user) {
       if (err) {
         return next(err);
       }
 
       if (!user) {
         req.session.socialProfile = info.profile;
-        res.render('signup/social', { email: info.profile.emails && info.profile.emails[0].value || '' });
+        res.render('signup/social', {email: info.profile.emails && info.profile.emails[0].value || ''});
       }
       else {
         res.render('signup/index', {
@@ -210,19 +209,19 @@ exports.signupGitHub = function(req, res, next) {
   })(req, res, next);
 };
 
-exports.signupFacebook = function(req, res, next) {
-  req._passport.instance.authenticate('facebook', { callbackURL: '/signup/facebook/callback/' }, function(err, user, info) {
+exports.signupFacebook = function (req, res, next) {
+  req._passport.instance.authenticate('facebook', {callbackURL: '/signup/facebook/callback/'}, function (err, user, info) {
     if (!info || !info.profile) {
       return res.redirect('/signup/');
     }
 
-    req.app.db.models.User.findOne({ 'facebook.id': info.profile.id }, function(err, user) {
+    req.app.db.models.User.findOne({'facebook.id': info.profile.id}, function (err, user) {
       if (err) {
         return next(err);
       }
       if (!user) {
         req.session.socialProfile = info.profile;
-        res.render('signup/social', { email: info.profile.emails && info.profile.emails[0].value || '' });
+        res.render('signup/social', {email: info.profile.emails && info.profile.emails[0].value || ''});
       }
       else {
         res.render('signup/index', {
@@ -238,19 +237,19 @@ exports.signupFacebook = function(req, res, next) {
   })(req, res, next);
 };
 
-exports.signupGoogle = function(req, res, next) {
-  req._passport.instance.authenticate('google', { callbackURL: '/signup/google/callback/' }, function(err, user, info) {
+exports.signupGoogle = function (req, res, next) {
+  req._passport.instance.authenticate('google', {callbackURL: '/signup/google/callback/'}, function (err, user, info) {
     if (!info || !info.profile) {
       return res.redirect('/signup/');
     }
 
-    req.app.db.models.User.findOne({ 'google.id': info.profile.id }, function(err, user) {
+    req.app.db.models.User.findOne({'google.id': info.profile.id}, function (err, user) {
       if (err) {
         return next(err);
       }
       if (!user) {
         req.session.socialProfile = info.profile;
-        res.render('signup/social', { email: info.profile.emails && info.profile.emails[0].value || '' });
+        res.render('signup/social', {email: info.profile.emails && info.profile.emails[0].value || ''});
       }
       else {
         res.render('signup/index', {
@@ -266,8 +265,8 @@ exports.signupGoogle = function(req, res, next) {
   })(req, res, next);
 };
 
-exports.signupTumblr = function(req, res, next) {
-  req._passport.instance.authenticate('tumblr', { callbackURL: '/signup/tumblr/callback/' }, function(err, user, info) {
+exports.signupTumblr = function (req, res, next) {
+  req._passport.instance.authenticate('tumblr', {callbackURL: '/signup/tumblr/callback/'}, function (err, user, info) {
     if (!info || !info.profile) {
       return res.redirect('/signup/');
     }
@@ -276,13 +275,13 @@ exports.signupTumblr = function(req, res, next) {
       info.profile.id = info.profile.username;
     }
 
-    req.app.db.models.User.findOne({ 'tumblr.id': info.profile.id }, function(err, user) {
+    req.app.db.models.User.findOne({'tumblr.id': info.profile.id}, function (err, user) {
       if (err) {
         return next(err);
       }
       if (!user) {
         req.session.socialProfile = info.profile;
-        res.render('signup/social', { email: info.profile.emails && info.profile.emails[0].value || '' });
+        res.render('signup/social', {email: info.profile.emails && info.profile.emails[0].value || ''});
       }
       else {
         res.render('signup/index', {
@@ -298,10 +297,10 @@ exports.signupTumblr = function(req, res, next) {
   })(req, res, next);
 };
 
-exports.signupSocial = function(req, res){
+exports.signupSocial = function (req, res) {
   var workflow = req.app.utility.workflow(req, res);
 
-  workflow.on('validate', function() {
+  workflow.on('validate', function () {
     if (!req.body.email) {
       workflow.outcome.errfor.email = 'required';
     }
@@ -316,13 +315,13 @@ exports.signupSocial = function(req, res){
     workflow.emit('duplicateUsernameCheck');
   });
 
-  workflow.on('duplicateUsernameCheck', function() {
+  workflow.on('duplicateUsernameCheck', function () {
     workflow.username = req.session.socialProfile.username || req.session.socialProfile.id;
     if (!/^[a-zA-Z0-9\-\_]+$/.test(workflow.username)) {
       workflow.username = workflow.username.replace(/[^a-zA-Z0-9\-\_]/g, '');
     }
 
-    req.app.db.models.User.findOne({ username: workflow.username }, function(err, user) {
+    req.app.db.models.User.findOne({username: workflow.username}, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -338,8 +337,8 @@ exports.signupSocial = function(req, res){
     });
   });
 
-  workflow.on('duplicateEmailCheck', function() {
-    req.app.db.models.User.findOne({ email: req.body.email.toLowerCase() }, function(err, user) {
+  workflow.on('duplicateEmailCheck', function () {
+    req.app.db.models.User.findOne({email: req.body.email.toLowerCase()}, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -353,7 +352,7 @@ exports.signupSocial = function(req, res){
     });
   });
 
-  workflow.on('createUser', function() {
+  workflow.on('createUser', function () {
     var fieldsToSet = {
       isActive: 'yes',
       isVerified: 'yes',
@@ -364,9 +363,9 @@ exports.signupSocial = function(req, res){
         req.body.email
       ]
     };
-    fieldsToSet[req.session.socialProfile.provider] = { id: req.session.socialProfile.id };
+    fieldsToSet[req.session.socialProfile.provider] = {id: req.session.socialProfile.id};
 
-    req.app.db.models.User.create(fieldsToSet, function(err, user) {
+    req.app.db.models.User.create(fieldsToSet, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -376,31 +375,31 @@ exports.signupSocial = function(req, res){
     });
   });
 
-  workflow.on('sendWelcomeEmail', function() {
+  workflow.on('sendWelcomeEmail', function () {
     req.app.utility.sendmail(req, res, {
-      from: req.app.config.smtp.from.name +' <'+ req.app.config.smtp.from.address +'>',
+      from: req.app.config.smtp.from.name + ' <' + req.app.config.smtp.from.address + '>',
       to: req.body.email,
-      subject: 'Your '+ req.app.config.projectName +' Account',
+      subject: 'Your ' + req.app.config.projectName + ' Account',
       textPath: 'signup/email-text',
       htmlPath: 'signup/email-html',
       locals: {
         username: workflow.user.username,
         email: req.body.email,
-        loginURL: req.protocol +'://'+ req.headers.host +'/login/',
+        loginURL: req.protocol + '://' + req.headers.host + '/login/',
         projectName: req.app.config.projectName
       },
-      success: function(message) {
+      success: function (message) {
         workflow.emit('logUserIn');
       },
-      error: function(err) {
-        console.log('Error Sending Welcome Email: '+ err);
+      error: function (err) {
+        console.log('Error Sending Welcome Email: ' + err);
         workflow.emit('logUserIn');
       }
     });
   });
 
-  workflow.on('logUserIn', function() {
-    req.login(workflow.user, function(err) {
+  workflow.on('logUserIn', function () {
+    req.login(workflow.user, function (err) {
       if (err) {
         return workflow.emit('exception', err);
       }

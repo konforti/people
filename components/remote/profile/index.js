@@ -7,11 +7,10 @@ var signature = require('cookie-signature');
  * @param req
  * @param res
  */
-exports.readProfile = function(req, res, next) {
+exports.readProfile = function (req, res, next) {
   var outcome = {};
-
-  var getRecord = function(callback) {
-    req.app.db.models.User.findById(req.user.id).exec(function(err, record) {
+  var getRecord = function (callback) {
+    req.app.db.models.User.findById(req.user.id).exec(function (err, record) {
       if (err) {
         return callback(err);
       }
@@ -20,8 +19,8 @@ exports.readProfile = function(req, res, next) {
     });
   };
 
-  var getUserFields = function(callback) {
-    req.app.db.models.UserMeta.find({user: req.user.id}).exec(function(err, fields) {
+  var getUserFields = function (callback) {
+    req.app.db.models.UserMeta.find({user: req.user.id}).exec(function (err, fields) {
       if (err) {
         return callback(err, null);
       }
@@ -36,7 +35,7 @@ exports.readProfile = function(req, res, next) {
     });
   };
 
-  var asyncFinally = function(err, results) {
+  var asyncFinally = function (err, results) {
     if (err) {
       return next(err);
     }
@@ -49,7 +48,7 @@ exports.readProfile = function(req, res, next) {
           record: outcome.record,
           fields: outcome.fields
         }
-      }, function(err, html) {
+      }, function (err, html) {
 
         res.send(html);
       }
@@ -65,10 +64,10 @@ exports.readProfile = function(req, res, next) {
  * @param res
  * @param next
  */
-exports.updateProfile = function(req, res, next) {
+exports.updateProfile = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
-  workflow.on('validate', function() {
+  workflow.on('validate', function () {
 
     if (req.body.csrf !== req.session.remoteToken) {
       workflow.outcome.errfor.form = 'invalid csrf token';
@@ -85,21 +84,21 @@ exports.updateProfile = function(req, res, next) {
     workflow.emit('patchUser');
   });
 
-  workflow.on('patchUser', function() {
-    req.app.db.models.User.findById(req.user.id, function(err, user) {
+  workflow.on('patchUser', function () {
+    req.app.db.models.User.findById(req.user.id, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
 
       var fieldsToSet = {};
 
-      crypto.randomBytes(21, function(err, buf) {
+      crypto.randomBytes(21, function (err, buf) {
         if (err) {
           return next(err);
         }
 
         var token = buf.toString('hex');
-        req.app.db.models.User.encryptPassword(token, function(err, hash) {
+        req.app.db.models.User.encryptPassword(token, function (err, hash) {
           if (err) {
             return next(err);
           }
@@ -113,7 +112,7 @@ exports.updateProfile = function(req, res, next) {
           fieldsToSet.username = req.body.username;
           fieldsToSet.email = req.body.email.toLowerCase();
 
-          req.app.db.models.User.findByIdAndUpdate(req.user.id, fieldsToSet, function(err, user) {
+          req.app.db.models.User.findByIdAndUpdate(req.user.id, fieldsToSet, function (err, user) {
             if (err) {
               return workflow.emit('exception', err);
             }
@@ -131,15 +130,15 @@ exports.updateProfile = function(req, res, next) {
     });
   });
 
-  workflow.on('sendVerificationEmail', function(token) {
+  workflow.on('sendVerificationEmail', function (token) {
 
     require('../verification').sendVerificationEmail(req, res, {
       email: req.body.email.toLowerCase(),
       verificationToken: token,
-      onSuccess: function() {
+      onSuccess: function () {
         workflow.emit('patchFields');
       },
-      onError: function(err) {
+      onError: function (err) {
         console.log('Error Sending Welcome Email: ' + err);
         workflow.emit('exception', err);
         workflow.emit('patchFields');
@@ -147,7 +146,7 @@ exports.updateProfile = function(req, res, next) {
     });
   });
 
-  workflow.on('patchFields', function() {
+  workflow.on('patchFields', function () {
     workflow.outcome.fields = [];
     var fields = req.app.config.fields;
 
@@ -159,7 +158,10 @@ exports.updateProfile = function(req, res, next) {
         extraFieldsToSet.value = req.body[field.key];
       }
 
-      req.app.db.models.UserMeta.findOneAndUpdate({user: req.user.id, key: field.key}, extraFieldsToSet, {upsert: true}, function(err, userField) {
+      req.app.db.models.UserMeta.findOneAndUpdate({
+        user: req.user.id,
+        key: field.key
+      }, extraFieldsToSet, {upsert: true}, function (err, userField) {
         if (err) {
           return workflow.emit('exception', err);
         }
@@ -177,7 +179,7 @@ exports.updateProfile = function(req, res, next) {
           record: workflow.outcome.record,
           fields: workflow.outcome.fields
         }
-      }, function(err, html) {
+      }, function (err, html) {
         delete workflow.outcome.record;
         delete workflow.outcome.fields;
         workflow.outcome.html = html;
@@ -195,10 +197,10 @@ exports.updateProfile = function(req, res, next) {
  * @param res
  * @param next
  */
-exports.updatePassword = function(req, res, next) {
+exports.updatePassword = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
-  workflow.on('validate', function() {
+  workflow.on('validate', function () {
 
     if (req.body.csrf !== req.session.remoteToken) {
       workflow.outcome.errfor.form = 'invalid csrf token';
@@ -219,15 +221,15 @@ exports.updatePassword = function(req, res, next) {
     workflow.emit('patchUser');
   });
 
-  workflow.on('patchUser', function() {
+  workflow.on('patchUser', function () {
     var fieldsToSet = {};
-    req.app.db.models.User.encryptPassword(req.body.newPassword, function(err, hash) {
+    req.app.db.models.User.encryptPassword(req.body.newPassword, function (err, hash) {
       if (err) {
         return workflow.emit('exception', err);
       }
 
       fieldsToSet.password = hash;
-      req.app.db.models.User.findByIdAndUpdate(req.user.id, fieldsToSet, function(err, user) {
+      req.app.db.models.User.findByIdAndUpdate(req.user.id, fieldsToSet, function (err, user) {
         if (err) {
           return workflow.emit('exception', err);
         }
@@ -238,12 +240,12 @@ exports.updatePassword = function(req, res, next) {
     });
   });
 
-  workflow.on('patchFields', function() {console.log('sddfg');
+  workflow.on('patchFields', function () {
     workflow.outcome.fields = [];
     var fields = req.app.config.fields;
 
     for (var i = 0, field; field = fields[i]; ++i) {
-      req.app.db.models.UserMeta.findOne({user: req.user.id, key: field.key}, function(err, userField) {
+      req.app.db.models.UserMeta.findOne({user: req.user.id, key: field.key}, function (err, userField) {
         if (err) {
           return workflow.emit('exception', err);
         }
@@ -261,7 +263,7 @@ exports.updatePassword = function(req, res, next) {
           record: workflow.outcome.record,
           fields: workflow.outcome.fields
         }
-      }, function(err, html) {
+      }, function (err, html) {
         delete workflow.outcome.record;
         delete workflow.outcome.fields;
         workflow.outcome.html = html;

@@ -8,9 +8,9 @@ var signature = require('cookie-signature');
  * @param res
  * @param next
  */
-exports.signupTwitter = function(req, res, next) {
+exports.signupTwitter = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
-  req._passport.instance.authenticate('twitter', {callbackURL: '/remote/signup/twitter/callback/'}, function(err, user, info) {
+  req._passport.instance.authenticate('twitter', {callbackURL: '/remote/signup/twitter/callback/'}, function (err, user, info) {
     if (err) {
       return workflow.emit('exception', err);
     }
@@ -19,7 +19,7 @@ exports.signupTwitter = function(req, res, next) {
       return workflow.outcome.errfor.username = 'No info';
     }
 
-    req.app.db.models.User.findOne({'twitter.id': info.profile.id}, function(err, user) {
+    req.app.db.models.User.findOne({'twitter.id': info.profile.id}, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -51,9 +51,9 @@ exports.signupTwitter = function(req, res, next) {
  * @param res
  * @param next
  */
-exports.signupGitHub = function(req, res, next) {
+exports.signupGitHub = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
-  req._passport.instance.authenticate('github', {callbackURL: '/remote/signup/github/callback/'}, function(err, user, info) {
+  req._passport.instance.authenticate('github', {callbackURL: '/remote/signup/github/callback/'}, function (err, user, info) {
     if (err) {
       return workflow.emit('exception', err);
     }
@@ -62,7 +62,7 @@ exports.signupGitHub = function(req, res, next) {
       return workflow.outcome.errfor.username = 'No info';
     }
 
-    req.app.db.models.User.findOne({'github.id': info.profile.id}, function(err, user) {
+    req.app.db.models.User.findOne({'github.id': info.profile.id}, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -94,9 +94,9 @@ exports.signupGitHub = function(req, res, next) {
  * @param res
  * @param next
  */
-exports.signupFacebook = function(req, res, next) {
+exports.signupFacebook = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
-  req._passport.instance.authenticate('facebook', {callbackURL: '/remote/signup/facebook/callback/'}, function(err, user, info) {
+  req._passport.instance.authenticate('facebook', {callbackURL: '/remote/signup/facebook/callback/'}, function (err, user, info) {
     if (err) {
       return workflow.emit('exception', err);
     }
@@ -105,7 +105,7 @@ exports.signupFacebook = function(req, res, next) {
       return workflow.outcome.errfor.username = 'No info';
     }
 
-    req.app.db.models.User.findOne({'facebook.id': info.profile.id}, function(err, user) {
+    req.app.db.models.User.findOne({'facebook.id': info.profile.id}, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -137,9 +137,9 @@ exports.signupFacebook = function(req, res, next) {
  * @param res
  * @param next
  */
-exports.signupGoogle = function(req, res, next) {
+exports.signupGoogle = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
-  req._passport.instance.authenticate('google', {callbackURL: '/remote/signup/google/callback/'}, function(err, user, info) {
+  req._passport.instance.authenticate('google', {callbackURL: '/remote/signup/google/callback/'}, function (err, user, info) {
     if (err) {
       return workflow.emit('exception', err);
     }
@@ -148,7 +148,7 @@ exports.signupGoogle = function(req, res, next) {
       return workflow.outcome.errfor.username = 'No info';
     }
 
-    req.app.db.models.User.findOne({'google.id': info.profile.id}, function(err, user) {
+    req.app.db.models.User.findOne({'google.id': info.profile.id}, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -180,9 +180,9 @@ exports.signupGoogle = function(req, res, next) {
  * @param res
  * @param next
  */
-exports.signupTumblr = function(req, res, next) {
+exports.signupTumblr = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
-  req._passport.instance.authenticate('tumblr', {callbackURL: '/remote/signup/tumblr/callback/'}, function(err, user, info) {
+  req._passport.instance.authenticate('tumblr', {callbackURL: '/remote/signup/tumblr/callback/'}, function (err, user, info) {
     if (err) {
       return workflow.emit('exception', err);
     }
@@ -191,7 +191,7 @@ exports.signupTumblr = function(req, res, next) {
       return workflow.outcome.errfor.username = 'No info';
     }
 
-    req.app.db.models.User.findOne({'tumblr.id': info.profile.id}, function(err, user) {
+    req.app.db.models.User.findOne({'tumblr.id': info.profile.id}, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -221,7 +221,7 @@ exports.signupTumblr = function(req, res, next) {
  * signupSocial().
  * @type {Function}
  */
-var signupSocial = exports.signupSocial = function(req, res, next) {
+var signupSocial = exports.signupSocial = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.email = '';
@@ -232,7 +232,7 @@ var signupSocial = exports.signupSocial = function(req, res, next) {
     workflow.email = req.body.email;
   }
 
-  workflow.on('validate', function() {
+  workflow.on('validate', function () {
     if (req.body.email) {
       if (!/^[a-zA-Z0-9\-\_\.\+]+@[a-zA-Z0-9\-\_\.]+\.[a-zA-Z0-9\-\_]+$/.test(req.body.email)) {
         workflow.outcome.errfor.email = 'invalid email format';
@@ -246,13 +246,13 @@ var signupSocial = exports.signupSocial = function(req, res, next) {
     workflow.emit('duplicateUsernameCheck');
   });
 
-  workflow.on('duplicateUsernameCheck', function() {
+  workflow.on('duplicateUsernameCheck', function () {
     workflow.username = req.session.socialProfile.username || req.session.socialProfile.id;
     if (!/^[a-zA-Z0-9\-\_]+$/.test(workflow.username)) {
       workflow.username = workflow.username.replace(/[^a-zA-Z0-9\-\_]/g, '');
     }
 
-    req.app.db.models.User.findOne({username: workflow.username}, function(err, user) {
+    req.app.db.models.User.findOne({username: workflow.username}, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -265,8 +265,8 @@ var signupSocial = exports.signupSocial = function(req, res, next) {
     });
   });
 
-  workflow.on('duplicateEmailCheck', function() {
-    req.app.db.models.User.findOne({email: workflow.email.toLowerCase()}, function(err, user) {
+  workflow.on('duplicateEmailCheck', function () {
+    req.app.db.models.User.findOne({email: workflow.email.toLowerCase()}, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -283,20 +283,20 @@ var signupSocial = exports.signupSocial = function(req, res, next) {
     });
   });
 
-  workflow.on('createUser', function() {
+  workflow.on('createUser', function () {
     var fieldsToSet = {
-      isActive:   'yes',
+      isActive: 'yes',
       isVerified: 'yes',
-      username:   workflow.username,
-      email:      workflow.email.toLowerCase(),
-      search:     [
+      username: workflow.username,
+      email: workflow.email.toLowerCase(),
+      search: [
         workflow.username,
         workflow.email
       ]
     };
     fieldsToSet[req.session.socialProfile.provider] = {id: req.session.socialProfile.id};
 
-    req.app.db.models.User.create(fieldsToSet, function(err, user) {
+    req.app.db.models.User.create(fieldsToSet, function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -306,29 +306,29 @@ var signupSocial = exports.signupSocial = function(req, res, next) {
     });
   });
 
-  workflow.on('sendWelcomeEmail', function() {
+  workflow.on('sendWelcomeEmail', function () {
     req.app.utility.sendmail(req, res, {
-      from:     req.app.config.smtp.from.name + ' <' + req.app.config.smtp.from.address + '>',
-      to:       workflow.email,
-      subject:  'Your ' + req.app.config.projectName + ' Account',
+      from: req.app.config.smtp.from.name + ' <' + req.app.config.smtp.from.address + '>',
+      to: workflow.email,
+      subject: 'Your ' + req.app.config.projectName + ' Account',
       textPath: '../remote/signup/email-text',
       htmlPath: '../remote/signup/email-html',
-      locals:   {
-        username:    workflow.username,
-        email:       workflow.email,
+      locals: {
+        username: workflow.username,
+        email: workflow.email,
         projectName: req.app.config.projectName
       },
-      success:  function(message) {
+      success: function (message) {
         workflow.emit('logUserIn');
       },
-      error:    function(err) {
+      error: function (err) {
         console.log('Error Sending Welcome Email: ' + err);
         workflow.emit('logUserIn');
       }
     });
   });
 
-  workflow.on('logUserIn', function() {
+  workflow.on('logUserIn', function () {
     loginSocial(req, res, workflow);
   });
 
@@ -341,9 +341,9 @@ var signupSocial = exports.signupSocial = function(req, res, next) {
  * @param res
  * @param next
  */
-var loginSocial = function(req, res, workflow) {
+var loginSocial = function (req, res, workflow) {
 
-  req.login(workflow.user, function(err) {
+  req.login(workflow.user, function (err) {
     if (err) {
       return workflow.emit('exception', err);
     }
@@ -363,9 +363,9 @@ var loginSocial = function(req, res, workflow) {
     workflow.outcome.allowDomain = req.app.config.allowDomain;
     workflow.outcome.sid = sid;
     workflow.outcome.user = {
-      email:    workflow.user.email,
+      email: workflow.user.email,
       username: workflow.user.username,
-      avatar:   workflow.user.avatar
+      avatar: workflow.user.avatar
     };
     delete req.session.socialProfile;
 

@@ -1,6 +1,6 @@
 'use strict';
 
-exports.find = function(req, res, next){
+exports.find = function (req, res, next) {
   req.query.name = req.query.name ? req.query.name : '';
   req.query.limit = req.query.limit ? parseInt(req.query.limit, null) : 20;
   req.query.page = req.query.page ? parseInt(req.query.page, null) : 1;
@@ -8,7 +8,7 @@ exports.find = function(req, res, next){
 
   var filters = {};
   if (req.query.name) {
-    filters.name = new RegExp('^.*?'+ req.query.name +'.*$', 'i');
+    filters.name = new RegExp('^.*?' + req.query.name + '.*$', 'i');
   }
 
   req.app.db.models.Role.pagedFind({
@@ -17,7 +17,7 @@ exports.find = function(req, res, next){
     limit: req.query.limit,
     page: req.query.page,
     sort: req.query.sort
-  }, function(err, results) {
+  }, function (err, results) {
     if (err) {
       return next(err);
     }
@@ -29,13 +29,13 @@ exports.find = function(req, res, next){
     }
     else {
       results.filters = req.query;
-      res.render('admin/roles/index', { data: { results: escape(JSON.stringify(results)) } });
+      res.render('admin/roles/index', {data: {results: escape(JSON.stringify(results))}});
     }
   });
 };
 
-exports.read = function(req, res, next){
-  req.app.db.models.Role.findById(req.params.id).exec(function(err, role) {
+exports.read = function (req, res, next) {
+  req.app.db.models.Role.findById(req.params.id).exec(function (err, role) {
     if (err) {
       return next(err);
     }
@@ -44,15 +44,15 @@ exports.read = function(req, res, next){
       res.send(role);
     }
     else {
-      res.render('admin/roles/details', { data: { record: escape(JSON.stringify(role)) } });
+      res.render('admin/roles/details', {data: {record: escape(JSON.stringify(role))}});
     }
   });
 };
 
-exports.create = function(req, res, next){
+exports.create = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
-  workflow.on('validate', function() {
+  workflow.on('validate', function () {
     if (!req.user.isMemberOf('root')) {
       workflow.outcome.errors.push('You may not create roles.');
       return workflow.emit('response');
@@ -66,8 +66,8 @@ exports.create = function(req, res, next){
     workflow.emit('duplicateRoleCheck');
   });
 
-  workflow.on('duplicateRoleCheck', function() {
-    req.app.db.models.Role.findById(req.app.utility.slugify(req.body.name)).exec(function(err, role) {
+  workflow.on('duplicateRoleCheck', function () {
+    req.app.db.models.Role.findById(req.app.utility.slugify(req.body.name)).exec(function (err, role) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -81,13 +81,13 @@ exports.create = function(req, res, next){
     });
   });
 
-  workflow.on('createRole', function() {
+  workflow.on('createRole', function () {
     var fieldsToSet = {
       _id: req.app.utility.slugify(req.body.name),
       name: req.body.name
     };
 
-    req.app.db.models.Role.create(fieldsToSet, function(err, role) {
+    req.app.db.models.Role.create(fieldsToSet, function (err, role) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -100,10 +100,10 @@ exports.create = function(req, res, next){
   workflow.emit('validate');
 };
 
-exports.update = function(req, res, next){
+exports.update = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
-  workflow.on('validate', function() {
+  workflow.on('validate', function () {
     if (!req.user.isMemberOf('root')) {
       workflow.outcome.errors.push('You may not update roles.');
       return workflow.emit('response');
@@ -117,12 +117,12 @@ exports.update = function(req, res, next){
     workflow.emit('patchRole');
   });
 
-  workflow.on('patchRole', function() {
+  workflow.on('patchRole', function () {
     var fieldsToSet = {
       name: req.body.name
     };
 
-    req.app.db.models.Role.findByIdAndUpdate(req.params.id, fieldsToSet, function(err, role) {
+    req.app.db.models.Role.findByIdAndUpdate(req.params.id, fieldsToSet, function (err, role) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -135,10 +135,10 @@ exports.update = function(req, res, next){
   workflow.emit('validate');
 };
 
-exports.permissions = function(req, res, next){
+exports.permissions = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
-  workflow.on('validate', function() {
+  workflow.on('validate', function () {
     if (!req.user.isMemberOf('root')) {
       workflow.outcome.errors.push('You may not change the permissions of roles.');
       return workflow.emit('response');
@@ -152,12 +152,12 @@ exports.permissions = function(req, res, next){
     workflow.emit('patchRole');
   });
 
-  workflow.on('patchRole', function() {
+  workflow.on('patchRole', function () {
     var fieldsToSet = {
       permissions: req.body.permissions
     };
 
-    req.app.db.models.Role.findByIdAndUpdate(req.params.id, fieldsToSet, function(err, role) {
+    req.app.db.models.Role.findByIdAndUpdate(req.params.id, fieldsToSet, function (err, role) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -170,10 +170,10 @@ exports.permissions = function(req, res, next){
   workflow.emit('validate');
 };
 
-exports.delete = function(req, res, next){
+exports.delete = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
-  workflow.on('validate', function() {
+  workflow.on('validate', function () {
     if (!req.user.isMemberOf('root')) {
       workflow.outcome.errors.push('You may not delete roles.');
       return workflow.emit('response');
@@ -182,8 +182,8 @@ exports.delete = function(req, res, next){
     workflow.emit('deleteRole');
   });
 
-  workflow.on('deleteRole', function(err) {
-    req.app.db.models.Role.findByIdAndRemove(req.params.id, function(err, role) {
+  workflow.on('deleteRole', function (err) {
+    req.app.db.models.Role.findByIdAndRemove(req.params.id, function (err, role) {
       if (err) {
         return workflow.emit('exception', err);
       }

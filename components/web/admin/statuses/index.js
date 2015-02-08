@@ -1,6 +1,6 @@
 'use strict';
 
-exports.find = function(req, res, next){
+exports.find = function (req, res, next) {
   req.query.name = req.query.name ? req.query.name : '';
   req.query.limit = req.query.limit ? parseInt(req.query.limit, null) : 20;
   req.query.page = req.query.page ? parseInt(req.query.page, null) : 1;
@@ -9,7 +9,7 @@ exports.find = function(req, res, next){
   var filters = {};
 
   if (req.query.name) {
-    filters.name = new RegExp('^.*?'+ req.query.name +'.*$', 'i');
+    filters.name = new RegExp('^.*?' + req.query.name + '.*$', 'i');
   }
 
   req.app.db.models.Status.pagedFind({
@@ -17,7 +17,7 @@ exports.find = function(req, res, next){
     limit: req.query.limit,
     page: req.query.page,
     sort: req.query.sort
-  }, function(err, results) {
+  }, function (err, results) {
     if (err) {
       return next(err);
     }
@@ -29,13 +29,13 @@ exports.find = function(req, res, next){
     }
     else {
       results.filters = req.query;
-      res.render('admin/statuses/index', { data: { results: escape(JSON.stringify(results)) } });
+      res.render('admin/statuses/index', {data: {results: escape(JSON.stringify(results))}});
     }
   });
 };
 
-exports.read = function(req, res, next){
-  req.app.db.models.Status.findById(req.params.id).exec(function(err, status) {
+exports.read = function (req, res, next) {
+  req.app.db.models.Status.findById(req.params.id).exec(function (err, status) {
     if (err) {
       return next(err);
     }
@@ -44,15 +44,15 @@ exports.read = function(req, res, next){
       res.send(status);
     }
     else {
-      res.render('admin/statuses/details', { data: { record: escape(JSON.stringify(status)) } });
+      res.render('admin/statuses/details', {data: {record: escape(JSON.stringify(status))}});
     }
   });
 };
 
-exports.create = function(req, res, next){
+exports.create = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
-  workflow.on('validate', function() {
+  workflow.on('validate', function () {
     if (!req.user.isMemberOf('root')) {
       workflow.outcome.errors.push('You may not create statuses.');
       return workflow.emit('response');
@@ -66,8 +66,8 @@ exports.create = function(req, res, next){
     workflow.emit('duplicateStatusCheck');
   });
 
-  workflow.on('duplicateStatusCheck', function() {
-    req.app.db.models.Status.findById(req.app.utility.slugify(req.body.name)).exec(function(err, status) {
+  workflow.on('duplicateStatusCheck', function () {
+    req.app.db.models.Status.findById(req.app.utility.slugify(req.body.name)).exec(function (err, status) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -81,13 +81,13 @@ exports.create = function(req, res, next){
     });
   });
 
-  workflow.on('createStatus', function() {
+  workflow.on('createStatus', function () {
     var fieldsToSet = {
       _id: req.app.utility.slugify(req.body.name),
       name: req.body.name
     };
 
-    req.app.db.models.Status.create(fieldsToSet, function(err, status) {
+    req.app.db.models.Status.create(fieldsToSet, function (err, status) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -100,10 +100,10 @@ exports.create = function(req, res, next){
   workflow.emit('validate');
 };
 
-exports.update = function(req, res, next){
+exports.update = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
-  workflow.on('validate', function() {
+  workflow.on('validate', function () {
     if (!req.user.isMemberOf('root')) {
       workflow.outcome.errors.push('You may not update statuses.');
       return workflow.emit('response');
@@ -117,12 +117,12 @@ exports.update = function(req, res, next){
     workflow.emit('patchStatus');
   });
 
-  workflow.on('patchStatus', function() {
+  workflow.on('patchStatus', function () {
     var fieldsToSet = {
       name: req.body.name
     };
 
-    req.app.db.models.Status.findByIdAndUpdate(req.params.id, fieldsToSet, function(err, status) {
+    req.app.db.models.Status.findByIdAndUpdate(req.params.id, fieldsToSet, function (err, status) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -135,10 +135,10 @@ exports.update = function(req, res, next){
   workflow.emit('validate');
 };
 
-exports.delete = function(req, res, next){
+exports.delete = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
-  workflow.on('validate', function() {
+  workflow.on('validate', function () {
     if (!req.user.isMemberOf('root')) {
       workflow.outcome.errors.push('You may not delete statuses.');
       return workflow.emit('response');
@@ -147,8 +147,8 @@ exports.delete = function(req, res, next){
     workflow.emit('deleteStatus');
   });
 
-  workflow.on('deleteStatus', function(err) {
-    req.app.db.models.Status.findByIdAndRemove(req.params.id, function(err, status) {
+  workflow.on('deleteStatus', function (err) {
+    req.app.db.models.Status.findByIdAndRemove(req.params.id, function (err, status) {
       if (err) {
         return workflow.emit('exception', err);
       }
