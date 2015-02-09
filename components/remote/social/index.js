@@ -311,8 +311,8 @@ var signupSocial = exports.signupSocial = function (req, res, next) {
       from: req.app.config.smtp.from.name + ' <' + req.app.config.smtp.from.address + '>',
       to: workflow.email,
       subject: 'Your ' + req.app.config.projectName + ' Account',
-      textPath: '../remote/signup/email-text',
-      htmlPath: '../remote/signup/email-html',
+      textPath: '../remote/social/email-text',
+      htmlPath: '../remote/social/email-html',
       locals: {
         username: workflow.username,
         email: workflow.email,

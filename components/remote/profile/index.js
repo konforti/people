@@ -8,13 +8,14 @@ var signature = require('cookie-signature');
  * @param res
  */
 exports.readProfile = function (req, res, next) {
+  var workflow = req.app.utility.workflow(req, res);
   var outcome = {};
   var getRecord = function (callback) {
     req.app.db.models.User.findById(req.user.id).exec(function (err, record) {
       if (err) {
-        return callback(err);
+        return workflow.emit('exception', err);
       }
-      outcome.record = record;
+      workflow.outcome.record = record;
       return callback(null, 'done');
     });
   };
@@ -25,10 +26,10 @@ exports.readProfile = function (req, res, next) {
         return callback(err, null);
       }
 
-      outcome.fields = [];
+      workflow.outcome.fields = [];
       for (var i = 0, field; field = req.app.config.fields[i]; ++i) {
-        outcome.fields[i] = field;
-        outcome.fields[i].value = typeof fields[i] !== 'undefined' ? fields[i].value : '';
+        workflow.outcome.fields[i] = field;
+        workflow.outcome.fields[i].value = typeof fields[i] !== 'undefined' ? fields[i].value : '';
       }
 
       return callback(null, 'done');
@@ -37,7 +38,7 @@ exports.readProfile = function (req, res, next) {
 
   var asyncFinally = function (err, results) {
     if (err) {
-      return next(err);
+      return workflow.emit('exception', err);
     }
 
     var csrfToken = crypto.pseudoRandomBytes(16).toString('hex');
@@ -45,12 +46,14 @@ exports.readProfile = function (req, res, next) {
     req.app.render('../remote/profile/index', {
         data: {
           csrfToken: csrfToken,
-          record: outcome.record,
-          fields: outcome.fields
+          record: workflow.outcome.record,
+          fields: workflow.outcome.fields
         }
       }, function (err, html) {
-
-        res.send(html);
+        delete workflow.outcome.record;
+        delete workflow.outcome.fields;
+        workflow.outcome.html = html
+        workflow.emit('response');
       }
     );
   };

@@ -111,20 +111,14 @@ var people = people || {};
   };
 
   /**
-   * After user login process.
+   * Alerts().
+   * @param data
+   * @returns {boolean}
    */
-  people.login = function (data) {
+  people.alert = function(data) {
+    data = JSON.parse(data.responseText);
     if (data.success === true) {
-      // Set cookies.
-      people.setCookie('people.sid', data.sid, 14);
-
-      // Save Shallow user to local storage.
-      localStorage.setItem('people.user', JSON.stringify(data.user));
-
-      // Show the logged-in user block.
-      people.userBlock();
-      people.userProfile();
-      people.loginBlockRemove();
+      return false;
     }
     else {
       for (var i = 0, error; error = data.errors[i]; ++i) {
@@ -134,7 +128,7 @@ var people = people || {};
         var errfor = key + ': ' + data.errfor[key] + '\n';
       }
 
-      var el = document.getElementById("people-login-message");
+      var el = document.getElementById("people-message");
       if (el) {
         var c = document.createElement("button");
         c.className = 'close-btn';
@@ -148,7 +142,26 @@ var people = people || {};
         p.innerText += (errfor) ? errfor : '';
         el.appendChild(p);
       }
+
+      return true;
     }
+
+  };
+
+  /**
+   * After user login process.
+   */
+  people.login = function (data) {
+    // Set cookies.
+    people.setCookie('people.sid', data.sid, 14);
+
+    // Save Shallow user to local storage.
+    localStorage.setItem('people.user', JSON.stringify(data.user));
+
+    // Show the logged-in user block.
+    people.userBlock();
+    people.userProfile();
+    people.loginBlockRemove();
   };
 
   /**
@@ -183,7 +196,7 @@ var people = people || {};
   };
 
   /**
-   *
+   * Remove user block.
    */
   people.userBlockRemove = function () {
     var el = document.getElementById("people-user");
@@ -210,6 +223,11 @@ var people = people || {};
     return loginHTML;
   };
 
+  /**
+   * Register form.
+   * @param socials
+   * @returns {string}
+   */
   people.registerForm = function (socials) {
     var registerHTML = '';
     registerHTML += '<form class="register">';
@@ -227,6 +245,10 @@ var people = people || {};
     return registerHTML;
   };
 
+  /**
+   * Forgot password form.
+   * @returns {string}
+   */
   people.forgotForm = function () {
     var forgotHTML = '';
     forgotHTML += '<form class="forgot">';
@@ -238,6 +260,10 @@ var people = people || {};
     return forgotHTML;
   };
 
+  /**
+   * Reset forgot password form.
+   * @returns {string}
+   */
   people.forgotResetForm = function () {
     var forgotResetHTML = '';
     forgotResetHTML += '<form class="forgot-reset">';
@@ -250,13 +276,17 @@ var people = people || {};
   };
 
   /**
-   *
+   * Remove login block.
    */
   people.loginBlockRemove = function () {
-    var el = document.getElementById("people-login");
+    var el = document.getElementById("people-login-block");
     if (el) el.innerHTML = '';
   };
 
+  /**
+   * Display login block.
+   * @param options
+   */
   people.loginBlock = function (options) {
     if (!people.getCookie('people.sid')) {
       options = options || {};
@@ -264,8 +294,8 @@ var people = people || {};
       var info = JSON.parse(localStorage.getItem('people.info'));
       var socials = info ? info.socials : [];
       var output = '';
-      output += '<div class="people-block" id="people-login">';
-      output += '<div class="people-message" id="people-login-message"></div>';
+      output += '<div class="people-block" id="people-login-block">';
+      output += '<div class="people-message" id="people-message"></div>';
       switch (form) {
         case 'login':
           output += people.loginForm(socials);
@@ -293,30 +323,43 @@ var people = people || {};
   /**
    * Logged-in user profile.
    */
-  people.userProfile = function (data) {
+  people.userProfile = function () {
     if (people.getCookie('people.sid')) {
-      var user = JSON.parse(localStorage.getItem('people.user'));
-      if (user) {
-        var el = document.getElementById("people-profile");
-        if (el) {
-          if (data && data.html) {
-            el.innerHTML = data.html;
-          }
-          else {
-            people.makeRequest('GET', people.baseUrl + '/remote/profile/', {sid: people.getCookie('people.sid')}, function (data) {
-              el.innerHTML = data.responseText;
-            });
-          }
-        }
-      }
+      people.makeRequest('GET', people.baseUrl + '/remote/profile/', {sid: people.getCookie('people.sid')}, function (data) {
+        people.profileBlock(data.responseText);
+      });
     }
   };
 
   /**
-   *
+   * Display profile block.
+   * @param data
+   */
+  people.profileBlock = function (data) {
+    if (people.getCookie('people.sid')) {
+      var user = JSON.parse(localStorage.getItem('people.user'));
+      if (user) {
+        data = JSON.parse(data);
+        var output = '';
+        output += '<div class="people-block" id="people-profile-block">';
+        output += '<div class="people-message" id="people-message"></div>';
+
+        if (data && data.html) {
+          output += data.html;
+        }
+
+        output += '</div>';
+        var el = document.getElementById("people-profile");
+        if (el) el.innerHTML = output;
+      }
+    }
+  }
+
+  /**
+   * Remove profile block.
    */
   people.userProfileRemove = function () {
-    var el = document.getElementById("people-profile");
+    var el = document.getElementById("people-profile-block");
     if (el) el.innerHTML = '';
   };
 
@@ -346,7 +389,9 @@ var people = people || {};
           username: document.getElementById("login-name").value,
           password: document.getElementById("login-pass").value
         }, function (data) {
-          people.login(JSON.parse(data.responseText));
+          if (!people.alert(data)) {
+            people.login(JSON.parse(data.responseText));
+          }
         });
         break;
 
@@ -356,7 +401,9 @@ var people = people || {};
           email: document.getElementById("register-email").value,
           password: document.getElementById("register-pass").value
         }, function (data) {
-          people.login(JSON.parse(data.responseText));
+          if (!people.alert(data)) {
+            people.login(JSON.parse(data.responseText));
+          }
         });
         break;
 
@@ -364,7 +411,7 @@ var people = people || {};
         people.makeRequest('POST', people.baseUrl + '/remote/forgot/', {
           email: document.getElementById("forgot-email").value
         }, function (data) {
-          if (JSON.parse(data.responseText).success === true) {
+          if (!people.alert(data)) {
             people.loginBlock({form: 'reset'});
           }
         });
@@ -375,7 +422,7 @@ var people = people || {};
           token: document.getElementById("forgot-reset-token").value,
           password: document.getElementById("forgot-reset-pass").value
         }, function (data) {
-          if (JSON.parse(data.responseText).success === true) {
+          if (!people.alert(data)) {
             people.loginBlock();
           }
         });
@@ -388,9 +435,8 @@ var people = people || {};
           values[el.name] = el.value;
         }
         people.makeRequest('POST', people.baseUrl + '/remote/profile/', values, function (data) {
-          data = JSON.parse(data.responseText);
-          if (data.success === true) {
-            people.userProfile(data);
+          if (!people.alert(data)) {
+            people.profileBlock(JSON.parse(data.responseText));
           }
         });
         break;
@@ -402,9 +448,8 @@ var people = people || {};
           values[el.name] = el.value;
         }
         people.makeRequest('POST', people.baseUrl + '/remote/password/', values, function (data) {
-          data = JSON.parse(data.responseText);
-          if (data.success === true) {
-            people.userProfile(data);
+          if (!people.alert(data)) {
+            people.profileBlock(JSON.parse(data.responseText));
           }
         });
         break;
