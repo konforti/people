@@ -127,13 +127,27 @@ var people = people || {};
       people.loginBlockRemove();
     }
     else {
-      for (var key in data.errfor) {
-        var errfor = key + ': ' + data.errfor[key] + '\n';
-      }
       for (var i = 0, error; error = data.errors[i]; ++i) {
         var errors = error + '\n';
       }
-      alert(errfor + errors);
+      for (var key in data.errfor) {
+        var errfor = key + ': ' + data.errfor[key] + '\n';
+      }
+
+      var el = document.getElementById("people-login-message");
+      if (el) {
+        var c = document.createElement("button");
+        c.className = 'close-btn';
+        c.innerHTML = '&times;';
+        el.appendChild(c);
+
+        var p = document.createElement("p");
+        p.className = 'error';
+        p.innerText = '';
+        p.innerText += (errors) ? errors + '\n' : '';
+        p.innerText += (errfor) ? errfor : '';
+        el.appendChild(p);
+      }
     }
   };
 
@@ -249,7 +263,9 @@ var people = people || {};
       var form = options.form || 'login';
       var info = JSON.parse(localStorage.getItem('people.info'));
       var socials = info ? info.socials : [];
-      var output = '<div class="people-block" id="people-login">';
+      var output = '';
+      output += '<div class="people-block" id="people-login">';
+      output += '<div class="people-message" id="people-login-message"></div>';
       switch (form) {
         case 'login':
           output += people.loginForm(socials);
@@ -432,6 +448,11 @@ var people = people || {};
             // Message.
           }
         });
+        break;
+
+      case 'close-btn':
+        var el = document.getElementById("people-login-message");
+        el.innerHTML = '';
         break;
     }
   });
