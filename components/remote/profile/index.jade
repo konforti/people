@@ -20,8 +20,8 @@ form#profile
     div.form-role
         button#update-profile-btn.btn.btn-primary.btn-update(type='button') Update profile
 
-h4 Change Password
-form#password
+h4.change-password Change Password
+form#new-password.hidden
     input.form-control(type='hidden', name='csrf', value!='#{data.csrfToken}')
     div.form-role
         label New Password:

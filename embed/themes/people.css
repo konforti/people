@@ -1,31 +1,13 @@
-#people-dash {
+/** General **/
+.hidden {
+  display: none;
+}
+
+.people-block {
   font: normal 12px/30px sans-serif;
 }
 
-#people-dash .people-block {
-  display: inline-block;
-  background: rgba(0,0,0,.01);
-  border: 1px solid rgba(0,0,0,.3);
-  border-radius: 2px;
-  margin: 10px;
-  padding: 50px;
-}
-
-#people-dash .people-block #user-avatar img {
-  width: 100px;
-}
-
-#people-dash .form-field {
-  margin: 10px 0;
-}
-
-#people-dash .form-field input {
-  padding: 5px 10px;
-  border: 1px solid rgba(0,0,0,.3);
-  border-radius: 2px;
-}
-
-#people-dash button {
+.people-block button {
   background: #2090ff;
   padding: 5px 10px;
   border: 1px solid rgba(0,0,0,.3);
@@ -33,7 +15,30 @@
   color: #ffffff;
 }
 
-#people-dash .social-login {
+.people-block input {
+  padding: 5px;
+  border: 1px solid rgba(0,0,0,.3);
+  border-radius: 2px;
+}
+
+/** Login **/
+#people-login .people-block {
+  display: inline-block;
+  background: rgba(0,0,0,.01);
+  border: 1px solid rgba(0,0,0,.3);
+  border-radius: 2px;
+  padding: 20px 40px;
+}
+
+#people-login .people-block #user-avatar img {
+  width: 100px;
+}
+
+#people-login .form-field {
+  margin: 10px 0;
+}
+
+#people-login .social-login {
   background: rgba(0,0,0,.05);
   padding: 5px 10px;
   margin: 0 2px;
@@ -41,4 +46,72 @@
   border-radius: 2px;
   color: #222;
   text-decoration: none;
+}
+
+/** Messages **/
+#people-message p {
+  border-radius: 4px;
+  padding: 10px;
+  color: #222;
+  box-shadow: 4px 4px 10px rgba(0,0,0,.2);
+}
+
+#people-message p.info {
+  background: rgb(200, 230, 255);
+}
+
+#people-message p.error {
+  background: rgb(255, 200, 200);;
+}
+
+#people-message .close-btn {
+  background: transparent;
+  border: none;
+  float: right;
+  color: #222;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/** User Block **/
+#people-user .people-block {
+  box-shadow: 4px 4px 10px rgba(0,0,0,.2);
+  display: inline-block;
+  padding: 15px 30px;
+  text-align: center;
+}
+
+#people-user .people-block #user-avatar img {
+  border-radius: 100px;
+}
+
+/** Profile **/
+#people-profile .people-block {
+  box-shadow: 4px 4px 10px rgba(0,0,0,.2);
+  display: inline-block;
+  padding: 15px 30px;
+}
+
+#people-profile .people-block .form-role {
+  margin-bottom: 10px;
+}
+
+#people-profile .people-block label {
+  display: inline-block;
+  line-height: 1;
+  width: 100px;
+  vertical-align: middle;
+}
+
+#people-profile .people-block .verify-email {
+  margin-left: 10px;
+  color: #999;
+  cursor: pointer;
+}
+
+#people-profile .people-block .title {
+  text-decoration: overline underline;
+  text-transform: capitalize;
+  font-size: 18px;
+  font-family: serif;
 }

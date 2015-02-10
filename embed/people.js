@@ -527,7 +527,12 @@ var people = people || {};
 
       case 'close-btn':
         var el = document.getElementById("people-message");
-        el.innerHTML = '';
+        if (el) el.innerHTML = '';
+        break;
+
+      case 'change-password':
+        var el = document.getElementById("new-password");
+        if (el) el.classList.toggle("hidden");
         break;
     }
   });
