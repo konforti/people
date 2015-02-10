@@ -16,7 +16,8 @@ exports.signupTwitter = function (req, res, next) {
     }
 
     if (!info || !info.profile) {
-      return workflow.outcome.errfor.username = 'No info';
+      workflow.outcome.errfor.username = 'No info';
+      return workflow.emit('response');
     }
 
     req.app.db.models.User.findOne({'twitter.id': info.profile.id}, function (err, user) {
@@ -59,7 +60,8 @@ exports.signupGitHub = function (req, res, next) {
     }
 
     if (!info || !info.profile) {
-      return workflow.outcome.errfor.username = 'No info';
+      workflow.outcome.errfor.username = 'No info';
+      return workflow.emit('response');
     }
 
     req.app.db.models.User.findOne({'github.id': info.profile.id}, function (err, user) {
@@ -102,7 +104,8 @@ exports.signupFacebook = function (req, res, next) {
     }
 
     if (!info || !info.profile) {
-      return workflow.outcome.errfor.username = 'No info';
+      workflow.outcome.errfor.username = 'No info';
+      return workflow.emit('response');
     }
 
     req.app.db.models.User.findOne({'facebook.id': info.profile.id}, function (err, user) {
@@ -145,7 +148,8 @@ exports.signupGoogle = function (req, res, next) {
     }
 
     if (!info || !info.profile) {
-      return workflow.outcome.errfor.username = 'No info';
+      workflow.outcome.errfor.username = 'No info';
+      return workflow.emit('response');
     }
 
     req.app.db.models.User.findOne({'google.id': info.profile.id}, function (err, user) {
@@ -188,7 +192,8 @@ exports.signupTumblr = function (req, res, next) {
     }
 
     if (!info || !info.profile) {
-      return workflow.outcome.errfor.username = 'No info';
+      workflow.outcome.errfor.username = 'No info';
+      return workflow.emit('response');
     }
 
     req.app.db.models.User.findOne({'tumblr.id': info.profile.id}, function (err, user) {

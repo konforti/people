@@ -111,9 +111,14 @@ exports.read = function (req, res, next) {
       }
 
       outcome.fields = [];
-      for (var i = 0, field; field = req.app.config.fields[i]; ++i) {
-        outcome.fields[i] = field;
-        outcome.fields[i].value = typeof fields[i] !== 'undefined' ? fields[i].value : '';
+      for (var i = 0; i < req.app.config.fields.length; i++) {
+        outcome.fields[i] = req.app.config.fields[i];
+
+        for (var j = 0; j < fields.length; j++) {
+          if (fields[j].key === req.app.config.fields[i].key) {
+            outcome.fields[i].value = typeof fields[j] !== 'undefined' ? fields[j].value : '';
+          }
+        }
       }
 
       return callback(null, 'done');
@@ -278,23 +283,28 @@ exports.update = function (req, res, next) {
 
       workflow.outcome.user.extra = [];
       var fields = req.app.config.fields;
-      for (var i = 0, field; field = fields[i]; ++i) {
+      for (var i = 0; i < fields.length; ++i) {
         var extraFieldsToSet = {};
-        extraFieldsToSet.key = field.key;
-        extraFieldsToSet.value = req.body[field.key];
-        req.app.db.models.UserMeta.findOneAndUpdate({
-          user: req.params.id,
-          key: field.key
-        }, extraFieldsToSet, {upsert: true}, function (err, userField) {
-          if (err) {
-            return workflow.emit('exception', err);
-          }
+        extraFieldsToSet.key = fields[i].key;
+        extraFieldsToSet.value = req.body[fields[i].key];
 
-          workflow.outcome.user.extra += userField;
-        });
+        (function(i) {
+          req.app.db.models.UserMeta.findOneAndUpdate({
+            user: req.params.id,
+            key: fields[i].key
+          }, extraFieldsToSet, {upsert: true}, function (err, userField) {
+            if (err) {
+              return workflow.emit('exception', err);
+            }
+
+            fields[i].value = userField.value;
+            workflow.outcome.user.extra.push(fields[i]);
+            if (i >= fields.length - 1) {
+              workflow.emit('response');
+            }
+          });
+        })(i);
       }
-
-      workflow.emit('response');
     });
   });
 

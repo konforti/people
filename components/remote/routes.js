@@ -7,15 +7,15 @@
  * @param next
  * @returns {*}
  */
-function unsaveUninitialized(req, res, next) {
-  if (req.url.indexOf('/remote/login/') !== 0 && req.url.indexOf('/remote/signup/') !== 0) {
-    if (Object.keys(req.session.passport).length === 0) {
-      delete req.session.passport;
-    }
-  }
-
-  return next();
-}
+//function unsaveUninitialized(req, res, next) {
+//  if (req.url.indexOf('/remote/login/') !== 0 && req.url.indexOf('/remote/signup/') !== 0) {
+//    if (Object.keys(req.session.passport).length === 0) {
+//      delete req.session.passport;
+//    }
+//  }
+//
+//  return next();
+//}
 
 /**
  *

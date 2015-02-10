@@ -92,10 +92,16 @@ exports.read = function (req, res, next) {
       }
 
       outcome.fields = [];
-      for (var i = 0, field; field = req.app.config.fields[i]; ++i) {
-        outcome.fields[i] = field;
-        outcome.fields[i].value = typeof fields[i] !== 'undefined' ? fields[i].value : '';
+      for (var i = 0; i < req.app.config.fields.length; i++) {
+        outcome.fields[i] = req.app.config.fields[i];
+
+        for (var j = 0; j < fields.length; j++) {
+          if (fields[j].key === req.app.config.fields[i].key) {
+            outcome.fields[i].value = typeof fields[j] !== 'undefined' ? fields[j].value : '';
+          }
+        }
       }
+
 
       return callback(null, 'done');
     });
@@ -164,9 +170,14 @@ exports.readCurrent = function (req, res, next) {
         }
 
         outcome.fields = [];
-        for (var i = 0, field; field = req.app.config.fields[i]; ++i) {
-          outcome.fields[i] = field;
-          outcome.fields[i].value = typeof fields[i] !== 'undefined' ? fields[i].value : '';
+        for (var i = 0; i < req.app.config.fields.length; i++) {
+          outcome.fields[i] = req.app.config.fields[i];
+
+          for (var j = 0; j < fields.length; j++) {
+            if (fields[j].key === req.app.config.fields[i].key) {
+              outcome.fields[i].value = typeof fields[j] !== 'undefined' ? fields[j].value : '';
+            }
+          }
         }
 
         return callback(null, 'done');
@@ -240,28 +251,28 @@ exports.updateFields = function (req, res, next) {
     workflow.outcome.fields = [];
     var fields = req.app.config.fields;
 
-    for (var i = 0, field; field = fields[i]; ++i) {
-
+    for (var i = 0; i < fields.length; i++) {
       var extraFieldsToSet = {};
-      if (typeof req.body[field.key] !== 'undefined') {
-        extraFieldsToSet.key = field.key;
-        extraFieldsToSet.value = req.body[field.key];
-      }
+      extraFieldsToSet.key = fields[i].key;
+      extraFieldsToSet.value = req.body[fields[i].key];
 
-      req.app.db.models.UserMeta.findOneAndUpdate({
-        user: req.params.id,
-        key: field.key
-      }, extraFieldsToSet, {upsert: true}, function (err, userField) {
-        if (err) {
-          return workflow.emit('exception', err);
-        }
+      (function(i) {
+        req.app.db.models.UserMeta.findOneAndUpdate({
+          user: req.params.id,
+          key: fields[i].key
+        }, extraFieldsToSet, {upsert: true}, function (err, userField) {
+          if (err) {
+            return workflow.emit('exception', err);
+          }
 
-        workflow.outcome.fields += userField;
-      });
+          fields[i].value = userField.value;
+          workflow.outcome.fields.push(fields[i]);
+          if (i >= fields.length - 1) {
+            exports.read(req, res, next);
+          }
+        });
+      })(i);
     }
-
-    exports.read(req, res, next);
-    //return workflow.emit('response');
   });
 
   workflow.emit('validate');

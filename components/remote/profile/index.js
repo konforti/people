@@ -9,7 +9,6 @@ var signature = require('cookie-signature');
  */
 exports.readProfile = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
-  var outcome = {};
   var getRecord = function (callback) {
     req.app.db.models.User.findById(req.user.id).exec(function (err, record) {
       if (err) {
@@ -27,9 +26,14 @@ exports.readProfile = function (req, res, next) {
       }
 
       workflow.outcome.fields = [];
-      for (var i = 0, field; field = req.app.config.fields[i]; ++i) {
-        workflow.outcome.fields[i] = field;
-        workflow.outcome.fields[i].value = typeof fields[i] !== 'undefined' ? fields[i].value : '';
+      for (var i = 0; i < req.app.config.fields.length; i++) {
+        workflow.outcome.fields[i] = req.app.config.fields[i];
+
+        for (var j = 0; j < fields.length; j++) {
+          if (fields[j].key === req.app.config.fields[i].key) {
+            workflow.outcome.fields[i].value = typeof fields[j] !== 'undefined' ? fields[j].value : '';
+          }
+        }
       }
 
       return callback(null, 'done');
@@ -52,7 +56,7 @@ exports.readProfile = function (req, res, next) {
       }, function (err, html) {
         delete workflow.outcome.record;
         delete workflow.outcome.fields;
-        workflow.outcome.html = html
+        workflow.outcome.html = html;
         workflow.emit('response');
       }
     );
@@ -76,7 +80,7 @@ exports.updateProfile = function (req, res, next) {
       workflow.outcome.errfor.form = 'invalid csrf token';
     }
 
-    if (req.sessionID !== req.body.sid) {
+    if (req.sessionID !== signature.unsign(req.body.sid, req.app.config.cryptoKey)) {
       workflow.outcome.errfor.session = 'invalid session';
     }
 
@@ -152,30 +156,33 @@ exports.updateProfile = function (req, res, next) {
   workflow.on('patchFields', function () {
     workflow.outcome.fields = [];
     var fields = req.app.config.fields;
-
-    for (var i = 0, field; field = fields[i]; ++i) {
-
+    for (var i = 0; i < fields.length; i++) {
       var extraFieldsToSet = {};
-      if (typeof req.body[field.key] !== 'undefined') {
-        extraFieldsToSet.key = field.key;
-        extraFieldsToSet.value = req.body[field.key];
-      }
+      extraFieldsToSet.key = fields[i].key;
+      extraFieldsToSet.value = req.body[fields[i].key];
 
-      req.app.db.models.UserMeta.findOneAndUpdate({
-        user: req.user.id,
-        key: field.key
-      }, extraFieldsToSet, {upsert: true}, function (err, userField) {
-        if (err) {
-          return workflow.emit('exception', err);
-        }
+      (function(i) {
+        req.app.db.models.UserMeta.findOneAndUpdate({
+          user: req.user.id,
+          key: fields[i].key
+        }, extraFieldsToSet, {upsert: true}, function (err, userField) {
+          if (err) {
+            return workflow.emit('exception', err);
+          }
 
-        workflow.outcome.fields += userField;
-      });
+          fields[i].value = userField.value;
+          workflow.outcome.fields.push(fields[i]);
+          if (i >= fields.length - 1) {
+            workflow.emit('renderProfile');
+          }
+        });
+      })(i);
     }
+  });
 
+  workflow.on('renderProfile', function () {
     var csrfToken = crypto.pseudoRandomBytes(16).toString('hex');
     req.session.remoteToken = csrfToken;
-
     req.app.render('../remote/profile/index', {
         data: {
           csrfToken: csrfToken,
@@ -247,19 +254,26 @@ exports.updatePassword = function (req, res, next) {
     workflow.outcome.fields = [];
     var fields = req.app.config.fields;
 
-    for (var i = 0, field; field = fields[i]; ++i) {
-      req.app.db.models.UserMeta.findOne({user: req.user.id, key: field.key}, function (err, userField) {
-        if (err) {
-          return workflow.emit('exception', err);
-        }
+    for (var i = 0; i < fields.length; i++) {
+      (function(i) {
+        req.app.db.models.UserMeta.findOne({user: req.user.id, key: fields[i].key}, function (err, userField) {
+          if (err) {
+            return workflow.emit('exception', err);
+          }
 
-        workflow.outcome.fields += userField;
-      });
+          fields[i].value = userField.value;
+          workflow.outcome.fields.push(fields[i]);
+          if (i >= fields.length - 1) {
+            workflow.emit('renderProfile');
+          }
+        });
+      })(i);
     }
+  });
 
+  workflow.on('renderProfile', function () {
     var csrfToken = crypto.pseudoRandomBytes(16).toString('hex');
     req.session.remoteToken = csrfToken;
-
     req.app.render('../remote/profile/index', {
         data: {
           csrfToken: csrfToken,

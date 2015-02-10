@@ -130,6 +130,7 @@ var people = people || {};
 
       var el = document.getElementById("people-message");
       if (el) {
+        el.innerHTML = '';
         var c = document.createElement("button");
         c.className = 'close-btn';
         c.innerHTML = '&times;';
@@ -436,7 +437,7 @@ var people = people || {};
         }
         people.makeRequest('POST', people.baseUrl + '/remote/profile/', values, function (data) {
           if (!people.alert(data)) {
-            people.profileBlock(JSON.parse(data.responseText));
+            people.profileBlock(data.responseText);
           }
         });
         break;
@@ -449,7 +450,7 @@ var people = people || {};
         }
         people.makeRequest('POST', people.baseUrl + '/remote/password/', values, function (data) {
           if (!people.alert(data)) {
-            people.profileBlock(JSON.parse(data.responseText));
+            people.profileBlock(data.responseText);
           }
         });
         break;
