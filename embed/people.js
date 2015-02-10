@@ -14,6 +14,15 @@ var people = people || {};
    * @returns {boolean}
    */
   people.makeRequest = function (method, url, data, next) {
+    var throb = document.createElement('img');
+    throb.src = people.baseUrl + '/media/ajax-pulse.gif';
+    throb.style.position = 'absolute';
+    document.body.appendChild(throb);
+    document.onmousemove = function(e) {
+      throb.style.left = e.pageX + 15 + "px";
+      throb.style.top = e.pageY + "px";
+    };
+
     var httpRequest = new XMLHttpRequest(),
       body = '',
       query = '';
@@ -41,6 +50,7 @@ var people = people || {};
     httpRequest.onreadystatechange = function () {
       if (httpRequest.readyState === 4 && httpRequest.status === 200) {
         next(httpRequest);
+        throb.parentNode.removeChild(throb);
       }
     };
 
@@ -115,9 +125,34 @@ var people = people || {};
    * @param data
    * @returns {boolean}
    */
-  people.alert = function(data) {
+  people.alert = function(data, info) {
+    info = info || '';
     data = JSON.parse(data.responseText);
+
+    function elem() {
+      var el = document.getElementById("people-message");
+      if (el) {
+        el.innerHTML = '';
+        var c = document.createElement("button");
+        c.className = 'close-btn';
+        c.innerHTML = '&times;';
+        el.appendChild(c);
+
+        return el;
+      }
+
+      return false;
+    }
+
     if (data.success === true) {
+      var elem = elem();
+      if (elem) {
+        var p = document.createElement("p");
+        p.className = 'info';
+        p.innerHTML = info;
+        elem.appendChild(p);
+      }
+
       return false;
     }
     else {
@@ -128,20 +163,13 @@ var people = people || {};
         var errfor = key + ': ' + data.errfor[key] + '\n';
       }
 
-      var el = document.getElementById("people-message");
-      if (el) {
-        el.innerHTML = '';
-        var c = document.createElement("button");
-        c.className = 'close-btn';
-        c.innerHTML = '&times;';
-        el.appendChild(c);
-
+      var elem = elem();
+      if (elem) {
         var p = document.createElement("p");
         p.className = 'error';
-        p.innerText = '';
-        p.innerText += (errors) ? errors + '\n' : '';
-        p.innerText += (errfor) ? errfor : '';
-        el.appendChild(p);
+        p.innerHTML = (errors) ? errors + '\n' : '';
+        p.innerHTML += (errfor) ? errfor : '';
+        elem.appendChild(p);
       }
 
       return true;
@@ -490,14 +518,15 @@ var people = people || {};
 
       case 'verify-email':
         people.makeRequest('POST', people.baseUrl + '/remote/verification/', {}, function (data) {
-          if (JSON.parse(data.responseText).success === true) {
-            // Message.
+          var message = 'A verification mail sent to your email address.'
+          if (!people.alert(data, message)) {
+            // Just wait.
           }
         });
         break;
 
       case 'close-btn':
-        var el = document.getElementById("people-login-message");
+        var el = document.getElementById("people-message");
         el.innerHTML = '';
         break;
     }
@@ -505,8 +534,8 @@ var people = people || {};
 
   if (localStorage.getItem('people.info') === null) {
     people.makeRequest('GET', people.baseUrl + '/remote/info/', {}, function (data) {
-      var res = JSON.parse(data.responseText);
-      if (res.success === true) {
+      var data = JSON.parse(data.responseText);
+      if (data.success === true) {
         localStorage.setItem('people.info', JSON.stringify(res.info));
       }
     });
