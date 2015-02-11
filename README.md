@@ -32,7 +32,7 @@ _Clear and intuitive full control admin panel_
 * User extra fields
 
 ### People.js:
-_Full features pre-session flow with one line._
+_Full features flow with one line._
 * User login
 * User register 
 * Welcome email
@@ -41,6 +41,7 @@ _Full features pre-session flow with one line._
 * Set session cookies
 * Logout
 * Easy customization
+* User profile
 
 ### API:
 _A post-session server side API to get full view on your users._
