@@ -110,7 +110,6 @@ require('./components/remote/routes')(app, passport);
 //setup routes
 require('./components/web/routes')(app, passport);
 
-
 //custom (friendly) error handler
 app.use(require('./components/web/http/index').http500);
 

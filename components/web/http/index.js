@@ -2,7 +2,7 @@
 
 exports.http404 = function (req, res) {
   res.status(404);
-  if (req.xhr) {
+  if (req.xhr || req.url.indexOf('/api/') === 0 || req.url.indexOf('/remote/') === 0) {
     res.send({error: 'Resource not found.'});
   }
   else {
@@ -19,7 +19,7 @@ exports.http500 = function (err, req, res, next) {
     console.log(err.stack);
   }
 
-  if (req.xhr) {
+  if (req.xhr || req.url.indexOf('/api/') === 0 || req.url.indexOf('/remote/') === 0) {
     res.send({error: 'Something went wrong.', details: data});
   }
   else {
