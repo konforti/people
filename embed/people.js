@@ -212,7 +212,7 @@ var people = people || {};
       var user = JSON.parse(localStorage.getItem('people.user'));
       if (user) {
         var userBlock = '';
-        userBlock += '<div class="people-block" id="user-block">';
+        userBlock += '<div class="people-block" id="people-user-block">';
         userBlock += '<div id="user-avatar"><img src="' + user.avatar + '"></div>';
         userBlock += '<span id="user-name">' + user.username + '</span>';
         userBlock += '<span> | <a class="to-logout" href="javascript:void(0)">Log Out</a></span>';
@@ -228,8 +228,8 @@ var people = people || {};
    * Remove user block.
    */
   people.userBlockRemove = function () {
-    var el = document.getElementById("people-user");
-    if (el) el.innerHTML = '';
+    var el = document.getElementById("people-user-block");
+    if (el) el.outerHTML = '';
   };
 
   /**
@@ -241,7 +241,7 @@ var people = people || {};
     loginHTML += '<div class="form-field"><input id="login-name" type="textfield" placeholder="Name" value></div>';
     loginHTML += '<div class="form-field"><input id="login-pass" type="password" placeholder="Password" value></div>';
     loginHTML += '<button id="login-btn" type="button" name="button-login">Login</button> ';
-    loginHTML += '<a class="to-forgot" href="javascript:void(0)">Forgot my password</a>';
+    loginHTML += '<a class="to-forgot" href="javascript:void(0)">Forgot password</a>';
     loginHTML += '</form>';
     loginHTML += '<h4>Or login using: </h4>';
     for (var i = 0, name; name = socials[i]; ++i) {
@@ -309,7 +309,7 @@ var people = people || {};
    */
   people.loginBlockRemove = function () {
     var el = document.getElementById("people-login-block");
-    if (el) el.innerHTML = '';
+    if (el) el.outerHTML = '';
   };
 
   /**
@@ -389,7 +389,7 @@ var people = people || {};
    */
   people.userProfileRemove = function () {
     var el = document.getElementById("people-profile-block");
-    if (el) el.innerHTML = '';
+    if (el) el.outerHTML = '';
   };
 
   /**

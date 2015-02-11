@@ -1,0 +1,125 @@
+/** General **/
+.hidden {
+  display: none;
+}
+
+.people-block {
+  font: normal 12px/30px sans-serif;
+  display: inline-block;
+  background: #3887be;
+  border: 1px solid rgba(0,0,0,.03);
+  border-radius: 5px;
+  padding: 20px 40px;
+  color: #fff;
+}
+
+.people-block button {
+  background: #fff;
+  padding: 5px 10px;
+  border: 1px solid rgba(0,0,0,.3);
+  border-radius: 15px;
+}
+
+.people-block input {
+  padding: 5px;
+  border: 1px solid rgba(0,0,0,.3);
+  border-radius: 2px;
+  background: #2E6C98;
+  color: #fff;
+  font-size: 1.2em;
+}
+
+.people-block a {
+  color: #ccc;
+}
+
+/** Messages **/
+#people-message p {
+  border-radius: 4px;
+  padding: 10px;
+  color: #222;
+  box-shadow: 4px 4px 10px rgba(0,0,0,.2);
+}
+
+#people-message p.info {
+  background: rgb(200, 230, 255);
+}
+
+#people-message p.error {
+  background: rgb(255, 200, 200);;
+}
+
+#people-message .close-btn {
+  background: transparent;
+  border: none;
+  float: right;
+  color: #222;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+
+/** Login **/
+#people-login .people-block #user-avatar img {
+  width: 100px;
+}
+
+#people-login .form-field {
+  margin: 10px 0;
+}
+
+#people-login .social-login {
+  background: #56b881;
+  padding: 5px 10px;
+  margin: 0 2px;
+  border: 1px solid rgba(0,0,0,.3);
+  border-radius: 2px;
+  color: #222;
+  text-decoration: none;
+}
+
+#people-login .to-forgot {
+  font-size: 10px;
+  color: #aaa;
+  float: right;
+}
+
+/** User Block **/
+#people-user .people-block {
+  text-align: center;
+}
+
+#people-user .people-block #user-avatar img {
+  border-radius: 100px;
+}
+
+#people-user .to-logout {
+  font-size: 10px;
+}
+
+/** Profile **/
+#people-profile .people-block .form-role {
+  margin-bottom: 10px;
+}
+
+#people-profile .people-block label {
+  display: inline-block;
+  line-height: 1;
+  width: 100px;
+  vertical-align: middle;
+}
+
+#people-profile .people-block .verify-email {
+  margin-left: 10px;
+  color: #ccc;
+  cursor: pointer;
+}
+
+#people-profile .people-block .title {
+  font-size: 18px;
+  font-family: serif;
+}
+
+#people-profile .people-block .change-password {
+  cursor: pointer;
+}

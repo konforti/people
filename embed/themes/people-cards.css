@@ -5,6 +5,10 @@
 
 .people-block {
   font: normal 12px/30px sans-serif;
+  box-shadow: 4px 4px 10px rgba(0,0,0,.2);
+  display: inline-block;
+  padding: 20px 40px;
+  color: #222;
 }
 
 .people-block button {
@@ -19,33 +23,11 @@
   padding: 5px;
   border: 1px solid rgba(0,0,0,.3);
   border-radius: 2px;
+  font-size: 1.2em;
 }
 
-/** Login **/
-#people-login .people-block {
-  display: inline-block;
-  background: rgba(0,0,0,.01);
-  border: 1px solid rgba(0,0,0,.3);
-  border-radius: 2px;
-  padding: 20px 40px;
-}
-
-#people-login .people-block #user-avatar img {
-  width: 100px;
-}
-
-#people-login .form-field {
-  margin: 10px 0;
-}
-
-#people-login .social-login {
-  background: rgba(0,0,0,.05);
-  padding: 5px 10px;
-  margin: 0 2px;
-  border: 1px solid rgba(0,0,0,.3);
-  border-radius: 2px;
-  color: #222;
-  text-decoration: none;
+.people-block a {
+  color: #999;
 }
 
 /** Messages **/
@@ -73,11 +55,32 @@
   cursor: pointer;
 }
 
+/** Login **/
+#people-login .people-block #user-avatar img {
+  width: 100px;
+}
+
+#people-login .form-field {
+  margin: 10px 0;
+}
+
+#people-login .social-login {
+  background: rgba(0,0,0,.05);
+  padding: 5px 10px;
+  margin: 0 2px;
+  border: 1px solid rgba(0,0,0,.3);
+  border-radius: 2px;
+  color: #222;
+  text-decoration: none;
+}
+
+#people-login .to-forgot {
+  font-size: 10px;
+  float: right;
+}
+
 /** User Block **/
 #people-user .people-block {
-  box-shadow: 4px 4px 10px rgba(0,0,0,.2);
-  display: inline-block;
-  padding: 15px 30px;
   text-align: center;
 }
 
@@ -85,13 +88,12 @@
   border-radius: 100px;
 }
 
-/** Profile **/
-#people-profile .people-block {
-  box-shadow: 4px 4px 10px rgba(0,0,0,.2);
-  display: inline-block;
-  padding: 15px 30px;
+#people-user .to-logout {
+  font-size: 10px;
+  color: #999;
 }
 
+/** Profile **/
 #people-profile .people-block .form-role {
   margin-bottom: 10px;
 }
@@ -110,8 +112,10 @@
 }
 
 #people-profile .people-block .title {
-  text-decoration: overline underline;
-  text-transform: capitalize;
   font-size: 18px;
   font-family: serif;
+}
+
+#people-profile .people-block .change-password {
+  cursor: pointer;
 }
