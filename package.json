@@ -1,6 +1,6 @@
 {
   "name": "People",
-  "version": "0.14.5",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "start": "node app.js"
@@ -30,6 +30,7 @@
     "passport-oauth": "^1.0.0",
     "passport-tumblr": "^0.1.2",
     "passport-twitter": "^1.0.2",
+    "request": "^2.53.0 ",
     "serve-static": "^1.1.0"
   },
   "devDependencies": {

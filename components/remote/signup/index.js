@@ -128,6 +128,7 @@ exports.signup = function (req, res, next) {
               return workflow.emit('exception', err);
             }
 
+            req.hooks.emit('userCreated', user);
             workflow.user = user;
             workflow.emit('sendWelcomeEmail', token);
           });
@@ -177,6 +178,8 @@ exports.signup = function (req, res, next) {
             username: user.username,
             avatar: 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g'
           };
+
+          req.hooks.emit('userLogin', workflow.outcome.user);
           workflow.emit('response');
         });
       }
@@ -283,6 +286,7 @@ exports.login = function (req, res, next) {
             avatar: 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g'
           };
 
+          req.hooks.emit('userLogin', workflow.outcome.user);
           workflow.emit('response');
         });
       }

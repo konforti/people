@@ -7,7 +7,7 @@ var signature = require('cookie-signature');
  * @param req
  * @param res
  */
-exports.readProfile = function (req, res, next) {console.log(req.xhr);
+exports.readProfile = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
   var getRecord = function (callback) {
     req.app.db.models.User.findById(req.user.id).exec(function (err, record) {

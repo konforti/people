@@ -15,7 +15,8 @@ exports.loginAttempts = {
   forIpAndUser: 7,
   logExpiration: '20m'
 };
-exports.allowDomain = 'http://people.lh';// Changes this.
+exports.webhooksURL = ''; //'http://people.lh/webhooks';
+exports.allowDomain = 'http://people.lh';
 exports.csrfExclusion = ['/remote/','/api/'];
 exports.requireAccountVerification = false;
 exports.smtp = {

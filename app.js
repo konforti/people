@@ -87,19 +87,30 @@ app.locals.copyrightYear = new Date().getFullYear();
 app.locals.copyrightName = app.config.companyName;
 app.locals.cacheBreaker = 'br34k-01';
 
-//CORS middleware
+// CORS middleware
 var allowCrossDomain = function(req, res, next) {
   res.header('Access-Control-Allow-Origin', config.allowDomain);
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
   res.header('Access-Control-Allow-Credentials', 'true');
-
   next();
 };
 app.use(allowCrossDomain);
 
+// Hooks middleware.
+app.use(function(req, res, next) {
+  req.hooks = require('./util/hooks')(req, res, next);
+  next();
+});
+
+// Rules middleware.
+app.use(function(req, res, next) {
+  require('./rules')(req, res, next);
+  next();
+});
+
 //setup passport
-require('./passport')(app, passport);
+require('./util/passport')(app, passport);
 
 //setup routes
 require('./components/api/routes')(app);
