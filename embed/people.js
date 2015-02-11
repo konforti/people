@@ -174,7 +174,6 @@ var people = people || {};
 
       return true;
     }
-
   };
 
   /**
@@ -186,6 +185,9 @@ var people = people || {};
 
     // Save Shallow user to local storage.
     localStorage.setItem('people.user', JSON.stringify(data.user));
+
+    var event = new Event('onlogin');
+    document.dispatchEvent(event);
 
     // Show the logged-in user block.
     people.userBlock();
@@ -199,6 +201,10 @@ var people = people || {};
   people.logout = function () {
     people.eraseCookie('people.sid');
     localStorage.removeItem('people.user');
+
+    var event = new Event('onlogout');
+    document.dispatchEvent(event);
+
     people.loginBlock();
     people.userBlockRemove();
     people.userProfileRemove();
@@ -382,7 +388,7 @@ var people = people || {};
         if (el) el.innerHTML = output;
       }
     }
-  }
+  };
 
   /**
    * Remove profile block.
@@ -452,6 +458,8 @@ var people = people || {};
           password: document.getElementById("forgot-reset-pass").value
         }, function (data) {
           if (!people.alert(data)) {
+            var event = new Event('onpasswordreset');
+            document.dispatchEvent(event);
             people.loginBlock();
           }
         });
@@ -465,6 +473,8 @@ var people = people || {};
         }
         people.makeRequest('POST', people.baseUrl + '/remote/profile/', values, function (data) {
           if (!people.alert(data)) {
+            var event = new Event('onprofileupdate');
+            document.dispatchEvent(event);
             people.profileBlock(data.responseText);
           }
         });
@@ -478,6 +488,8 @@ var people = people || {};
         }
         people.makeRequest('POST', people.baseUrl + '/remote/password/', values, function (data) {
           if (!people.alert(data)) {
+            var event = new Event('onpasswordupdate');
+            document.dispatchEvent(event);
             people.profileBlock(data.responseText);
           }
         });
@@ -520,7 +532,7 @@ var people = people || {};
         people.makeRequest('POST', people.baseUrl + '/remote/verification/', {}, function (data) {
           var message = 'A verification mail sent to your email address.'
           if (!people.alert(data, message)) {
-            // Just wait.
+            // Wait.
           }
         });
         break;
