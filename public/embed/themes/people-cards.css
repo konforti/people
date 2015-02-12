@@ -1,0 +1,133 @@
+/** General **/
+.hidden {
+  display: none;
+}
+
+.ppl-block {
+  font: normal 12px/30px sans-serif;
+  box-shadow: 4px 4px 10px rgba(0,0,0,.2);
+  display: inline-block;
+  padding: 20px 40px;
+  color: #222;
+}
+
+.ppl-block button {
+  background: #2090ff;
+  padding: 5px 10px;
+  border: 1px solid rgba(0,0,0,.3);
+  border-radius: 2px;
+  color: #ffffff;
+}
+
+.ppl-block input {
+  padding: 5px;
+  border: 1px solid rgba(0,0,0,.3);
+  border-radius: 2px;
+  font-size: 1.2em;
+}
+
+.ppl-close-btn {
+  float: right;
+  color: #222;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.ppl-block a {
+  color: #999;
+}
+
+/** Alerts **/
+.ppl-alert {
+  padding: 0 15px;
+  margin-bottom: 20px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.2);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.25),0 1px 2px rgba(0,0,0,0.05);
+}
+
+.ppl-alert .ppl-close-btn {
+  font-size: 18px;
+  cursor: pointer;
+  float: right;
+  margin: 10px 0;
+}
+
+.ppl-alert.ppl-info {
+  color: #31708f;
+  background-image: linear-gradient(to bottom, #d9edf7 0, #b9def0 100%);
+  border-color: #9acfea;
+}
+
+.ppl-alert.ppl-error {
+  color: #a94442;
+  background-image: linear-gradient(to bottom, #f2dede 0, #e7c3c3 100%);
+  border-color: #dca7a7;
+}
+
+/** Login **/
+#ppl-login .ppl-form-field {
+  margin: 10px 0;
+}
+
+#ppl-login .ppl-social-login {
+  background: rgba(0,0,0,.05);
+  padding: 5px 10px;
+  margin: 0 2px;
+  border: 1px solid rgba(0,0,0,.3);
+  border-radius: 2px;
+  color: #222;
+  text-decoration: none;
+}
+
+#ppl-login .ppl-to-forgot {
+  font-size: 10px;
+  float: right;
+}
+
+/** User Block **/
+#ppl-user .ppl-block {
+  text-align: center;
+}
+
+#ppl-user .ppl-block #ppl-user-avatar {
+  border-radius: 100px;
+  cursor: pointer;
+}
+
+#ppl-user .ppl-block #ppl-user-name {
+  cursor: pointer;
+}
+
+#ppl-user .ppl-to-logout {
+  font-size: 10px;
+  color: #999;
+}
+
+/** Profile **/
+#ppl-profile .ppl-block .ppl-form-role {
+  margin-bottom: 10px;
+}
+
+#ppl-profile .ppl-block label {
+  display: inline-block;
+  line-height: 1;
+  width: 100px;
+  vertical-align: middle;
+}
+
+#ppl-profile .ppl-block .ppl-verify-email {
+  margin-left: 10px;
+  color: #999;
+  cursor: pointer;
+}
+
+#ppl-profile .ppl-block .ppl-title {
+  font-size: 18px;
+  font-family: serif;
+}
+
+#ppl-profile .ppl-block .ppl-change-password {
+  cursor: pointer;
+}
