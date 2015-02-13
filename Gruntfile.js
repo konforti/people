@@ -69,7 +69,8 @@ module.exports = function(grunt) {
       clientJS: {
          files: [
           'public/layouts/**/*.js', '!public/layouts/**/*.min.js',
-          'public/views/**/*.js', '!public/views/**/*.min.js'
+          'public/views/**/*.js', '!public/views/**/*.min.js',
+          'public/embed/**/*.js', '!public/embed/**/*.min.js'
          ],
          tasks: ['newer:uglify', 'newer:jshint:client']
       },
@@ -81,7 +82,8 @@ module.exports = function(grunt) {
          files: [
           'public/layouts/**/*.less',
           'public/views/**/*.less',
-          'public/less/**/*.less'
+          'public/less/**/*.less',
+          'public/embed/**/*.less'
          ],
          tasks: ['newer:less']
       },
@@ -138,6 +140,15 @@ module.exports = function(grunt) {
           dest: 'public/views/',
           ext: '.min.js'
         }]
+      },
+      embed: {
+        files: [{
+          expand: true,
+          cwd: 'public/embed/',
+          src: ['**/*.js', '!**/*.min.js'],
+          dest: 'public/embed/',
+          ext: '.min.js'
+        }]
       }
     },
     jshint: {
@@ -146,12 +157,14 @@ module.exports = function(grunt) {
           jshintrc: '.jshintrc-client',
           ignores: [
             'public/layouts/**/*.min.js',
-            'public/views/**/*.min.js'
+            'public/views/**/*.min.js',
+            'public/embed/**/*.min.js'
           ]
         },
         src: [
           'public/layouts/**/*.js',
-          'public/views/**/*.js'
+          'public/views/**/*.js',
+          'public/embed/**/*.js'
         ]
       },
       server: {
@@ -186,6 +199,15 @@ module.exports = function(grunt) {
           dest: 'public/views/',
           ext: '.min.css'
         }]
+      },
+      embed: {
+        files: [{
+          expand: true,
+          cwd: 'public/embed/themes/',
+          src: ['**/*.less'],
+          dest: 'public/embed/themes/',
+          ext: '.min.css'
+        }]
       }
     },
     clean: {
@@ -194,13 +216,16 @@ module.exports = function(grunt) {
           'public/layouts/**/*.min.js',
           'public/layouts/**/*.min.js.map',
           'public/views/**/*.min.js',
-          'public/views/**/*.min.js.map'
+          'public/views/**/*.min.js.map',
+          'public/embed/**/*.min.js',
+          'public/embed/**/*.min.js.map'
         ]
       },
       css: {
         src: [
           'public/layouts/**/*.min.css',
-          'public/views/**/*.min.css'
+          'public/views/**/*.min.css',
+          'public/embed/**/*.min.css'
         ]
       },
       vendor: {
