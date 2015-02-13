@@ -1,5 +1,5 @@
 # people
-Easy Users Management
+Remote Users Management
 
 * [Usage] (https://github.com/konforti/people/wiki/Usages)
 * [Installation](https://github.com/konforti/people/wiki/Installation)
@@ -8,7 +8,7 @@ Easy Users Management
 * Login flow
 
 # Usages
-**People** is a simple, easy to use, stand alone users management system.
+**People** is a simple, easy to use, stand alone remote users management system.
 Yet, complete, powerful & secure following best practice & best security. 
 
 Instead of think, configure and write a user management logic over again,

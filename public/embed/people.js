@@ -15,7 +15,7 @@ var people = people || {};
       people.makeRequest('GET', people.baseUrl + '/remote/info/', {}, function (data) {
         var data = JSON.parse(data.responseText);
         if (data.success === true) {
-          localStorage.setItem('people.info', JSON.stringify(res.info));
+          localStorage.setItem('people.info', JSON.stringify(data.info));
         }
       });
     }
