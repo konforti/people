@@ -1,5 +1,5 @@
-# people
-Remote Users Management
+# People
+###Remote Users Management
 
 * [Usages](https://github.com/konforti/people/wiki/Usages)
 * [Installation](https://github.com/konforti/people/wiki/Installation)
