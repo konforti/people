@@ -1,0 +1,129 @@
+/** General **/
+.hidden {
+  display: none;
+}
+
+.ppl-block {
+  font: normal 12px/30px sans-serif;
+  display: inline-block;
+  padding: 20px 40px;
+
+  button {
+    background: #2090ff;
+    color: #ffffff;
+    padding: 5px 10px;
+    border: 1px solid rgba(0,0,0,.3);
+    border-radius: 3px;
+  }
+
+  input {
+    padding: 5px;
+    border: 1px solid rgba(0,0,0,.3);
+    border-radius: 2px;
+    font-size: 1.2em;
+  }
+
+  .ppl-close-btn {
+    float: right;
+    color: #222;
+    font-size: 24px;
+    cursor: pointer;
+    margin: -20px -30px;
+  }
+
+  a {
+    color: #999;
+  }
+}
+
+/** Alerts **/
+.ppl-alert {
+  padding: 0 15px;
+  margin-bottom: 20px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.2);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.25),0 1px 2px rgba(0,0,0,0.05);
+  overflow: auto;
+
+  .ppl-close-btn {
+    font-size: 18px;
+    cursor: pointer;
+    float: right;
+    margin: 10px 0;
+  }
+
+  &.ppl-info {
+    color: #31708f;
+    background-image: linear-gradient(to bottom, #d9edf7 0, #b9def0 100%);
+    border-color: #9acfea;
+  }
+
+  &.ppl-error {
+    color: #a94442;
+    background-image: linear-gradient(to bottom, #f2dede 0, #e7c3c3 100%);
+    border-color: #dca7a7;
+  }
+}
+
+/** Login **/
+form.ppl-login {
+  .ppl-form-field {
+    margin: 10px 0;
+  }
+
+  .ppl-to-forgot {
+    font-size: 10px;
+    float: right;
+  }
+}
+
+.ppl-block .ppl-social-login {
+  background: no-repeat;
+  margin: 0 2px;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  color: #fff;
+  text-decoration: none;
+  width: 90px;
+  height: 30px;
+  display: inline-block;
+  text-indent: 30px;
+
+  &#ppl-login-facebook {
+    background: url('images/ppl-socials.png') 0 0;
+  }
+  &#ppl-login-twitter {
+    background: url('images/ppl-socials.png') 0 -30px;
+  }
+  &#ppl-login-google {
+    background: url('images/ppl-socials.png') 0 -60px;
+  }
+  &#ppl-login-github {
+    background: url('images/ppl-socials.png') 0 -90px;
+  }
+  &#ppl-login-tumblr {
+    background: url('images/ppl-socials.png') 0 -120px;
+  }
+}
+
+/** User Block **/
+#ppl-user-block {
+  .ppl-block {
+    text-align: center;
+
+    #ppl-user-avatar {
+      border-radius: 100px;
+      cursor: pointer;
+    }
+
+    #ppl-user-name {
+      cursor: pointer;
+    }
+  }
+
+  .ppl-to-logout {
+    font-size: 10px;
+    color: #999;
+  }
+}

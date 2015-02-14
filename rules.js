@@ -19,13 +19,13 @@ exports = module.exports = function(req, res, next) {
     }
   };
 
-  // userCreated event.
-  rules.on('userCreated', function(user) {
+  // afterUserCreated event.
+  rules.on('afterUserCreated', function(user) {
     webhook(user);
   });
 
-  // userLogin event.
-  rules.on('userLogin', function(user) {
+  // afterUserLogin event.
+  rules.on('afterUserLogin', function(user) {
     webhook(user);
   });
 
