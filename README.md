@@ -5,7 +5,7 @@ Remote Users Management
 * [Installation](https://github.com/konforti/people/wiki/Installation)
 * [Users & Roles](https://github.com/konforti/people/wiki/Users-&-Roles)
 * [API](https://github.com/konforti/people/wiki/API)
-* Login flow
+* [Login workflow](https://github.com/konforti/people/wiki/Login-workflow)
 * [People.js] (https://github.com/konforti/people/wiki/People.js)
 * [Hooks & Rules](https://github.com/konforti/people/wiki/Hooks-&-Rules)
 
