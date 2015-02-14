@@ -67,63 +67,85 @@
 }
 
 /** Login **/
-form.ppl-login {
-  .ppl-form-field {
-    margin: 10px 0;
+#ppl-login-block {
+  .ppl-login-form {
+    .ppl-form-field {
+      margin: 10px 0;
+    }
+
+    .ppl-to-forgot {
+      font-size: 10px;
+      float: right;
+    }
   }
 
-  .ppl-to-forgot {
-    font-size: 10px;
-    float: right;
-  }
-}
+  .ppl-social-login {
+    background: no-repeat;
+    margin: 0 2px;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    color: #fff;
+    text-decoration: none;
+    width: 90px;
+    height: 30px;
+    display: inline-block;
+    text-indent: 30px;
 
-.ppl-block .ppl-social-login {
-  background: no-repeat;
-  margin: 0 2px;
-  border: 1px solid #aaa;
-  border-radius: 4px;
-  color: #fff;
-  text-decoration: none;
-  width: 90px;
-  height: 30px;
-  display: inline-block;
-  text-indent: 30px;
-
-  &#ppl-login-facebook {
-    background: url('images/ppl-socials.png') 0 0;
-  }
-  &#ppl-login-twitter {
-    background: url('images/ppl-socials.png') 0 -30px;
-  }
-  &#ppl-login-google {
-    background: url('images/ppl-socials.png') 0 -60px;
-  }
-  &#ppl-login-github {
-    background: url('images/ppl-socials.png') 0 -90px;
-  }
-  &#ppl-login-tumblr {
-    background: url('images/ppl-socials.png') 0 -120px;
+    &#ppl-login-facebook {
+      background: url('images/ppl-socials.png') 0 0;
+    }
+    &#ppl-login-twitter {
+      background: url('images/ppl-socials.png') 0 -30px;
+    }
+    &#ppl-login-google {
+      background: url('images/ppl-socials.png') 0 -60px;
+    }
+    &#ppl-login-github {
+      background: url('images/ppl-socials.png') 0 -90px;
+    }
+    &#ppl-login-tumblr {
+      background: url('images/ppl-socials.png') 0 -120px;
+    }
   }
 }
 
 /** User Block **/
 #ppl-user-block {
-  .ppl-block {
-    text-align: center;
+  text-align: center;
 
-    #ppl-user-avatar {
-      border-radius: 100px;
-      cursor: pointer;
-    }
+  #ppl-user-avatar {
+    border-radius: 100px;
+    cursor: pointer;
+  }
 
-    #ppl-user-name {
-      cursor: pointer;
-    }
+  #ppl-user-name {
+    cursor: pointer;
   }
 
   .ppl-to-logout {
     font-size: 10px;
     color: #999;
+  }
+}
+
+/** User Profile **/
+#ppl-profile-block {
+  #ppl-profile-form,
+  #ppl-new-password {
+    label {
+      display: inline-block;
+      width: 100px;
+      line-height: 1;
+      vertical-align: middle;
+    }
+
+    .ppl-verify-email {
+      margin-left: 5px;
+      cursor: pointer;
+    }
+
+    .ppl-change-password {
+      cursor: pointer;
+    }
   }
 }

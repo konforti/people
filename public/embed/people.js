@@ -241,7 +241,7 @@ var people = people || {};
         userBlock += '<span> | <a class="ppl-to-logout" href="javascript:void(0)">Log Out</a></span>';
         userBlock += '</div>';
 
-        var el = document.getElementById('ppl-user-block');
+        var el = document.getElementById('ppl-user');
         if (el) el.innerHTML = userBlock;
       }
     }
@@ -261,7 +261,7 @@ var people = people || {};
   people.loginForm = function (socials) {
     var loginHTML = '';
     loginHTML += '<h3>Login</h3>';
-    loginHTML += '<form class="ppl-login">';
+    loginHTML += '<form class="ppl-login-form">';
     loginHTML += '<div class="ppl-form-field"><input id="ppl-login-name" type="textfield" placeholder="Name"></div>';
     loginHTML += '<div class="ppl-form-field"><input id="ppl-login-pass" type="password" placeholder="Password"></div>';
     loginHTML += '<button id="ppl-login-btn" type="button" name="button-login">Login</button> ';
@@ -286,7 +286,7 @@ var people = people || {};
   people.registerForm = function (socials) {
     var registerHTML = '';
     registerHTML += '<h3>Register</h3>';
-    registerHTML += '<form class="ppl-register">';
+    registerHTML += '<form class="ppl-register-form">';
     registerHTML += '<div class="ppl-form-field"><input id="ppl-register-name" type="textfield" placeholder="Name"></div>';
     registerHTML += '<div class="ppl-form-field"><input id="ppl-register-email" type="text" placeholder="Email"></div>';
     registerHTML += '<div class="ppl-form-field"><input id="ppl-register-pass" type="password" placeholder="Password"></div>';
@@ -307,7 +307,7 @@ var people = people || {};
   people.forgotForm = function () {
     var forgotHTML = '';
     forgotHTML += '<h3>Forgot Password</h3>'
-    forgotHTML += '<form class="ppl-forgot">';
+    forgotHTML += '<form class="ppl-forgot-form">';
     forgotHTML += '<div class="ppl-form-field"><input id="ppl-forgot-email" type="email" placeholder="Email"></div>';
     forgotHTML += '<button id="ppl-forgot-btn" type="button" name="button-forgot">Send to my mail</button>';
     forgotHTML += '</form>';
@@ -323,7 +323,7 @@ var people = people || {};
   people.forgotResetForm = function () {
     var forgotResetHTML = '';
     forgotResetHTML += '<h3>Reset password</h3>';
-    forgotResetHTML += '<form class="ppl-forgot-reset">';
+    forgotResetHTML += '<form class="ppl-forgot-reset-form">';
     forgotResetHTML += '<div class="ppl-form-field"><textarea id="ppl-forgot-reset-token" placeholder="Verification Token"></textarea></div>';
     forgotResetHTML += '<div class="ppl-form-field"><input id="ppl-forgot-reset-pass" type="password" placeholder="New Password"></div>';
     forgotResetHTML += '<button id="ppl-forgot-reset-btn" type="button" name="button-forgot-reset">Update Password</button>';

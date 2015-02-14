@@ -1,6 +1,6 @@
 div.title
     h2 #{data.record.username}
-form#profile
+form#ppl-profile-form
     input.form-control(type='hidden', name='csrf', value!='#{data.csrfToken}')
     div.form-role
         label Username:
@@ -10,7 +10,7 @@ form#profile
         label Email:
         input.form-control(type='text', name='email', value!='#{data.record.email}')
         if !data.record.isVerified || data.record.isVerified === 'no'
-            span.verify-email Verify
+            span.ppl-verify-email Verify
         span.help-block
     for field in data.fields
         div.form-role
@@ -20,8 +20,8 @@ form#profile
     div.form-role
         button#update-profile-btn.btn.btn-primary.btn-update(type='button') Update profile
 
-h4.change-password Change Password
-form#new-password.hidden
+h4.ppl-change-password Change Password
+form#ppl-new-password.hidden
     input.form-control(type='hidden', name='csrf', value!='#{data.csrfToken}')
     div.form-role
         label New Password:

@@ -82,15 +82,15 @@ module.exports = function(grunt) {
          files: [
           'public/layouts/**/*.less',
           'public/views/**/*.less',
-          'public/less/**/*.less',
-          'public/embed/**/*.less'
+          'public/less/**/*.less'
          ],
          tasks: ['newer:less']
       },
       layoutLess: {
         files: [
           'public/layouts/**/*.less',
-          'public/less/**/*.less'
+          'public/less/**/*.less',
+          'public/embed/**/*.less'
         ],
         tasks: ['less:layouts']
       }
