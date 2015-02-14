@@ -203,8 +203,8 @@ module.exports = function(grunt) {
       embed: {
         files: [{
           expand: true,
-          cwd: 'public/embed/themes/',
-          src: ['**/*.less'],
+          cwd: 'public/embed/themes/less/',
+          src: ['**/*.less', '!**/shared.less'],
           dest: 'public/embed/themes/',
           ext: '.min.css'
         }]

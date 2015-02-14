@@ -28,6 +28,7 @@ exports.readProfile = function (req, res, next) {
       workflow.outcome.fields = [];
       for (var i = 0; i < req.app.config.fields.length; i++) {
         workflow.outcome.fields[i] = req.app.config.fields[i];
+        workflow.outcome.fields[i].value = '';
 
         for (var j = 0; j < fields.length; j++) {
           if (fields[j].key === req.app.config.fields[i].key) {

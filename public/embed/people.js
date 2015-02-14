@@ -241,7 +241,7 @@ var people = people || {};
         userBlock += '<span> | <a class="ppl-to-logout" href="javascript:void(0)">Log Out</a></span>';
         userBlock += '</div>';
 
-        var el = document.getElementById('ppl-user');
+        var el = document.getElementById('ppl-user-block');
         if (el) el.innerHTML = userBlock;
       }
     }
@@ -260,6 +260,7 @@ var people = people || {};
    */
   people.loginForm = function (socials) {
     var loginHTML = '';
+    loginHTML += '<h3>Login</h3>';
     loginHTML += '<form class="ppl-login">';
     loginHTML += '<div class="ppl-form-field"><input id="ppl-login-name" type="textfield" placeholder="Name"></div>';
     loginHTML += '<div class="ppl-form-field"><input id="ppl-login-pass" type="password" placeholder="Password"></div>';
@@ -267,7 +268,7 @@ var people = people || {};
     loginHTML += '<a class="ppl-to-forgot" href="javascript:void(0)">Forgot password</a>';
     loginHTML += '</form>';
     if (socials && socials.length > 1) {
-      loginHTML += '<div>Or login using: </div>';
+      loginHTML += '<div>Or login with: </div>';
       for (var i = 0, name; name = socials[i]; ++i) {
         loginHTML += '<a class="ppl-social-login" id="ppl-login-' + name + '" href="javascript:void(0)">' + name.charAt(0).toUpperCase() + name.slice(1) + '</a> ';
       }
@@ -284,6 +285,7 @@ var people = people || {};
    */
   people.registerForm = function (socials) {
     var registerHTML = '';
+    registerHTML += '<h3>Register</h3>';
     registerHTML += '<form class="ppl-register">';
     registerHTML += '<div class="ppl-form-field"><input id="ppl-register-name" type="textfield" placeholder="Name"></div>';
     registerHTML += '<div class="ppl-form-field"><input id="ppl-register-email" type="text" placeholder="Email"></div>';
@@ -295,7 +297,6 @@ var people = people || {};
       registerHTML += '<a class="ppl-social-login" id="ppl-login-' + name + '" href="javascript:void(0)">' + name.charAt(0).toUpperCase() + name.slice(1) + '</a>';
     }
     registerHTML += '<div>Already a member? <a class="ppl-to-login" href="javascript:void(0)">Login</a></div>';
-
     return registerHTML;
   };
 
@@ -305,6 +306,7 @@ var people = people || {};
    */
   people.forgotForm = function () {
     var forgotHTML = '';
+    forgotHTML += '<h3>Forgot Password</h3>'
     forgotHTML += '<form class="ppl-forgot">';
     forgotHTML += '<div class="ppl-form-field"><input id="ppl-forgot-email" type="email" placeholder="Email"></div>';
     forgotHTML += '<button id="ppl-forgot-btn" type="button" name="button-forgot">Send to my mail</button>';
@@ -320,6 +322,7 @@ var people = people || {};
    */
   people.forgotResetForm = function () {
     var forgotResetHTML = '';
+    forgotResetHTML += '<h3>Reset password</h3>';
     forgotResetHTML += '<form class="ppl-forgot-reset">';
     forgotResetHTML += '<div class="ppl-form-field"><textarea id="ppl-forgot-reset-token" placeholder="Verification Token"></textarea></div>';
     forgotResetHTML += '<div class="ppl-form-field"><input id="ppl-forgot-reset-pass" type="password" placeholder="New Password"></div>';
@@ -527,7 +530,7 @@ var people = people || {};
     switch (e.target.className) {
 
       case 'ppl-social-login':
-        var name = e.target.id.replace('login-', '');
+        var name = e.target.id.replace('ppl-login-', '');
 
         var url = people.baseUrl + '/remote/signup/' + name + '/',
           width = 1000,

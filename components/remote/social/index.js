@@ -8,6 +8,50 @@ var signature = require('cookie-signature');
  * @param res
  * @param next
  */
+exports.signupFacebook = function (req, res, next) {
+  var workflow = req.app.utility.workflow(req, res);
+  req._passport.instance.authenticate('facebook', {callbackURL: '/remote/signup/facebook/callback/'}, function (err, user, info) {
+    if (err) {
+      return workflow.emit('exception', err);
+    }
+
+    if (!info || !info.profile) {
+      workflow.outcome.errfor.username = 'No info';
+      return workflow.emit('response');
+    }
+
+    req.app.db.models.User.findOne({'facebook.id': info.profile.id}, function (err, user) {
+      if (err) {
+        return workflow.emit('exception', err);
+      }
+
+      info.profile.avatar = '//graph.facebook.com/' + info.profile.id + '/picture?height=100&width=100';
+      req.session.socialProfile = info.profile;
+
+      if (!user) {
+        // Register.
+        if (!info.profile.emails || !info.profile.emails[0].value) {
+          res.render('../remote/social/need-mail', {email: info.profile.emails && info.profile.emails[0].value || ''});
+        }
+        else {
+          signupSocial(req, res, next);
+        }
+      }
+      else {
+        // Login.
+        workflow.user = user;
+        loginSocial(req, res, workflow);
+      }
+    });
+  })(req, res, next);
+};
+
+/**
+ *
+ * @param req
+ * @param res
+ * @param next
+ */
 exports.signupTwitter = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
   req._passport.instance.authenticate('twitter', {callbackURL: '/remote/signup/twitter/callback/'}, function (err, user, info) {
@@ -70,50 +114,6 @@ exports.signupGitHub = function (req, res, next) {
       }
 
       info.profile.avatar = info.profile._json.avatar_url;
-      req.session.socialProfile = info.profile;
-
-      if (!user) {
-        // Register.
-        if (!info.profile.emails || !info.profile.emails[0].value) {
-          res.render('../remote/social/need-mail', {email: info.profile.emails && info.profile.emails[0].value || ''});
-        }
-        else {
-          signupSocial(req, res, next);
-        }
-      }
-      else {
-        // Login.
-        workflow.user = user;
-        loginSocial(req, res, workflow);
-      }
-    });
-  })(req, res, next);
-};
-
-/**
- *
- * @param req
- * @param res
- * @param next
- */
-exports.signupFacebook = function (req, res, next) {
-  var workflow = req.app.utility.workflow(req, res);
-  req._passport.instance.authenticate('facebook', {callbackURL: '/remote/signup/facebook/callback/'}, function (err, user, info) {
-    if (err) {
-      return workflow.emit('exception', err);
-    }
-
-    if (!info || !info.profile) {
-      workflow.outcome.errfor.username = 'No info';
-      return workflow.emit('response');
-    }
-
-    req.app.db.models.User.findOne({'facebook.id': info.profile.id}, function (err, user) {
-      if (err) {
-        return workflow.emit('exception', err);
-      }
-
-      info.profile.avatar = '//graph.facebook.com/' + info.profile.id + '/picture?height=100&width=100';
       req.session.socialProfile = info.profile;
 
       if (!user) {
