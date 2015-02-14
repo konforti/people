@@ -1,11 +1,13 @@
 # people
 Remote Users Management
 
-* [Usage] (https://github.com/konforti/people/wiki/Usages)
+* [Usages](https://github.com/konforti/people/wiki/Usages)
 * [Installation](https://github.com/konforti/people/wiki/Installation)
-* Users & Roles
+* [Users & Roles](https://github.com/konforti/people/wiki/Users-&-Roles)
 * [API](https://github.com/konforti/people/wiki/API)
 * Login flow
+* [People.js] (https://github.com/konforti/people/wiki/People.js)
+* [Hooks & Rules](https://github.com/konforti/people/wiki/Hooks-&-Rules)
 
 # Usages
 **People** is a simple, easy to use, stand alone remote users management system.
