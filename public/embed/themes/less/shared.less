@@ -21,6 +21,7 @@
     border: 1px solid rgba(0,0,0,.3);
     border-radius: 2px;
     font-size: 1.2em;
+    width: ~"calc(100% - 10px)";
   }
 
   .ppl-close-btn {
@@ -68,11 +69,12 @@
 
 /** Login **/
 #ppl-login-block {
-  .ppl-login-form {
-    .ppl-form-field {
-      margin: 10px 0;
-    }
+  position: absolute;
+  z-index: 999;
+  left: ~"calc(50% - 150px)";
+  top: 50px;
 
+  .ppl-login-form {
     .ppl-to-forgot {
       font-size: 10px;
       float: right;
@@ -130,6 +132,11 @@
 
 /** User Profile **/
 #ppl-profile-block {
+  position: absolute;
+  z-index: 999;
+  left: ~"calc(50% - 200px)";
+  top: 50px;
+
   #ppl-profile-form,
   #ppl-new-password {
     label {
