@@ -3,15 +3,6 @@
 <head>
     <title>People | Remote User Management</title>
     <link href="http://people-razkonforti.rhcloud.com/embed/themes/people-cards.min.css" rel="stylesheet" type="text/css" >
-    <style>
-        #page {
-          display: table;
-          font-family: monospace;
-        }
-        h1, h2 {
-          text-align: center;
-        }
-    </style>
 </head>
 <body>
 <div id="page">
@@ -19,11 +10,19 @@
     <h2>Remote User Management</h2>
     <div id='ppl-login'></div>
     <div id='ppl-user'></div>
+    <div id='ppl-profile'></div>
 </div>
 
 <script>
     window.onload = function() {
-      people.init({url: 'http://people-razkonforti.rhcloud.com'});
+        var options = {
+          url: 'http://people-razkonforti.rhcloud.com'
+        };
+
+        var people = new People(options);
+        people.userBlock();
+        people.loginBlock();
+        people.userProfile();
     };
 </script>
 <script src="http://people-razkonforti.rhcloud.com/embed/people.min.js"></script>
