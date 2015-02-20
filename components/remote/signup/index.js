@@ -164,7 +164,7 @@ exports.signup = function (req, res, next) {
         return workflow.emit('response');
       }
       else {
-        req.login(user, function (err) {
+        req.app.utility.auth.getUserBySid(req, res, function(err, user) {
           if (err) {
             return workflow.emit('exception', err);
           }
@@ -254,7 +254,7 @@ exports.login = function (req, res, next) {
   });
 
   workflow.on('attemptLogin', function () {
-    req._passport.instance.authenticate('local', function (err, user, info) {
+    req._passport.instance.authenticate('local', function (err, user, info) {console.log(user);
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -271,7 +271,7 @@ exports.login = function (req, res, next) {
         });
       }
       else {
-        req.login(user, function (err) {
+        req.app.utility.auth.getUserBySid(req, res, function(err, user) {
           if (err) {
             return workflow.emit('exception', err);
           }
