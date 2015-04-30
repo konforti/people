@@ -54,7 +54,7 @@
       errors: [],
       errfor: {},
       roles: [],
-      newMembership: ''
+      newRole: ''
     },
     url: function() {
       return '/admin/users/'+ app.mainView.model.id +'/roles/';
@@ -190,6 +190,11 @@
         var val = el.value;
         toSave[key] = val;
       });
+      this.$el.find('.form-role select').each(function(i, el) {
+        var key = el.name;
+        var val = el.value;
+        toSave[key] = val;
+      });
       this.model.save(toSave);
     }
   });
@@ -225,16 +230,16 @@
       }
     },
     add: function() {
-      var newMembership = this.$el.find('[name="newMembership"]').val();
-      var newMembershipName = this.$el.find('[name="newMembership"] option:selected').text();
-      if (!newMembership) {
+      var newRole = this.$el.find('[name="newRole"]').val();
+      var newRoleName = this.$el.find('[name="newRole"] option:selected').text();
+      if (!newRole) {
         alert('Please select a role.');
         return;
       }
       else {
         var alreadyAdded = false;
         _.each(this.model.get('roles'), function(role) {
-          if (newMembership === role._id) {
+          if (newRole === role._id) {
             alreadyAdded = true;
           }
         });
@@ -245,7 +250,7 @@
         }
       }
 
-      this.model.get('roles').push({ _id: newMembership, name: newMembershipName });
+      this.model.get('roles').push({ _id: newRole, name: newRoleName });
 
       var sorted = this.model.get('roles');
       sorted.sort(function(a, b) {
