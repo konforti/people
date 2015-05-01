@@ -110,9 +110,9 @@ exports.read = function (req, res, next) {
         return callback(err, null);
       }
 
-      outcome.fields = [];
+      outcome.fields = req.app.config.fields;
       for (var i = 0; i < req.app.config.fields.length; i++) {
-        outcome.fields[i] = req.app.config.fields[i];
+        outcome.fields[i].value = '';
 
         for (var j = 0; j < fields.length; j++) {
           if (fields[j].key === req.app.config.fields[i].key) {
@@ -512,6 +512,12 @@ exports.delete = function (req, res, next) {
       if (err) {
         return workflow.emit('exception', err);
       }
+
+      req.app.db.models.UserMeta.remove({user: user._id}, function(err) {
+        if (err) {
+          return workflow.emit('exception', err);
+        }
+      });
 
       workflow.emit('response');
     });
