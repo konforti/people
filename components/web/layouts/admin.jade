@@ -10,15 +10,14 @@ html
     body
 
         div.navbar.navbar-inverse.navbar-fixed-top
-            div.container
-                div.navbar-header
-                    a.navbar-brand(href='/admin/')
-                        img.navbar-logo(src='/media/logo-symbol-64x64.png')
-                        span.navbar-brand-label #{projectName}
-                    form.navbar-form.pull-right#_search
+            div.navbar-header
+                a.navbar-brand(href='/admin/')
+                    img.navbar-logo(src='/media/logo-symbol-64x64.png')
+                    span.navbar-brand-label #{projectName}
+                form.navbar-form.pull-right#_search
 
         ul.admin-menu
-            li.dropdown-header Admin Menu
+            li.admin-menu-header Admin Menu
             li: a(href='/admin/users/') Users
             li: a(href='/admin/roles/') Roles
             li: a(href='/admin/statuses/') Statuses
