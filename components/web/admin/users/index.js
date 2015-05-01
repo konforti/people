@@ -204,6 +204,11 @@ exports.update = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function () {
+    if (req.body._id === req.app.config.uid1) {
+      workflow.outcome.errors.push('You\'re not allowed to update this user.');
+      return workflow.emit('response');
+    }
+
     if (!req.body.isActive) {
       req.body.isActive = 'no';
     }
@@ -315,8 +320,13 @@ exports.roles = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function () {
+    if (req.body._id === req.app.config.uid1) {
+      workflow.outcome.errors.push('You\'re not allowed to change this user roles.');
+      return workflow.emit('response');
+    }
+
     if (!req.user.isMemberOf('root')) {
-      workflow.outcome.errors.push('You may not change the role memberships of admins.');
+      workflow.outcome.errors.push('You may not change this role memberships.');
       return workflow.emit('response');
     }
 
@@ -356,6 +366,11 @@ exports.password = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function () {
+    if (req.body._id === req.app.config.uid1) {
+      workflow.outcome.errors.push('You\'re not allowed to change this user password.');
+      return workflow.emit('response');
+    }
+
     if (!req.body.newPassword) {
       workflow.outcome.errfor.newPassword = 'required';
     }
@@ -479,8 +494,12 @@ exports.delete = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function () {
+    if (req.params.id === req.app.config.uid1) {
+      workflow.outcome.errors.push('You\'re not allowed to delete this user.');
+      return workflow.emit('response');
+    }
 
-    if (req.user._id === req.params.id) {
+    if (req.user._id.toString() === req.params.id) {
       workflow.outcome.errors.push('You may not delete yourself from user.');
       return workflow.emit('response');
     }
