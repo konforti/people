@@ -8,17 +8,24 @@
 * [People.js] (https://github.com/konforti/people/wiki/People.js)
 * [Hooks & Rules](https://github.com/konforti/people/wiki/Hooks-&-Rules)
 
+## Live demo
+
+| Platform                                 | Username | Password |
+| ---------------------------------------- | -------- | -------- |
+|https://people-razkonforti.rhcloud.com/   | admin    | rrg2st   |
+
+
 # Usages
 **People** is a simple, easy to use, stand alone remote users management system.
 Yet, complete, powerful & secure following best practice & best security. 
 
-Instead of configure and implement a user management system over again,
-Install **People** somewhere on your server (or on another server) and you got all that you need.
+Never configure and implement a user management system again.
+Install **People** once, and you got all that you need.
 
 _Advantages:_
 * Use it with any system or language
 * Easy to accomplish multi-device system
-* Move your entire users system to your new site or app
+* Move your entire users system between sites or apps
 * Rewrite your system with no concerns
 
 # Features
