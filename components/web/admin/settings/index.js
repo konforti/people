@@ -1,7 +1,6 @@
 'use strict';
-
-exports.read = function (req, res, next) {
-  var fields = {
+var getFields = function() {
+  return {
     projectName: {
       name: 'Project Name',
       type: 'text',
@@ -120,7 +119,10 @@ exports.read = function (req, res, next) {
       defaultValue: ''
     }
   };
+}
 
+exports.read = function (req, res, next) {
+  var fields = getFields();
   var keys = Object.keys(fields);
   var or = [];
 
@@ -128,7 +130,7 @@ exports.read = function (req, res, next) {
     or.push({key: keys[i]});
   }
 
-  req.app.db.models.Settings.find().or(or).exec(function (err, settings) {console.log(settings);
+  req.app.db.models.Settings.find().or(or).exec(function (err, settings) {
     if (err) {
       return next(err);
     }
@@ -162,27 +164,27 @@ exports.update = function (req, res, next) {
       return workflow.emit('response');
     }
 
-    if (!req.body.name) {
-      workflow.outcome.errfor.name = 'required';
+    if (!req.body.projectName) {
+      workflow.outcome.errfor.projectName = 'required';
       return workflow.emit('response');
     }
 
-    workflow.emit('patchStatus');
+    workflow.emit('patchSettings');
   });
 
-  workflow.on('patchStatus', function () {
-    var fieldsToSet = {
-      name: req.body.name
-    };
+  workflow.on('patchSettings', function () {
+    var fields = getFields();
+    for (var key in fields) {
+      req.app.db.models.Settings.findOneAndUpdate({key: key}, {key: req.body[key]}, {upsert: true}, function (err, settings) {
+        if (err) {
+          return workflow.emit('exception', err);
+        }
+        console.log(settings);
+        workflow.outcome.settings += settings;
+      });
+    }
 
-    req.app.db.models.Status.findByIdAndUpdate(req.params.id, fieldsToSet, function (err, status) {
-      if (err) {
-        return workflow.emit('exception', err);
-      }
-
-      workflow.outcome.status = status;
-      return workflow.emit('response');
-    });
+    return workflow.emit('response');
   });
 
   workflow.emit('validate');

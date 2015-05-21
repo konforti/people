@@ -128,6 +128,7 @@ exports = module.exports = function (app, passport) {
   // Admin > Settings.
   app.get('/admin/settings/', require('./admin/settings/index').read);
   app.put('/admin/settings/', require('./admin/settings/index').update);
+  app.post('/admin/settings/', require('./admin/settings/index').update);
 
   // Admin > Search.
   app.get('/admin/search/', require('./admin/search/index').find);

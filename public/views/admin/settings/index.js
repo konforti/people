@@ -6,6 +6,13 @@
   app = app || {};
 
   app.Settings = Backbone.Model.extend({
+    initialize: function() {
+      //for (var key in app.mainView.model) {
+      //  if (app.mainView.model.hasOwnProperty(key)) {
+      //    this.set(key, app.mainView.model[key].value);
+      //  }
+      //}
+    },
     idAttribute: '_id',
     defaults: {
       success: false,
@@ -46,12 +53,9 @@
       this.render();
     },
     syncUp: function() {
-      this.model.set({
-        _id: app.mainView.model.id,
-        isActive: app.mainView.model.get('isActive'),
-        username: app.mainView.model.get('username'),
-        email: app.mainView.model.get('email')
-      });
+      for (var key in this.model.attributes) {
+        this.model.set(key, app.mainView.model.get(key));
+      }
     },
     render: function() {
       this.$el.html(this.template( this.model.attributes ));
@@ -65,15 +69,13 @@
     update: function() {
       var toSave = {};
       this.$el.find('.form-role input').each(function(i, el) {
-        var key = el.key;
-        var val = el.value;
-        toSave[key] = val;
+        toSave[el.name] = el.value;
+        console.log(el);
       });
       this.$el.find('.form-role select').each(function(i, el) {
-        var key = el.key;
-        var val = el.value;
-        toSave[key] = val;
+        toSave[el.name] = el.value;
       });
+      console.log(toSave);
       this.model.save(toSave);
     }
   });
@@ -82,7 +84,7 @@
     el: '.page .container',
     initialize: function() {
       app.mainView = this;
-      this.model = JSON.parse( unescape($('#data-record').html()) );
+      this.model = new app.Settings( JSON.parse( unescape($('#data-record').html())) );
 
       app.headerView = new app.HeaderView();
       app.settingsView = new app.SettingsView();
