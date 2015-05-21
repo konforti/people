@@ -7,11 +7,11 @@
 
   app.Settings = Backbone.Model.extend({
     initialize: function() {
-      //for (var key in app.mainView.model) {
-      //  if (app.mainView.model.hasOwnProperty(key)) {
-      //    this.set(key, app.mainView.model[key].value);
-      //  }
-      //}
+      if (app.mainView.model && app.mainView.model.attributes) {
+        for (var key in app.mainView.model.attributes) {
+          this.set(key, app.mainView.model.attributes[key].value);
+        }
+      }
     },
     idAttribute: '_id',
     defaults: {
@@ -61,9 +61,9 @@
       this.$el.html(this.template( this.model.attributes ));
 
       for (var key in this.model.attributes) {
-        if (this.model.attributes.hasOwnProperty(key)) {
-          this.$el.find('[name="'+ key +'"]').val(this.model.attributes[key]);
-        }
+        //if (this.model.attributes.hasOwnProperty(key)) {
+          this.$el.find('[name="'+ key +'"]').val(this.model.attributes[key].value);
+        //}
       }
     },
     update: function() {

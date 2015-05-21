@@ -129,7 +129,6 @@ exports.read = function (req, res, next) {
   for (var i = 0; i < keys.length; i++) {
     or.push({key: keys[i]});
   }
-
   req.app.db.models.Settings.find().or(or).exec(function (err, settings) {
     if (err) {
       return next(err);
@@ -137,7 +136,9 @@ exports.read = function (req, res, next) {
 
     for (var key in fields) {
       for (var i = 0; i < settings.length; i++) {
-        fields[key].value = settings[i].key === key ? settings[i].value : fields[key].defaultValue;
+        if (settings[i].key === key) {
+          fields[key].value = settings[i].value ? settings[i].value : fields[key].defaultValue;
+        }
       }
     }
 
@@ -175,7 +176,7 @@ exports.update = function (req, res, next) {
   workflow.on('patchSettings', function () {
     var fields = getFields();
     for (var key in fields) {
-      req.app.db.models.Settings.findOneAndUpdate({key: key}, {key: req.body[key]}, {upsert: true}, function (err, settings) {
+      req.app.db.models.Settings.findOneAndUpdate({key: key}, {key: key, value: req.body[key]}, {upsert: true}, function (err, settings) {
         if (err) {
           return workflow.emit('exception', err);
         }
