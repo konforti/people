@@ -6,13 +6,6 @@
   app = app || {};
 
   app.Settings = Backbone.Model.extend({
-    initialize: function() {
-      if (app.mainView.model && app.mainView.model.attributes) {
-        for (var key in app.mainView.model.attributes) {
-          this.set(key, app.mainView.model.attributes[key].value);
-        }
-      }
-    },
     idAttribute: '_id',
     defaults: {
       success: false,
@@ -21,6 +14,14 @@
     },
     url: function() {
       return '/admin/settings';
+    },
+    parse: function(response) {
+      if (response.settings) {
+        app.mainView.model.set(response.settings);
+        delete response.settings;
+      }
+
+      return response;
     }
   });
 
@@ -53,7 +54,7 @@
       this.render();
     },
     syncUp: function() {
-      for (var key in this.model.attributes) {
+      for (var key in app.mainView.model) {
         this.model.set(key, app.mainView.model.get(key));
       }
     },
@@ -61,9 +62,9 @@
       this.$el.html(this.template( this.model.attributes ));
 
       for (var key in this.model.attributes) {
-        //if (this.model.attributes.hasOwnProperty(key)) {
-          this.$el.find('[name="'+ key +'"]').val(this.model.attributes[key].value);
-        //}
+        if (this.model.attributes.hasOwnProperty(key)) {
+          this.$el.find('[name="'+ key +'"]').val(this.model.attributes[key]);
+        }
       }
     },
     update: function() {
