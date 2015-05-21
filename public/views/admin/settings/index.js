@@ -70,12 +70,12 @@
       var toSave = {};
       this.$el.find('.form-role input').each(function(i, el) {
         toSave[el.name] = el.value;
-        console.log(el);
+
       });
       this.$el.find('.form-role select').each(function(i, el) {
         toSave[el.name] = el.value;
       });
-      console.log(toSave);
+
       this.model.save(toSave);
     }
   });
