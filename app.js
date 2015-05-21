@@ -84,7 +84,7 @@ app.use(function(req, res, next) {
 //global locals
 app.locals.projectName = app.config.projectName;
 app.locals.copyrightYear = new Date().getFullYear();
-app.locals.copyrightName = app.config.companyName;
+app.locals.copyrightName = app.config.projectName;
 app.locals.cacheBreaker = 'br34k-01';
 
 // CORS middleware

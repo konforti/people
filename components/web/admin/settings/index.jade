@@ -1,0 +1,47 @@
+extends ./../../layouts/admin
+
+block head
+    title Manage Settings
+
+block neck
+    link(rel='stylesheet', href='/views/admin/settings/index.min.css?#{cacheBreaker}')
+
+block feet
+    script(src='/views/admin/settings/index.min.js?#{cacheBreaker}')
+
+block body
+    div.row
+        div.col-xs-12
+            div#header
+            div#settings
+
+
+    script(type='text/template', id='tmpl-header')
+        div.page-header
+            h1 Settings
+
+    script(type='text/templatefilter', id='tmpl-settings')
+        form.settings
+            div.alerts
+                | <% _.each(errors, function(err) { %>
+                div.alert.alert-danger.alert-dismissable
+                    button.close(type='button', data-dismiss='alert') &times;
+                    | <%- err %>
+                | <% }); %>
+                | <% if (success) { %>
+                div.alert.alert-info.alert-dismissable
+                    button.close(type='button', data-dismiss='alert') &times;
+                    | Changes have been saved.
+                | <% } %>
+
+             - for (var key in data.fields)
+                div.form-role(class!='<%- errfor.fields ? "has-error" : "" %>')
+                    label #{data.fields[key].name}:
+                    input.form-control(type="#{data.fields[key].type}", name="#{key}", value!="#{data.fields[key].value}")
+                    span.help-block <%- errfor.fields %>
+
+            div.form-role
+                button.btn.btn-primary.btn-update(type='button') Update
+
+    script(type='text/template', id='data-record') !{data.record}
+    script(type='text/template', id='data-fields') !{JSON.stringify(data.fields)}

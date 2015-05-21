@@ -18,6 +18,7 @@ html
 
         ul.admin-menu
             li.admin-menu-header Admin Menu
+            li: a(href='/admin/settings/') Settings
             li: a(href='/admin/users/') Users
             li: a(href='/admin/roles/') Roles
             li: a(href='/admin/statuses/') Statuses
@@ -33,6 +34,7 @@ html
                         | &#169; #{copyrightYear} #{copyrightName}
                     ul.links
                         li: a(href='/') Home
+                        li: a(href='/admin/') Admin
                         li: a(href='/logout/') Sign Out
                     div.clearfix
 

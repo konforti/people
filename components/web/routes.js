@@ -125,6 +125,10 @@ exports = module.exports = function (app, passport) {
   app.put('/admin/statuses/:id/', require('./admin/statuses/index').update);
   app.delete('/admin/statuses/:id/', require('./admin/statuses/index').delete);
 
+  // Admin > Settings.
+  app.get('/admin/settings/', require('./admin/settings/index').read);
+  app.put('/admin/settings/', require('./admin/settings/index').update);
+
   // Admin > Search.
   app.get('/admin/search/', require('./admin/search/index').find);
 

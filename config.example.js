@@ -5,7 +5,6 @@ exports.ip = process.env.IP || '127.0.0.1';
 exports.mongodb = {
   uri: process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || 'localhost/people'
 };
-exports.companyName = 'People, Inc.';
 exports.projectName = 'People';
 exports.systemEmail = 'your@email.com';// Changes this.
 exports.cryptoKey = 'k3yb0ardc4t';// Changes this.
@@ -16,8 +15,8 @@ exports.loginAttempts = {
   forIpAndUser: 7,
   logExpiration: '20m'
 };
-exports.webhooksURL = ''; //'http://people.lh/webhooks';
-exports.allowDomain = 'http://people.lh';
+exports.webhooksURL = ''; //'http://people.com/webhooks';
+exports.allowDomain = ''; //'http://people.lh';
 exports.csrfExclusion = ['/remote/','/api/'];
 exports.requireAccountVerification = false;
 exports.smtp = {
