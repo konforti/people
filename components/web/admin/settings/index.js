@@ -179,7 +179,7 @@ exports.update = function (req, res, next) {
         if (err) {
           return workflow.emit('exception', err);
         }
-        console.log(settings);
+
         workflow.outcome.settings += settings;
       });
     }
