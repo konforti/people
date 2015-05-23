@@ -54,7 +54,7 @@
       this.render();
     },
     syncUp: function() {
-      for (var key in app.mainView.model) {
+      for (var key in app.mainView.model.attributes) {
         this.model.set(key, app.mainView.model.get(key));
       }
     },

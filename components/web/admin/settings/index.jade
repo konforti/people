@@ -34,14 +34,17 @@ block body
                     | Changes have been saved.
                 | <% } %>
 
-             - for (var key in data.fields)
-                div.form-role(class!='<%- errfor.fields ? "has-error" : "" %>')
-                    label #{data.fields[key].name}:
-                    input.form-control(type="#{data.fields[key].type}", name="#{key}", value!="#{data.fields[key].value}")
-                    span.help-block <%- errfor.fields %>
+             - for (var i in data.fields)
+                div.group(class!="group-#{i}")
+                    - for (var j in data.fields[i])
+                        div.form-role(class!='<%- errfor.fields ? "has-error" : "" %>')
+                            label #{data.fields[i][j].name}:
+                            input.form-control(type="#{data.fields[i][j].type}", name="#{j}", value!="#{data.fields[i][j].value}")
+                            span.help-block <%- errfor.fields %>
 
             div.form-role
                 button.btn.btn-primary.btn-update(type='button') Update
 
     script(type='text/template', id='data-record') !{data.record}
     script(type='text/template', id='data-fields') !{JSON.stringify(data.fields)}
+        - console.log(data);
