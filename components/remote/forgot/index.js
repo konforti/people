@@ -2,6 +2,13 @@
 
 var crypto = require('crypto');
 
+var getHash = function(req, token) {
+  return crypto
+    .createHmac('sha256', req.app.config.cryptoKey)
+    .update(token)
+    .digest('base64');
+}
+
 exports.forgot = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
@@ -41,7 +48,7 @@ exports.forgot = function (req, res, next) {
         return next(err);
       }
       var token = buf.toString('base64');
-      var hash = crypto.createHmac('sha256', req.app.config.cryptoKey).update(token).digest('base64');
+      var hash = getHash(req, token);
       workflow.emit('patchUser', token, hash);
     });
   });
@@ -110,7 +117,7 @@ exports.forgotReset = function (req, res, next) {
   });
 
   workflow.on('findUser', function () {
-    var hash = crypto.createHmac('sha256', req.app.config.cryptoKey).update(req.body.token).digest('base64');
+    var hash = getHash(req, req.body.token);
     var conditions = {
       resetPasswordToken: hash,
       resetPasswordExpires: {$gt: Date.now()}

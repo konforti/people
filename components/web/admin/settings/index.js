@@ -1,4 +1,21 @@
 'use strict';
+var crypto = require('crypto'),
+  algorithm = 'aes-256-ctr';
+
+var encrypt = function(req, token) {
+  var password = req.app.config.cryptoKey;
+  var cipher = crypto.createCipher(algorithm, password);
+  var encrypted = cipher.update(token,'utf8','base64') + cipher.final('base64');
+  return encrypted;
+};
+
+var decrypt = function(req, token) {
+  var password = req.app.config.cryptoKey;
+  var decipher = crypto.createDecipher(algorithm, password);
+  var decrypted = decipher.update(token,'base64','utf8') + decipher.final('utf8');
+  return decrypted;
+};
+
 var getFields = function() {
   return {
     general: {
@@ -61,12 +78,14 @@ var getFields = function() {
       smtpUser: {
         name: 'SMTP User',
         type: 'text',
-        defaultValue: 'your@email.com'
+        defaultValue: 'your@email.com',
+        secure: true
       },
       smtpPassword: {
         name: 'SMTP Password',
         type: 'text',
-        defaultValue: ''
+        defaultValue: '',
+        secure: true
       },
       smtpSSL: {
         name: 'SMTP SSL',
@@ -78,52 +97,62 @@ var getFields = function() {
       twitterKey: {
         name: 'Twitter Key',
         type: 'text',
-        defaultValue: ''
+        defaultValue: '',
+        secure: true
       },
       twitterSecret: {
         name: 'Twitter Secret',
         type: 'text',
-        defaultValue: ''
+        defaultValue: '',
+        secure: true
       },
       facebookKey: {
         name: 'Facebook Key',
         type: 'text',
-        defaultValue: ''
+        defaultValue: '',
+        secure: true
       },
       facebookSecret: {
         name: 'Facebook Secret',
         type: 'text',
-        defaultValue: ''
+        defaultValue: '',
+        secure: true
       },
       githubKey: {
         name: 'GitHub Key',
         type: 'text',
-        defaultValue: ''
+        defaultValue: '',
+        secure: true
       },
       githubSecret: {
         name: 'GitHub Secret',
         type: 'text',
-        defaultValue: ''
+        defaultValue: '',
+        secure: true
       },
       googleKey: {
         name: 'Google Key',
         type: 'text',
-        defaultValue: ''
+        defaultValue: '',
+        secure: true
       },
       googleSecret: {
         name: 'Google Secret',
         type: 'text',
-        defaultValue: ''
+        defaultValue: '',
+        secure: true
       },
       tumblrKey: {
         name: 'Tumblr Key',
         type: 'text',
-        defaultValue: ''
+        defaultValue: '',
+        secure: true
       },
       tumblrSecret: {
         name: 'Tumblr Secret',
         type: 'text',
-        defaultValue: ''
+        defaultValue: '',
+        secure: true
       }
     }
   };
@@ -136,7 +165,7 @@ exports.read = function (req, res, next) {
   var gather = {};
   for (var i in fields) {
     for (var j in fields[i]) {
-      gather[j] = fields[i][j].value;
+      gather[j] = fields[i][j];
     }
   }
 
@@ -148,12 +177,14 @@ exports.read = function (req, res, next) {
 
     for (var i in fields) {
       for (var j in fields[i]) {
-
         // Set field value to default value.
         fields[i][j].value = fields[i][j].defaultValue;
         for (var k = 0; k < settings.length; k++) {
           if (settings[k]._id === j) {
             // Override field value with data from the DB.
+            if ('secure' in fields[i][j] && fields[i][j].secure === true) {
+              settings[k].value = decrypt(req, settings[k].value);
+            }
             fields[i][j].value = settings[k].value ? settings[k].value : fields[i][j].defaultValue;
           }
         }
@@ -197,14 +228,20 @@ exports.update = function (req, res, next) {
 
   workflow.on('patchSettings', function () {
     var fields = getFields();
-    for (var key in fields) {
-      req.app.db.models.Settings.findOneAndUpdate({_id: key}, {value: req.body[key]}, {upsert: true}, function (err, settings) {
-        if (err) {
-          return workflow.emit('exception', err);
-        }
 
-        workflow.outcome.settings += settings;
-      });
+    for (var i in fields) {
+      for (var j in fields[i]) {
+        if ('secure' in fields[i][j] && fields[i][j].secure === true) {
+          req.body[j] = encrypt(req, req.body[j]);
+        }
+        req.app.db.models.Settings.findOneAndUpdate({_id: j}, {value: req.body[j]}, {upsert: true}, function (err, setting) {
+          if (err) {
+            return workflow.emit('exception', err);
+          }
+
+          workflow.outcome.settings += setting;
+        });
+      }
     }
 
     return workflow.emit('response');
