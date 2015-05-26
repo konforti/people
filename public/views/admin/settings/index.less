@@ -1,22 +1,29 @@
-@import "../../../vendor/bootstrap/less/mixins.less";
-@import "../../../less/bootstrap-vars.less";
+form.settings {
+  .group {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 0 20px 20px;
+    margin: 20px 10px;
 
-.input-role {
-  margin-bottom: 20px;
+    h3 {
+      color: #999;
+    }
 
-  input {
-    width: 100px !important;
-
-    @media screen and (min-width: @grid-float-breakpoint) {
-      width: 160px !important;
+    label {
+      font-size: 12px;
     }
   }
 
-  input:nth-child(2) {
-    border-left: none;
+  input[type="checkbox"].form-control {
+    box-shadow: none;
+    width: auto;
+    width: 34px;
   }
 
-  .btn {
-    .border-left-radius(0)
+  .left,
+  .right {
+    display: inline-block;
+    vertical-align: top;
+    width: 50%;
   }
 }
