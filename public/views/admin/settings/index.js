@@ -66,10 +66,17 @@
           this.$el.find('[name="'+ key +'"]').val(this.model.attributes[key]);
         }
       }
+
+      this.$el.find('[type="checkbox"]').each(function(i, el) {
+        el.checked = (el.value === "1") ? true : false;
+      });
     },
     update: function() {
       var toSave = {};
       this.$el.find('.form-role input').each(function(i, el) {
+        if (el.type === "checkbox") {
+          el.value = el.checked === true ? 1 : 0;
+        }
         toSave[el.name] = el.value;
 
       });
