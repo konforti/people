@@ -1,20 +1,23 @@
 'use strict';
-var crypto = require('crypto'),
-  algorithm = 'aes-256-ctr';
+(function() {
+  var nconf = require('nconf');
 
-var encrypt = function(req, token) {
-  var password = req.app.config.cryptoKey;
-  var cipher = crypto.createCipher(algorithm, password);
-  var encrypted = cipher.update(token,'utf8','base64') + cipher.final('base64');
-  return encrypted;
-};
+  nconf.use('file', { file: './config.json' });
+  nconf.load();
+  nconf.set('name', 'Avian');
+  nconf.set('dessert:name', 'Ice Cream');
+  nconf.set('dessert:flavor', 'chocolate');
 
-var decrypt = function(req, token) {
-  var password = req.app.config.cryptoKey;
-  var decipher = crypto.createDecipher(algorithm, password);
-  var decrypted = decipher.update(token,'base64','utf8') + decipher.final('utf8');
-  return decrypted;
-};
+  console.log(nconf.get('dessert'));
+
+  nconf.save(function (err) {
+    if (err) {
+      console.error(err.message);
+      return;
+    }
+    console.log('Configuration saved successfully.');
+  });
+})();
 
 var getFields = function() {
   return {
@@ -78,81 +81,68 @@ var getFields = function() {
       smtpUser: {
         name: 'SMTP User',
         type: 'text',
-        defaultValue: 'your@email.com',
-        secure: true
+        defaultValue: 'your@email.com'
       },
       smtpPassword: {
         name: 'SMTP Password',
         type: 'text',
-        defaultValue: '',
-        secure: true
+        defaultValue: ''
       },
       smtpSSL: {
         name: 'SMTP SSL',
-        type: 'checkbox',
-        defaultValue: true
+        type: 'checkbox'
       }
     },
     social: {
       twitterKey: {
         name: 'Twitter Key',
         type: 'text',
-        defaultValue: '',
-        secure: true
+        defaultValue: ''
       },
       twitterSecret: {
         name: 'Twitter Secret',
         type: 'text',
-        defaultValue: '',
-        secure: true
+        defaultValue: ''
       },
       facebookKey: {
         name: 'Facebook Key',
         type: 'text',
-        defaultValue: '',
-        secure: true
+        defaultValue: ''
       },
       facebookSecret: {
         name: 'Facebook Secret',
         type: 'text',
-        defaultValue: '',
-        secure: true
+        defaultValue: ''
       },
       githubKey: {
         name: 'GitHub Key',
         type: 'text',
-        defaultValue: '',
-        secure: true
+        defaultValue: ''
       },
       githubSecret: {
         name: 'GitHub Secret',
         type: 'text',
-        defaultValue: '',
-        secure: true
+        defaultValue: ''
       },
       googleKey: {
         name: 'Google Key',
         type: 'text',
-        defaultValue: '',
-        secure: true
+        defaultValue: ''
       },
       googleSecret: {
         name: 'Google Secret',
         type: 'text',
-        defaultValue: '',
-        secure: true
+        defaultValue: ''
       },
       tumblrKey: {
         name: 'Tumblr Key',
         type: 'text',
-        defaultValue: '',
-        secure: true
+        defaultValue: ''
       },
       tumblrSecret: {
         name: 'Tumblr Secret',
         type: 'text',
-        defaultValue: '',
-        secure: true
+        defaultValue: ''
       }
     }
   };
@@ -172,7 +162,7 @@ exports.read = function (req, res, next) {
   var keys = Object.keys(gather);
   req.app.db.models.Settings.find({_id: {$in: keys}}).exec(function (err, settings) {
     if (err) {
-      return callback(err);
+      return next(err);
     }
 
     for (var i in fields) {
@@ -182,9 +172,6 @@ exports.read = function (req, res, next) {
         for (var k = 0; k < settings.length; k++) {
           if (settings[k]._id === j) {
             // Override field value with data from the DB.
-            if ('secure' in fields[i][j] && fields[i][j].secure === true) {
-              settings[k].value = decrypt(req, settings[k].value);
-            }
             fields[i][j].value = settings[k].value ? settings[k].value : fields[i][j].defaultValue;
           }
         }
@@ -231,16 +218,13 @@ exports.update = function (req, res, next) {
 
     for (var i in fields) {
       for (var j in fields[i]) {
-        if ('secure' in fields[i][j] && fields[i][j].secure === true) {
-          req.body[j] = encrypt(req, req.body[j]);
-        }
-        req.app.db.models.Settings.findOneAndUpdate({_id: j}, {value: req.body[j]}, {upsert: true}, function (err, setting) {
-          if (err) {
-            return workflow.emit('exception', err);
-          }
-
-          workflow.outcome.settings += setting;
-        });
+        //req.app.db.models.Settings.findOneAndUpdate({_id: j}, {value: req.body[j]}, {upsert: true}, function (err, setting) {
+        //  if (err) {
+        //    return workflow.emit('exception', err);
+        //  }
+        //
+        //  workflow.outcome.settings += setting;
+        //});
       }
     }
 

@@ -22,6 +22,6 @@ exports = module.exports = function(app, mongoose) {
         return done(param);
       }
       return param;
-    })
+    });
   };
 };
