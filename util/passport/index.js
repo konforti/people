@@ -8,6 +8,8 @@ exports = module.exports = function(app, passport) {
       GoogleStrategy = require('passport-google-oauth').OAuth2Strategy,
       TumblrStrategy = require('passport-tumblr').Strategy;
 
+  var settings = app.db.models.Settings;
+
   passport.use(new LocalStrategy(
     function(username, password, done) {
       var conditions = { isActive: 'yes' };
@@ -42,10 +44,10 @@ exports = module.exports = function(app, passport) {
     }
   ));
 
-  if (app.config.oauth.twitter.key) {
+  if (settings.get('twitterKey')) {
     passport.use(new TwitterStrategy({
-        consumerKey: app.config.oauth.twitter.key,
-        consumerSecret: app.config.oauth.twitter.secret
+        consumerKey: settings.get('twitterKey'),
+        consumerSecret: settings.get('twitterSecret')
       },
       function(token, tokenSecret, profile, done) {
         done(null, false, {
@@ -57,10 +59,10 @@ exports = module.exports = function(app, passport) {
     ));
   }
 
-  if (app.config.oauth.github.key) {
+  if (settings.get('githubKey')) {
     passport.use(new GitHubStrategy({
-        clientID: app.config.oauth.github.key,
-        clientSecret: app.config.oauth.github.secret,
+        clientID: settings.get('githubKey'),
+        clientSecret: settings.get('githubSecret'),
         customHeaders: { "User-Agent": app.config.projectName }
       },
       function(accessToken, refreshToken, profile, done) {
@@ -73,10 +75,10 @@ exports = module.exports = function(app, passport) {
     ));
   }
 
-  if (app.config.oauth.facebook.key) {
+  if (settings.get('facebookKey')) {
     passport.use(new FacebookStrategy({
-        clientID: app.config.oauth.facebook.key,
-        clientSecret: app.config.oauth.facebook.secret
+        clientID: settings.get('facebookKey'),
+        clientSecret: settings.get('facebookSecret')
       },
       function(accessToken, refreshToken, profile, done) {
         done(null, false, {
@@ -88,10 +90,10 @@ exports = module.exports = function(app, passport) {
     ));
   }
 
-  if (app.config.oauth.google.key) {
+  if (settings.get('googleKey')) {
     passport.use(new GoogleStrategy({
-        clientID: app.config.oauth.google.key,
-        clientSecret: app.config.oauth.google.secret
+        clientID: settings.get('googleKey'),
+        clientSecret: settings.get('googleSecret')
       },
       function(accessToken, refreshToken, profile, done) {
         done(null, false, {
@@ -103,10 +105,10 @@ exports = module.exports = function(app, passport) {
     ));
   }
 
-  if (app.config.oauth.tumblr.key) {
+  if (settings.get('TumblrKey')) {
     passport.use(new TumblrStrategy({
-        consumerKey: app.config.oauth.tumblr.key,
-        consumerSecret: app.config.oauth.tumblr.secret
+        consumerKey: settings.get('TumblrKey'),
+        consumerSecret: settings.get('TumblrSecret')
       },
       function(token, tokenSecret, profile, done) {
         done(null, false, {

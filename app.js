@@ -12,7 +12,6 @@ var config = require('./config'),
     passport = require('passport'),
     mongoose = require('mongoose'),
     helmet = require('helmet'),
-    nconf = require('nconf'),
     csrf = require('csurf');
 
 // create express app
@@ -20,10 +19,6 @@ var app = express();
 
 // keep reference to config
 app.config = config;
-
-// nconf
-nconf.argv().env().file({ file: './settings.json' });
-app.nconf = nconf;
 
 //setup the web server
 app.server = http.createServer(app);

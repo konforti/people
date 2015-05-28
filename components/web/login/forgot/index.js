@@ -59,16 +59,17 @@ exports.send = function (req, res, next) {
   });
 
   workflow.on('sendEmail', function (token, user) {
+    var settings = req.app.db.models.Settings;
     req.app.utility.sendmail(req, res, {
-      from: req.app.config.smtp.from.name + ' <' + req.app.config.smtp.from.address + '>',
+      from: settings.get('smtpFromName') + ' <' + settings.get('smtpFromAddress') + '>',
       to: user.email,
-      subject: 'Reset your ' + req.app.config.projectName + ' password',
+      subject: 'Reset your ' + settings.get('projectName') + ' password',
       textPath: 'login/forgot/email-text',
       htmlPath: 'login/forgot/email-html',
       locals: {
         username: user.username,
         resetLink: req.protocol + '://' + req.headers.host + '/login/reset/' + user.email + '/' + token + '/',
-        projectName: req.app.config.projectName
+        projectName: settings.get('projectName')
       },
       success: function (message) {
         workflow.emit('response');

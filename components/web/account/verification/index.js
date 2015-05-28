@@ -1,15 +1,16 @@
 'use strict';
 
 var sendVerificationEmail = function (req, res, options) {
+  var settings = req.app.db.models.Settings;
   req.app.utility.sendmail(req, res, {
-    from: req.app.config.smtp.from.name + ' <' + req.app.config.smtp.from.address + '>',
+    from: settings.get('smtpFromName') + ' <' + settings.get('smtpFromAddress') + '>',
     to: options.email,
-    subject: 'Verify Your ' + req.app.config.projectName + ' Account',
+    subject: 'Verify Your ' + settings.get('projectName') + ' Account',
     textPath: 'account/verification/email-text',
     htmlPath: 'account/verification/email-html',
     locals: {
       verifyURL: req.protocol + '://' + req.headers.host + '/account/verification/' + options.verificationToken + '/',
-      projectName: req.app.config.projectName
+      projectName: settings.get('projectName')
     },
     success: function () {
       options.onSuccess();

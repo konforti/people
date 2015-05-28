@@ -52,7 +52,7 @@ exports.signupFacebook = function (req, res, next) {
  * @param res
  * @param next
  */
-exports.signupTwitter = function (req, res, next) {
+exports.signupTwitter = function (req, res, next) {console.log('lll');
   var workflow = req.app.utility.workflow(req, res);
   req._passport.instance.authenticate('twitter', {callbackURL: '/remote/signup/twitter/callback/'}, function (err, user, info) {
     if (err) {
@@ -313,16 +313,17 @@ var signupSocial = exports.signupSocial = function (req, res, next) {
   });
 
   workflow.on('sendWelcomeEmail', function () {
+    var settings = req.app.db.models.Settings;
     req.app.utility.sendmail(req, res, {
-      from: req.app.config.smtp.from.name + ' <' + req.app.config.smtp.from.address + '>',
+      from: settings.get('smtpFromName') + ' <' + settings.get('smtpFromAddress') + '>',
       to: workflow.email,
-      subject: 'Your ' + req.app.config.projectName + ' Account',
+      subject: 'Your ' + settings.get('projectName') + ' Account',
       textPath: '../remote/social/email-text',
       htmlPath: '../remote/social/email-html',
       locals: {
         username: workflow.username,
         email: workflow.email,
-        projectName: req.app.config.projectName
+        projectName: settings.get('projectName')
       },
       success: function (message) {
         workflow.emit('logUserIn');
@@ -348,7 +349,7 @@ var signupSocial = exports.signupSocial = function (req, res, next) {
  * @param next
  */
 var loginSocial = function (req, res, workflow) {
-
+  var settings = req.app.db.models.Settings;
   req.login(workflow.user, function (err) {
     if (err) {
       return workflow.emit('exception', err);
@@ -366,7 +367,7 @@ var loginSocial = function (req, res, workflow) {
     var sid = signature.sign(req.sessionID, req.app.config.cryptoKey);
 
     workflow.outcome.success = !workflow.hasErrors();
-    workflow.outcome.allowDomain = req.app.config.allowDomain;
+    workflow.outcome.allowDomain = settings.get('allowDomain');
     workflow.outcome.sid = sid;
     workflow.outcome.user = {
       email: workflow.user.email,

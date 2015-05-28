@@ -5,12 +5,9 @@ exports = module.exports = function(app, mongoose) {
     _id: { type: String },
     value: { type: String, default: '' }
   });
-  settingsSchema.index({ value: 1 });
-  settingsSchema.set('autoIndex', (app.get('env') === 'development'));
-  app.db.model('Settings', settingsSchema);
 
   settingsSchema.statics.get = function(id, done) {
-    settingsSchema.findById(id).exec(function (err, param) {
+    return this.findById(id).exec(function (err, param) {
       if (err) {
         if (typeof done === 'function') {
           return done(err);
@@ -21,7 +18,16 @@ exports = module.exports = function(app, mongoose) {
       if (typeof done === 'function') {
         return done(param);
       }
-      return param;
+
+      if (!param) {
+        return '';
+      }
+      
+      return param.value;
     });
   };
+
+  settingsSchema.index({ value: 1 });
+  settingsSchema.set('autoIndex', (app.get('env') === 'development'));
+  app.db.model('Settings', settingsSchema);
 };
