@@ -74,15 +74,15 @@ exports.forgot = function (req, res, next) {
 
   workflow.on('sendEmail', function (token, user) {
     req.app.utility.sendmail(req, res, {
-      from: req.app.config.smtp.from.name + ' <' + req.app.config.smtp.from.address + '>',
+      from: req.app.nconf.get('smtp:smtpFromName') + ' <' + req.app.nconf.get('smtp:smtpFromAddress') + '>',
       to: user.email,
-      subject: 'Reset your ' + req.app.config.projectName + ' password',
+      subject: 'Reset your ' + req.app.nconf.get('general:projectName') + ' password',
       textPath: '../remote/forgot/email-text',
       htmlPath: '../remote/forgot/email-html',
       locals: {
         username: user.username,
         resetCode: token,
-        projectName: req.app.config.projectName
+        projectName: req.app.nconf.get('general:projectName')
       },
       success: function (message) {
         return workflow.emit('response');

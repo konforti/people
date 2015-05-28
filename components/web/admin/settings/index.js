@@ -5,7 +5,6 @@ exports.read = function (req, res, next) {
   nconf.reset();
   nconf.load();
 
-  //var settings = getSettings();
   var flat = {};
   var settings = nconf.get('settings');
 
@@ -57,19 +56,18 @@ exports.update = function (req, res, next) {
       for (var j in settings[i]) {
         for (var k in req.body) {
           if (j === k) {
-            if (k == 'smtpSSL') {
-              console.log(req.body[k]);
-            }
             settings[i][j].value = req.body[k];
           }
         }
       }
     }
-    //nconf.set('settings', settings);
+    nconf.set('settings', settings);
     nconf.save(function (err) {
       if (err) {
         return workflow.emit('exception', err);
       }
+
+      nconf.load();
     });
 
     return workflow.emit('response');
