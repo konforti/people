@@ -92,18 +92,19 @@ exports.read = function (req, res, next) {
       }
 
       outcome.fields = [];
-      for (var i = 0; i < req.app.config.fields.length; i++) {
-        outcome.fields[i] = req.app.config.fields[i];
+      req.app.db.models.Field.getAll(function(err, list) {
+        for (var i in list) {
+          outcome.fields[i] = list[i];
 
-        for (var j = 0; j < fields.length; j++) {
-          if (fields[j].key === req.app.config.fields[i].key) {
-            outcome.fields[i].value = typeof fields[j] !== 'undefined' ? fields[j].value : '';
+          for (var j in fields) {
+            if (fields[j].key === list[i].key) {
+              outcome.fields[i].value = typeof fields[j] !== 'undefined' ? fields[j].value : '';
+            }
           }
         }
-      }
 
-
-      return callback(null, 'done');
+        return callback(null, 'done');
+      });
     });
   };
 
