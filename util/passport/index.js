@@ -63,7 +63,7 @@ exports = module.exports = function(app, passport) {
     passport.use(new GitHubStrategy({
         clientID: settings.get('githubKey'),
         clientSecret: settings.get('githubSecret'),
-        customHeaders: { "User-Agent": app.config.projectName }
+        customHeaders: { "User-Agent": settings.get('projectName')}
       },
       function(accessToken, refreshToken, profile, done) {
         done(null, false, {

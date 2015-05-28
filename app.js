@@ -70,7 +70,7 @@ app.use(function(req, res, next) {
     (csrf())(req, res, next);
   }
 });
-helmet(app);
+app.use(helmet());
 
 //response locals
 app.use(function(req, res, next) {

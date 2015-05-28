@@ -22,7 +22,7 @@ exports = module.exports = function(app, mongoose) {
       if (!param) {
         return '';
       }
-      
+
       return param.value;
     });
   };
