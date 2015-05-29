@@ -56,12 +56,6 @@ exports.oauth = {
   }
 };
 
-// Extra user fields.
-exports.fields = [
-  {key: 'firstName', name: 'First Name'},
-  {key: 'lastName', name: 'Last Name'}
-];
-
 // user 1 (master) ID.
 // Can not be update or delete form the UI. Only straight form the DB.
 exports.uid1 = '';

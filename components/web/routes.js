@@ -110,6 +110,13 @@ exports = module.exports = function (app, passport) {
   app.post('/admin/users/:id/notes/', require('./admin/users/index').newNote);
   app.post('/admin/users/:id/status/', require('./admin/users/index').newStatus);
 
+  // Admin > Fields.
+  app.get('/admin/fields/', require('./admin/fields/index').find);
+  app.post('/admin/fields/', require('./admin/fields/index').create);
+  app.get('/admin/fields/:id/', require('./admin/fields/index').read);
+  app.put('/admin/fields/:id/', require('./admin/fields/index').update);
+  app.delete('/admin/fields/:id/', require('./admin/fields/index').delete);
+
   // Admin > Roles.
   app.get('/admin/roles/', require('./admin/roles/index').find);
   app.post('/admin/roles/', require('./admin/roles/index').create);
