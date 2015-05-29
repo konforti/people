@@ -6,6 +6,7 @@ html
         meta(name='viewport', content='width=device-width, initial-scale=1.0')
         link(rel='stylesheet', href='/layouts/core.min.css?#{cacheBreaker}')
         link(rel='stylesheet', href='/layouts/admin.min.css?#{cacheBreaker}')
+        link(rel='stylesheet', href='/icons/style.css?#{cacheBreaker}')
         block neck
     body
 
@@ -17,12 +18,12 @@ html
                 form.navbar-form.pull-right#_search
 
         ul.admin-menu
-            li.admin-menu-header Admin Menu
-            li: a(href='/admin/settings/') Settings
-            li: a(href='/admin/users/') Users
-            li: a(href='/admin/fields/') Fields
-            li: a(href='/admin/roles/') Roles
-            li: a(href='/admin/statuses/') Statuses
+            div.admin-menu-header Admin Menu
+            li: a.icon-equalizer(href='/admin/settings/') Settings
+            li: a.icon-users(href='/admin/users/') Users
+            li: a.icon-database(href='/admin/fields/') Fields
+            li: a.icon-key(href='/admin/roles/') Roles
+            li: a.icon-bubble(href='/admin/statuses/') Statuses
 
         div.page
             div.container
