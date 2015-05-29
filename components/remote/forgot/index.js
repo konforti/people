@@ -73,25 +73,26 @@ exports.forgot = function (req, res, next) {
   });
 
   workflow.on('sendEmail', function (token, user) {
-    var settings = req.app.db.models.Settings;
-    req.app.utility.sendmail(req, res, {
-      from: settings.get('smtpFromName') + ' <' + settings.get('smtpFromAddress') + '>',
-      to: user.email,
-      subject: 'Reset your ' + settings.get('projectName') + ' password',
-      textPath: '../remote/forgot/email-text',
-      htmlPath: '../remote/forgot/email-html',
-      locals: {
-        username: user.username,
-        resetCode: token,
-        projectName: settings.get('projectName')
-      },
-      success: function (message) {
-        return workflow.emit('response');
-      },
-      error: function (err) {
-        workflow.outcome.errors.push('Error Sending: ' + err);
-        return workflow.emit('response');
-      }
+    req.app.db.models.Settings.getParam(['smtpFromName', 'smtpFromAddress', 'projectName'], function(err, params) {
+      req.app.utility.sendmail(req, res, {
+        from: params.smtpFromName + ' <' + params.smtpFromAddress + '>',
+        to: user.email,
+        subject: 'Reset your ' + params.projectName + ' password',
+        textPath: '../remote/forgot/email-text',
+        htmlPath: '../remote/forgot/email-html',
+        locals: {
+          username: user.username,
+          resetCode: token,
+          projectName: params.projectName
+        },
+        success: function (message) {
+          return workflow.emit('response');
+        },
+        error: function (err) {
+          workflow.outcome.errors.push('Error Sending: ' + err);
+          return workflow.emit('response');
+        }
+      });
     });
   });
 

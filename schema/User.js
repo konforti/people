@@ -55,7 +55,7 @@ exports = module.exports = function(app, mongoose) {
   };
 
   userSchema.methods.hasPermissionTo = function(something) {
-    //check role permissions
+    // Check role permissions.
     var roleHasPermission = false;
     for (var i = 0 ; i < this.roles.length ; i++) {
       for (var j = 0 ; j < this.roles[i].permissions.length ; j++) {

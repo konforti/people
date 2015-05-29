@@ -69,25 +69,32 @@ exports = module.exports = function(req, res, options) {
       }
 
       var emailjs = require('emailjs/email');
-      var emailer = emailjs.server.connect( req.app.config.smtp.credentials );
-      emailer.send({
-        from: options.from,
-        to: options.to,
-        'reply-to': options.replyTo || options.from,
-        cc: options.cc,
-        bcc: options.bcc,
-        subject: options.subject,
-        text: options.text,
-        attachment: attachments
-      }, function(err, message) {
-        if (err) {
-          options.error('Email failed to send. '+ err);
-          return;
-        }
-        else {
-          options.success(message);
-          return;
-        }
+      req.app.db.models.Settings.getParam(['smtpHost', 'smtpUser', 'smtpPassword', 'smtpSSL'], function(err, params) {
+        var emailer = emailjs.server.connect( {
+          user: params.smtpUser,
+          password: params.smtpPassword,
+          host: params.smtpHost,
+          ssl: params.smtpSSL
+        } );
+        emailer.send({
+          from: options.from,
+          to: options.to,
+          'reply-to': options.replyTo || options.from,
+          cc: options.cc,
+          bcc: options.bcc,
+          subject: options.subject,
+          text: options.text,
+          attachment: attachments
+        }, function(err, message) {
+          if (err) {
+            options.error('Email failed to send. '+ err);
+            return;
+          }
+          else {
+            options.success(message);
+            return;
+          }
+        });
       });
     }
   );

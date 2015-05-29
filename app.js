@@ -82,9 +82,12 @@ app.use(function(req, res, next) {
 });
 
 //global locals
-app.locals.projectName = app.config.projectName;
+app.db.models.Settings.getParam('projectName', function(err, param) {
+  app.locals.projectName = param;
+  app.locals.copyrightName = param;
+});
+
 app.locals.copyrightYear = new Date().getFullYear();
-app.locals.copyrightName = app.config.projectName;
 app.locals.cacheBreaker = 'br34k-01';
 
 // CORS middleware

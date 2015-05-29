@@ -1,23 +1,24 @@
 'use strict';
 
 var sendVerificationEmail = function (req, res, options) {
-  var settings = req.app.db.models.Settings;
-  req.app.utility.sendmail(req, res, {
-    from: settings.get('smtpFromName') + ' <' + settings.get('smtpFromAddress') + '>',
-    to: options.email,
-    subject: 'Verify Your ' + settings.get('projectName') + ' Account',
-    textPath: 'account/verification/email-text',
-    htmlPath: 'account/verification/email-html',
-    locals: {
-      verifyURL: req.protocol + '://' + req.headers.host + '/account/verification/' + options.verificationToken + '/',
-      projectName: settings.get('projectName')
-    },
-    success: function () {
-      options.onSuccess();
-    },
-    error: function (err) {
-      options.onError(err);
-    }
+  req.app.db.models.Settings.getParam(['smtpFromName', 'smtpFromAddress', 'projectName'], function(err, params) {
+    req.app.utility.sendmail(req, res, {
+      from: params.smtpFromName + ' <' + params.smtpFromAddress + '>',
+      to: options.email,
+      subject: 'Verify Your ' + params.projectName + ' Account',
+      textPath: 'account/verification/email-text',
+      htmlPath: 'account/verification/email-html',
+      locals: {
+        verifyURL: req.protocol + '://' + req.headers.host + '/account/verification/' + options.verificationToken + '/',
+        projectName: params.projectName
+      },
+      success: function () {
+        options.onSuccess();
+      },
+      error: function (err) {
+        options.onError(err);
+      }
+    });
   });
 };
 

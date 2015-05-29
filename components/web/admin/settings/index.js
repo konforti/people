@@ -148,7 +148,7 @@ exports.read = function (req, res, next) {
   }
 
   var keys = Object.keys(gather);
-  req.app.db.models.Settings.find({_id: {$in: keys}}).exec(function (err, settings) {
+  req.app.db.models.Settings.getParam(keys, function (err, params) {
     if (err) {
       return callback(err);
     }
@@ -157,10 +157,10 @@ exports.read = function (req, res, next) {
       for (var j in fields[i]) {
         // Set field value to default value.
         fields[i][j].value = fields[i][j].defaultValue;
-        for (var k = 0; k < settings.length; k++) {
-          if (settings[k]._id === j) {
+        for (var k = 0; k < params.length; k++) {
+          if (params[k]._id === j) {
             // Override field value with data from the DB.
-            fields[i][j].value = settings[k].value ? settings[k].value : fields[i][j].defaultValue;
+            fields[i][j].value = params[k].value ? params[k].value : fields[i][j].defaultValue;
           }
         }
         // Set a flat structure obj.
@@ -206,12 +206,12 @@ exports.update = function (req, res, next) {
 
     for (var i in fields) {
       for (var j in fields[i]) {
-        req.app.db.models.Settings.findOneAndUpdate({_id: j}, {value: req.body[j]}, {upsert: true}, function (err, setting) {
+        req.app.db.models.Settings.setParam(j, req.body[j], function (err, param) {
           if (err) {
             return workflow.emit('exception', err);
           }
 
-          workflow.outcome.settings += setting;
+          workflow.outcome.settings += param;
         });
       }
     }

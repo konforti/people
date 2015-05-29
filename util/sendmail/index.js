@@ -69,37 +69,40 @@ exports = module.exports = function(req, res, options) {
       }
 
       var nodemailer = require('nodemailer');
-      // create reusable transporter object using SMTP transport
-      var transporter = nodemailer.createTransport({
-        host: req.app.config.smtp.credentials.host,
-        auth: {
-          user: req.app.config.smtp.credentials.user,
-          pass: req.app.config.smtp.credentials.password
-        }
-      });
-      // setup e-mail data with unicode symbols
-      var mailOptions = {
-        from: options.from,
-        to: options.to,
-        'reply-to': options.replyTo || options.from,
-        cc: options.cc,
-        bcc: options.bcc,
-        subject: options.subject,
-        text: options.text,
-        attachment: attachments
-      };
+      // Create reusable transporter object using SMTP transport.
+      req.app.db.models.Settings.getParam(['smtpHost', 'smtpUser', 'smtpPassword'], function(err, params) {
+        var transporter = nodemailer.createTransport({
+          host: params.smtpHost,
+          auth: {
+            user: params.smtpUser,
+            pass: params.smtpPassword
+          }
+        });
+        // setup e-mail data with unicode symbols
+        var mailOptions = {
+          from: options.from,
+          to: options.to,
+          'reply-to': options.replyTo || options.from,
+          cc: options.cc,
+          bcc: options.bcc,
+          subject: options.subject,
+          text: options.text,
+          attachment: attachments
+        };
 
-      // send mail with defined transport object
-      transporter.sendMail(mailOptions, function(err, message){
-        if(err){
-          options.error('Email failed to send. '+ err);
-          return;
-        }
-        else{
-          options.success(message);
-          return;
-        }
+        // send mail with defined transport object
+        transporter.sendMail(mailOptions, function(err, message){
+          if(err){
+            options.error('Email failed to send. '+ err);
+            return;
+          }
+          else{
+            options.success(message);
+            return;
+          }
+        });
       });
+
     }
   );
 };

@@ -19,23 +19,24 @@ var renderSettings = function (req, res, next, oauthMessage) {
       return next(err);
     }
 
-    var settings = req.app.db.models.Settings;
-    res.render('account/settings/index', {
-      data: {
-        account: escape(JSON.stringify(outcome.account)),
-        user: escape(JSON.stringify(outcome.user))
-      },
-      oauthMessage: oauthMessage,
-      oauthTwitter: !!settings.get('twitterKey'),
-      oauthTwitterActive: outcome.user.twitter ? !!outcome.user.twitter.id : false,
-      oauthGitHub: !!settings.get('githubKey'),
-      oauthGitHubActive: outcome.user.github ? !!outcome.user.github.id : false,
-      oauthFacebook: !!settings.get('facebookKey'),
-      oauthFacebookActive: outcome.user.facebook ? !!outcome.user.facebook.id : false,
-      oauthGoogle: !!settings.get('googleKey'),
-      oauthGoogleActive: outcome.user.google ? !!outcome.user.google.id : false,
-      oauthTumblr: !!settings.get('tumblrKey'),
-      oauthTumblrActive: outcome.user.tumblr ? !!outcome.user.tumblr.id : false
+    req.app.db.models.Settings.getParam(['twitterKey', 'githubKey', 'facebookKey', 'googleKey', 'tumblrKey'], function(err, params) {
+      res.render('account/settings/index', {
+        data: {
+          account: escape(JSON.stringify(outcome.account)),
+          user: escape(JSON.stringify(outcome.user))
+        },
+        oauthMessage: oauthMessage,
+        oauthTwitter: !!params.twitterKey,
+        oauthTwitterActive: outcome.user.twitter ? !!outcome.user.twitter.id : false,
+        oauthGitHub: !!params.githubKey,
+        oauthGitHubActive: outcome.user.github ? !!outcome.user.github.id : false,
+        oauthFacebook: !!params.facebookKey,
+        oauthFacebookActive: outcome.user.facebook ? !!outcome.user.facebook.id : false,
+        oauthGoogle: !!params.googleKey,
+        oauthGoogleActive: outcome.user.google ? !!outcome.user.google.id : false,
+        oauthTumblr: !!params.tumblrKey,
+        oauthTumblrActive: outcome.user.tumblr ? !!outcome.user.tumblr.id : false
+      });
     });
   };
 

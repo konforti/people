@@ -94,7 +94,7 @@ exports = module.exports = function (app, passport) {
   }));
   app.get('/login/tumblr/callback/', require('./login/index').loginTumblr);
 
-  // Admin
+  // Admin.
   app.all('/admin*', ensureAuthenticated);
   app.all('/admin*', ensureAdmin);
   app.get('/admin/', require('./admin/index').init);

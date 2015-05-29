@@ -3,30 +3,32 @@
 var crypto = require('crypto');
 
 exports.sendVerificationEmail = function (req, res, options) {
-  var settings = req.app.db.models.Settings;
-  req.app.utility.sendmail(req, res, {
-    from: settings.get('smtpFromName') + ' <' + settings.get('smtpFromAddress') + '>',
-    to: options.email,
-    subject: 'Verify Your ' + settings.get('projectName') + ' Account',
-    textPath: '../remote/verification/email-text',
-    htmlPath: '../remote/verification/email-html',
-    locals: {
-      verifyURL: req.protocol + '://' + req.headers.host + '/remote/verification/' + options.verificationToken + '/',
-      projectName: settings.get('projectName')
-    },
-    success: function () {
-      options.onSuccess();
-    },
-    error: function (err) {
-      options.onError(err);
-    }
+  req.app.db.models.Settings.getParam(['smtpFromName', 'smtpFromAddress', 'projectName'], function(err, params) {
+    req.app.utility.sendmail(req, res, {
+      from: params.smtpFromName + ' <' + params.smtpFromAddress + '>',
+      to: options.email,
+      subject: 'Verify Your ' + params.projectName + ' Account',
+      textPath: '../remote/verification/email-text',
+      htmlPath: '../remote/verification/email-html',
+      locals: {
+        verifyURL: req.protocol + '://' + req.headers.host + '/remote/verification/' + options.verificationToken + '/',
+        projectName: params.projectName
+      },
+      success: function () {
+        options.onSuccess();
+      },
+      error: function (err) {
+        options.onError(err);
+      }
+    });
   });
 };
 
 exports.verification = function (req, res, next) {
-  var settings = req.app.db.models.Settings;
   if (req.user.isVerified === 'yes') {
-    return res.redirect(settings.get('defaultReturnUrl'));
+    req.app.db.models.Settings.getParam('defaultReturnUrl', function(err, param) {
+      return res.redirect(param);
+    });
   }
   var workflow = req.app.utility.workflow(req, res);
   workflow.on('validate', function () {
@@ -84,8 +86,9 @@ exports.verify = function (req, res, next) {
 
     var fieldsToSet = {isVerified: 'yes', verificationToken: ''};
     req.app.db.models.User.findByIdAndUpdate(req.user.id, fieldsToSet, function (err, user) {
-      var settings = req.app.db.models.Settings;
-      return res.redirect(settings.get('defaultReturnUrl') + '?verified=true');
+      req.app.db.models.Settings.getParam('defaultReturnUrl', function(err, param) {
+        return res.redirect(param + '?verified=true');
+      });
     });
   });
 };

@@ -6,25 +6,39 @@ exports = module.exports = function(app, mongoose) {
     value: { type: String, default: '' }
   });
 
-  settingsSchema.statics.get = function(id, done) {
-    return this.findById(id).exec(function (err, param) {
-      if (err) {
-        if (typeof done === 'function') {
-          return done(err);
+  settingsSchema.statics.getParam = function(ids, done) {
+    if (ids.constructor === Array) {
+      return this.find({'_id': {$in: ids}}).exec(function (err, param) {
+        var ret = {}
+        for (var i = 0; i < param.length; i++) {
+          ret[param[i]._id] = param[i].value;
         }
-        return err;
-      }
+        return done(err, ret);
+      });
+    }
+    else {
+      return this.findById(ids).exec(function (err, param) {
+        return done(err, param.value);
+      });
+    }
+  };
 
-      if (typeof done === 'function') {
-        return done(param);
-      }
-
-      if (!param) {
-        return '';
-      }
-
-      return param.value;
+  settingsSchema.statics.setParam = function(key, value, done) {
+    this.findOneAndUpdate({_id: key}, {value: value}, {upsert: true}, function (err, param) {
+      return done(err, param.value);
     });
+  };
+
+settingsSchema.statics.get = function(ids, done) {
+  return this.find({'_id': {$in: ['smtpFromName', 'smtpFromAddress', 'projectName']}}).exec(function (err, param) {
+    console.log(param);
+    var ret = {};
+    for (var i = 0; i < param.length; i++) {
+      ret[param[i]._id] = param[i];
+    }
+    console.log(ret);
+    return param;
+  });
   };
 
   settingsSchema.index({ value: 1 });
