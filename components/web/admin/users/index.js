@@ -120,7 +120,6 @@ exports.read = function (req, res, next) {
             }
           }
         }
-        console.log(outcome.fields);
         return callback(null, 'done');
       });
     });
@@ -288,29 +287,31 @@ exports.update = function (req, res, next) {
       workflow.outcome.user = user;
 
       workflow.outcome.user.extra = [];
-      var fields = req.app.config.fields;
-      for (var i = 0; i < fields.length; ++i) {
-        var extraFieldsToSet = {};
-        extraFieldsToSet.key = fields[i].key;
-        extraFieldsToSet.value = req.body[fields[i].key];
+      req.app.db.models.Field.getAll(function(err, fields) {
+        for (var i = 0; i < fields.length; ++i) {
+          var extraFieldsToSet = {};
+          extraFieldsToSet.key = fields[i]._id;
+          extraFieldsToSet.value = req.body[fields[i]._id];
 
-        (function(i) {
-          req.app.db.models.UserMeta.findOneAndUpdate({
-            user: req.params.id,
-            key: fields[i].key
-          }, extraFieldsToSet, {upsert: true}, function (err, userField) {
-            if (err) {
-              return workflow.emit('exception', err);
-            }
+          (function(i) {
+            req.app.db.models.UserMeta.findOneAndUpdate({
+              user: req.params.id,
+              key: fields[i]._id
+            }, extraFieldsToSet, {upsert: true}, function (err, userField) {
+              if (err) {
+                return //workflow.emit('exception', err);
+              }
 
-            fields[i].value = userField.value;
-            workflow.outcome.user.extra.push(fields[i]);
-            if (i >= fields.length - 1) {
-              workflow.emit('response');
-            }
-          });
-        })(i);
-      }
+              fields[i].value = userField.value;
+              workflow.outcome.user.extra.push(fields[i]);
+              if (i >= fields.length - 1) {
+                workflow.emit('response');
+              }
+            });
+          })(i);
+        }
+      });
+
     });
   });
 

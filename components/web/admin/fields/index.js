@@ -87,7 +87,7 @@ exports.create = function (req, res, next) {
       name: req.body.name
     };
 
-    req.app.db.models.Field.create(fieldsToSet, function (err, field) {console.log(field);
+    req.app.db.models.Field.create(fieldsToSet, function (err, field) {
       if (err) {
         return workflow.emit('exception', err);
       }

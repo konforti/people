@@ -8,13 +8,13 @@ var signature = require('cookie-signature');
  * @param res
  */
 exports.readProfile = function (req, res, next) {
-  var workflow = req.app.utility.workflow(req, res);
+  var outcome = {};
   var getRecord = function (callback) {
     req.app.db.models.User.findById(req.user.id).exec(function (err, record) {
       if (err) {
-        return workflow.emit('exception', err);
+        return callback(err);
       }
-      workflow.outcome.record = record;
+      outcome.record = record;
       return callback(null, 'done');
     });
   };
@@ -25,42 +25,35 @@ exports.readProfile = function (req, res, next) {
         return callback(err, null);
       }
 
-      workflow.outcome.fields = [];
-      for (var i = 0; i < req.app.config.fields.length; i++) {
-        workflow.outcome.fields[i] = req.app.config.fields[i];
-        workflow.outcome.fields[i].value = '';
-
-        for (var j = 0; j < fields.length; j++) {
-          if (fields[j].key === req.app.config.fields[i].key) {
-            workflow.outcome.fields[i].value = typeof fields[j] !== 'undefined' ? fields[j].value : '';
+      req.app.db.models.Field.getAll(function(err, list) {
+        outcome.fields = {};
+        for (var i = 0; i < list.length; i++) {
+          outcome.fields[list[i]._id] = {name: list[i].name, value: ''};
+          for (var j = 0; j < fields.length; j++) {
+            if (fields[j].key === list[i]._id) {
+              outcome.fields[list[i]._id].value = typeof fields[j] !== 'undefined' ? fields[j].value : '';
+            }
           }
         }
-      }
-
-      return callback(null, 'done');
+        return callback(null, 'done');
+      });
     });
   };
 
   var asyncFinally = function (err, results) {
     if (err) {
-      return workflow.emit('exception', err);
+      return callback(err);
     }
 
     var csrfToken = crypto.pseudoRandomBytes(16).toString('hex');
     req.session.remoteToken = csrfToken;
     req.app.render('../remote/profile/index', {
-        data: {
-          csrfToken: csrfToken,
-          record: workflow.outcome.record,
-          fields: workflow.outcome.fields
-        }
-      }, function (err, html) {
-        delete workflow.outcome.record;
-        delete workflow.outcome.fields;
-        workflow.outcome.html = html;
-        workflow.emit('response');
+      data: {
+        csrfToken: csrfToken,
+        record: outcome.record,
+        fields: outcome.fields
       }
-    );
+    });
   };
 
   require('async').parallel([getRecord, getUserFields], asyncFinally);
@@ -156,29 +149,30 @@ exports.updateProfile = function (req, res, next) {
 
   workflow.on('patchFields', function () {
     workflow.outcome.fields = [];
-    var fields = req.app.config.fields;
-    for (var i = 0; i < fields.length; i++) {
-      var extraFieldsToSet = {};
-      extraFieldsToSet.key = fields[i].key;
-      extraFieldsToSet.value = req.body[fields[i].key];
+    req.app.db.models.Field.getAll(function(err, fields) {
+      for (var i = 0; i < fields.length; i++) {
+        var extraFieldsToSet = {};
+        extraFieldsToSet.key = fields[i].key;
+        extraFieldsToSet.value = req.body[fields[i].key];
 
-      (function(i) {
-        req.app.db.models.UserMeta.findOneAndUpdate({
-          user: req.user.id,
-          key: fields[i].key
-        }, extraFieldsToSet, {upsert: true}, function (err, userField) {
-          if (err) {
-            return workflow.emit('exception', err);
-          }
+        (function(i) {
+          req.app.db.models.UserMeta.findOneAndUpdate({
+            user: req.user.id,
+            key: fields[i].key
+          }, extraFieldsToSet, {upsert: true}, function (err, userField) {
+            if (err) {
+              return workflow.emit('exception', err);
+            }
 
-          fields[i].value = userField.value;
-          workflow.outcome.fields.push(fields[i]);
-          if (i >= fields.length - 1) {
-            workflow.emit('renderProfile');
-          }
-        });
-      })(i);
-    }
+            fields[i].value = userField.value;
+            workflow.outcome.fields.push(fields[i]);
+            if (i >= fields.length - 1) {
+              workflow.emit('renderProfile');
+            }
+          });
+        })(i);
+      }
+    });
   });
 
   workflow.on('renderProfile', function () {
@@ -253,23 +247,23 @@ exports.updatePassword = function (req, res, next) {
 
   workflow.on('patchFields', function () {
     workflow.outcome.fields = [];
-    var fields = req.app.config.fields;
+    req.app.db.models.Field.getAll(function(err, fields) {
+      for (var i = 0; i < fields.length; i++) {
+        (function(i) {
+          req.app.db.models.UserMeta.findOne({user: req.user.id, key: fields[i].key}, function (err, userField) {
+            if (err) {
+              return workflow.emit('exception', err);
+            }
 
-    for (var i = 0; i < fields.length; i++) {
-      (function(i) {
-        req.app.db.models.UserMeta.findOne({user: req.user.id, key: fields[i].key}, function (err, userField) {
-          if (err) {
-            return workflow.emit('exception', err);
-          }
-
-          fields[i].value = userField.value;
-          workflow.outcome.fields.push(fields[i]);
-          if (i >= fields.length - 1) {
-            workflow.emit('renderProfile');
-          }
-        });
-      })(i);
-    }
+            fields[i].value = userField.value;
+            workflow.outcome.fields.push(fields[i]);
+            if (i >= fields.length - 1) {
+              workflow.emit('renderProfile');
+            }
+          });
+        })(i);
+      }
+    });
   });
 
   workflow.on('renderProfile', function () {

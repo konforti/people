@@ -170,20 +170,19 @@ exports.readCurrent = function (req, res, next) {
           return callback(err, null);
         }
 
-        outcome.fields = [];
-        for (var i = 0; i < req.app.config.fields.length; i++) {
-          outcome.fields[i] = req.app.config.fields[i];
-
-          for (var j = 0; j < fields.length; j++) {
-            if (fields[j].key === req.app.config.fields[i].key) {
-              outcome.fields[i].value = typeof fields[j] !== 'undefined' ? fields[j].value : '';
+        req.app.db.models.Field.getAll(function(err, list) {
+          outcome.fields = {};
+          for (var i = 0; i < list.length; i++) {
+            outcome.fields[list[i]._id] = {name: list[i].name, value: ''};
+            for (var j = 0; j < fields.length; j++) {
+              if (fields[j].key === list[i]._id) {
+                outcome.fields[list[i]._id].value = typeof fields[j] !== 'undefined' ? fields[j].value : '';
+              }
             }
           }
-        }
-
-        return callback(null, 'done');
+          return callback(null, 'done');
+        });
       });
-
     });
   };
 
@@ -250,30 +249,30 @@ exports.updateFields = function (req, res, next) {
 
   workflow.on('patchUser', function () {
     workflow.outcome.fields = [];
-    var fields = req.app.config.fields;
+    req.app.db.models.Field.getAll(function(err, list) {
+      for (var i = 0; i < fields.length; i++) {
+        var extraFieldsToSet = {};
+        extraFieldsToSet.key = fields[i].key;
+        extraFieldsToSet.value = req.body[fields[i].key];
 
-    for (var i = 0; i < fields.length; i++) {
-      var extraFieldsToSet = {};
-      extraFieldsToSet.key = fields[i].key;
-      extraFieldsToSet.value = req.body[fields[i].key];
+        (function(i) {
+          req.app.db.models.UserMeta.findOneAndUpdate({
+            user: req.params.id,
+            key: fields[i].key
+          }, extraFieldsToSet, {upsert: true}, function (err, userField) {
+            if (err) {
+              return workflow.emit('exception', err);
+            }
 
-      (function(i) {
-        req.app.db.models.UserMeta.findOneAndUpdate({
-          user: req.params.id,
-          key: fields[i].key
-        }, extraFieldsToSet, {upsert: true}, function (err, userField) {
-          if (err) {
-            return workflow.emit('exception', err);
-          }
-
-          fields[i].value = userField.value;
-          workflow.outcome.fields.push(fields[i]);
-          if (i >= fields.length - 1) {
-            exports.read(req, res, next);
-          }
-        });
-      })(i);
-    }
+            fields[i].value = userField.value;
+            workflow.outcome.fields.push(fields[i]);
+            if (i >= fields.length - 1) {
+              exports.read(req, res, next);
+            }
+          });
+        })(i);
+      }
+    });
   });
 
   workflow.emit('validate');
