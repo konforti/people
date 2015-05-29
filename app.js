@@ -91,12 +91,17 @@ app.locals.copyrightYear = new Date().getFullYear();
 app.locals.cacheBreaker = 'br34k-01';
 
 // CORS middleware
+app.db.models.Settings.getParam('projectName', function(err, param) {
+
+});
 var allowCrossDomain = function(req, res, next) {
-  res.header('Access-Control-Allow-Origin', config.allowDomain);
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  next();
+  app.db.models.Settings.getParam('allowDomain', function(err, param) {
+    res.header('Access-Control-Allow-Origin', param);
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    next();
+  });
 };
 app.use(allowCrossDomain);
 

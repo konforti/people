@@ -8,11 +8,12 @@ exports = module.exports = function(app, mongoose) {
 
   settingsSchema.statics.getParam = function(ids, done) {
     if (ids.constructor === Array) {
-      return this.find({'_id': {$in: ids}}).exec(function (err, param) {
-        var ret = {}
-        for (var i = 0; i < param.length; i++) {
-          ret[param[i]._id] = param[i].value;
+      return this.find({'_id': {$in: ids}}).exec(function (err, params) {
+        var ret = {};
+        for (var i = 0; i < params.length; i++) {
+          ret[params[i]._id] = params[i].value;
         }
+
         return done(err, ret);
       });
     }
@@ -25,6 +26,7 @@ exports = module.exports = function(app, mongoose) {
 
   settingsSchema.statics.setParam = function(key, value, done) {
     this.findOneAndUpdate({_id: key}, {value: value}, {upsert: true}, function (err, param) {
+      console.log(param);
       return done(err, param.value);
     });
   };

@@ -247,7 +247,7 @@ exports.login = function (req, res, next) {
         return workflow.emit('exception', err);
       }
 
-      req.app.db.models.Settings.getParam(['loginAttemptsForIp', 'loginAttemptsForIpAndUser'], function(params) {
+      req.app.db.models.Settings.getParam(['loginAttemptsForIp', 'loginAttemptsForIpAndUser'], function(err, params) {
         if (results.ip >= params.loginAttemptsForIp || results.ipUser >= params.loginAttemptsForIpAndUser) {
           workflow.outcome.errors.push('You\'ve reached the maximum number of login attempts. Please try again later.');
           return workflow.emit('response');

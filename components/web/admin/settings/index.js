@@ -157,10 +157,10 @@ exports.read = function (req, res, next) {
       for (var j in fields[i]) {
         // Set field value to default value.
         fields[i][j].value = fields[i][j].defaultValue;
-        for (var k = 0; k < params.length; k++) {
-          if (params[k]._id === j) {
+        for (var k in params) {
+          if (k === j) {
             // Override field value with data from the DB.
-            fields[i][j].value = params[k].value ? params[k].value : fields[i][j].defaultValue;
+            fields[i][j].value = params[k] ? params[k] : fields[i][j].defaultValue;
           }
         }
         // Set a flat structure obj.
