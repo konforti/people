@@ -29,18 +29,6 @@ exports = module.exports = function(app, mongoose) {
     });
   };
 
-settingsSchema.statics.get = function(ids, done) {
-  return this.find({'_id': {$in: ['smtpFromName', 'smtpFromAddress', 'projectName']}}).exec(function (err, param) {
-    console.log(param);
-    var ret = {};
-    for (var i = 0; i < param.length; i++) {
-      ret[param[i]._id] = param[i];
-    }
-    console.log(ret);
-    return param;
-  });
-  };
-
   settingsSchema.index({ value: 1 });
   settingsSchema.set('autoIndex', (app.get('env') === 'development'));
   app.db.model('Settings', settingsSchema);
