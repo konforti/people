@@ -98,13 +98,13 @@ People.prototype.setEvents = function () {
         break;
 
       case 'ppl-update-password-btn':
-        var elms = document.querySelectorAll('form#password input');
+        var elms = document.querySelectorAll('#ppl-new-password input');
         var values = {sid: self.getCookie('people.sid')};
         for (var i = 0, elm; elm = elms[i]; ++i) {
           values[elm.name] = elm.value;
         }
         self.makeRequest('POST', self.url + '/remote/password/', values, function (data) {
-          if (!this.alert(data)) {
+          if (!self.alert(data)) {
             var event = new Event('onpasswordupdate');
             document.dispatchEvent(event);
             self.profileBlock(data.responseText);

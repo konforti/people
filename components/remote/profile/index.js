@@ -261,7 +261,7 @@ exports.updatePassword = function (req, res, next) {
             }
 
             fields[i].value = userField.value;
-            workflow.outcome.fields.push(fields[i]);
+            workflow.outcome.fields[userField.key] = {name: fields[i].name, value: userField.value};
             if (i >= fields.length - 1) {
               workflow.emit('renderProfile');
             }
