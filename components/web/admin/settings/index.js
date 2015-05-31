@@ -5,65 +5,50 @@ var getFields = function() {
     general: {
       projectName: {
         name: 'Project Name',
-        type: 'text',
-        defaultValue: 'People'
+        type: 'text'
       },
       systemEmail: {
         name: 'Project Email',
-        type: 'text',
-        defaultValue: 'your@email.com'
+        type: 'text'
       },
       webhooksURL: {
         name: 'Webhooks URL',
         type: 'text',
-        defaultValue: '',
         description: 'http://yourdomain.com/webhooks'
       },
       allowDomain: {
         name: 'Allow domain',
         type: 'text',
-        defaultValue: '',
         description: 'http://yourdomain.com'
       },
       defaultReturnUrl: {
         name: 'Default Return Url',
         type: 'text',
-        defaultValue: '',
         description: 'http://yourdomain.com'
-      },
-      requireAccountVerification: {
-        name: 'Require Account Verification',
-        type: 'checkbox',
-        defaultValue: 0
       }
     },
     loginAttempts: {
       loginAttemptsForIp: {
         name: 'Login Attempts For Ip',
-        type: 'number',
-        defaultValue: 50
+        type: 'number'
       },
       loginAttemptsForIpAndUser: {
         name: 'Login Attempts For Ip And User',
-        type: 'number',
-        defaultValue: 7
+        type: 'number'
       },
       loginAttemptsLogExpiration: {
         name: 'Login Attempts Log Expiration',
-        type: 'text',
-        defaultValue: '20m'
+        type: 'text'
       }
     },
     smtp: {
       smtpFromName: {
         name: 'SMTP From Name',
-        type: 'text',
-        defaultValue: 'People Website'
+        type: 'text'
       },
       smtpFromAddress: {
         name: 'SMTP From Address',
-        type: 'text',
-        defaultValue: 'your@email.com'
+        type: 'text'
       },
       smtpHost: {
         name: 'SMTP Host',
@@ -72,78 +57,64 @@ var getFields = function() {
       },
       smtpUser: {
         name: 'SMTP User',
-        type: 'text',
-        defaultValue: 'your@email.com'
+        type: 'text'
       },
       smtpPassword: {
         name: 'SMTP Password',
-        type: 'text',
-        defaultValue: ''
+        type: 'text'
       },
       smtpSSL: {
         name: 'SMTP SSL',
-        type: 'checkbox',
-        defaultValue: 1
+        type: 'checkbox'
       }
     },
     social: {
       twitterKey: {
         name: 'Twitter Key',
-        type: 'text',
-        defaultValue: ''
+        type: 'text'
       },
       twitterSecret: {
         name: 'Twitter Secret',
-        type: 'text',
-        defaultValue: ''
+        type: 'text'
       },
       facebookKey: {
         name: 'Facebook Key',
-        type: 'text',
-        defaultValue: ''
+        type: 'text'
       },
       facebookSecret: {
         name: 'Facebook Secret',
-        type: 'text',
-        defaultValue: ''
+        type: 'text'
       },
       githubKey: {
         name: 'GitHub Key',
-        type: 'text',
-        defaultValue: ''
+        type: 'text'
       },
       githubSecret: {
         name: 'GitHub Secret',
-        type: 'text',
-        defaultValue: ''
+        type: 'text'
       },
       googleKey: {
         name: 'Google Key',
-        type: 'text',
-        defaultValue: ''
+        type: 'text'
       },
       googleSecret: {
         name: 'Google Secret',
-        type: 'text',
-        defaultValue: ''
+        type: 'text'
       },
       tumblrKey: {
         name: 'Tumblr Key',
-        type: 'text',
-        defaultValue: ''
+        type: 'text'
       },
       tumblrSecret: {
         name: 'Tumblr Secret',
-        type: 'text',
-        defaultValue: ''
+        type: 'text'
       }
     }
   };
 };
 
 exports.read = function (req, res, next) {
-  var defaults = require('./defaults');
-  console.log(defaults);
+  var defaults = require(process.env.PWD + '/defaults.json');
   var fields = getFields();
   var outcome = {};
   var flat = {};
@@ -163,11 +134,11 @@ exports.read = function (req, res, next) {
     for (var i in fields) {
       for (var j in fields[i]) {
         // Set field value to default value.
-        fields[i][j].value = fields[i][j].defaultValue;
+        fields[i][j].value = defaults[j];
         for (var k in params) {
           if (k === j) {
             // Override field value with data from the DB.
-            fields[i][j].value = params[k] ? params[k] : fields[i][j].defaultValue;
+            fields[i][j].value = params[k];
           }
         }
         // Set a flat structure obj.

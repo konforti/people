@@ -41,10 +41,10 @@ block body
                         div.group(class!="group-#{i}")
                             h3 #{i.replace(/([A-Z])/g, " $1").replace(/^./, function(str){ return str.toUpperCase()})}
                             - for (var j in data.fields[i])
-                                div.form-role(class!='<%- errfor.fields ? "has-error" : "" %>')
+                                div.form-role(class!="<%- errfor.#{j} ? 'has-error' : '' %>")
                                     label #{data.fields[i][j].name}:
                                     input.form-control(type="#{data.fields[i][j].type}", name="#{j}", value!="#{data.fields[i][j].value}")
-                                    span.help-block <%- errfor.fields %>
+                                    span.help-block <%- errfor.#{j} %>
 
             div.right
                 - var n = 0;
@@ -53,10 +53,10 @@ block body
                         div.group(class!="group-#{i}")
                             h3 #{i.replace(/([A-Z])/g, " $1").replace(/^./, function(str){ return str.toUpperCase()})}
                             - for (var j in data.fields[i])
-                                div.form-role(class!='<%- errfor.fields ? "has-error" : "" %>')
+                                div.form-role(class!="<%- errfor.#{j} ? 'has-error' : '' %>")
                                     label #{data.fields[i][j].name}:
                                     input.form-control(type="#{data.fields[i][j].type}", name="#{j}", value!="#{data.fields[i][j].value}")
-                                    span.help-block <%- errfor.fields %>
+                                    span.help-block <%- errfor.#{j} %>
 
             div.form-role
                 button.btn.btn-primary.btn-update(type='button') Update
