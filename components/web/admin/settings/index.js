@@ -30,6 +30,11 @@ var getFields = function() {
         type: 'text',
         defaultValue: '',
         description: 'http://yourdomain.com'
+      },
+      requireAccountVerification: {
+        name: 'Require Account Verification',
+        type: 'checkbox',
+        defaultValue: 0
       }
     },
     loginAttempts: {
@@ -137,6 +142,8 @@ var getFields = function() {
 };
 
 exports.read = function (req, res, next) {
+  var defaults = require('./defaults');
+  console.log(defaults);
   var fields = getFields();
   var outcome = {};
   var flat = {};

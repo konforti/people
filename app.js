@@ -1,6 +1,6 @@
 'use strict';
 
-//dependencies
+// Dependencies.
 var config = require('./config'),
     express = require('express'),
     cookieParser = require('cookie-parser'),
@@ -14,32 +14,32 @@ var config = require('./config'),
     helmet = require('helmet'),
     csrf = require('csurf');
 
-// create express app
+// Create express app.
 var app = express();
 
-// keep reference to config
+// Keep reference to config.
 app.config = config;
 
-//setup the web server
+// Setup the web server.
 app.server = http.createServer(app);
 
-//setup mongoose
+// Setup mongoose.
 app.db = mongoose.createConnection(config.mongodb.uri);
 app.db.on('error', console.error.bind(console, 'mongoose connection error: '));
 app.db.once('open', function () {
-  //and... we have a data store
+  // and... we have a data store
 });
 
-//config data models
+// Config data models.
 require('./schema/models')(app, mongoose);
 
-//settings
+// Settings.
 app.disable('x-powered-by');
 app.set('port', config.port);
 app.set('views', path.join(__dirname, 'components/web'));
 app.set('view engine', 'jade');
 
-//middleware
+// Middleware.
 app.use(require('morgan')('dev'));
 app.use(require('compression')());
 app.use(require('serve-static')(path.join(__dirname, 'public')));
@@ -56,13 +56,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(function(req, res, next) {
-  for(var path, i = 0; path = config.csrfExclusion[i]; i++) {
-    if (req.path.indexOf(path) === 0) {
-      var exclude = true;
-      break;
-    }
-  }
-  if (typeof exclude !== 'undefined') {
+  if (req.path.indexOf('/remote/') === 0 || req.path.indexOf('/api/') === 0) {
     req.csrfToken = function() {return '';};
     next();
   }
@@ -72,7 +66,7 @@ app.use(function(req, res, next) {
 });
 app.use(helmet());
 
-//response locals
+// Response locals.
 app.use(function(req, res, next) {
   res.cookie('_csrfToken', req.csrfToken());
   res.locals.user = {};
@@ -81,7 +75,7 @@ app.use(function(req, res, next) {
   next();
 });
 
-//global locals
+// Global locals.
 app.db.models.Settings.getParam('projectName', function(err, param) {
   app.locals.projectName = param;
   app.locals.copyrightName = param;
@@ -90,7 +84,7 @@ app.db.models.Settings.getParam('projectName', function(err, param) {
 app.locals.copyrightYear = new Date().getFullYear();
 app.locals.cacheBreaker = 'br34k-01';
 
-// CORS middleware
+// CORS middleware.
 app.db.models.Settings.getParam('projectName', function(err, param) {
 
 });
@@ -117,28 +111,24 @@ app.use(function(req, res, next) {
   next();
 });
 
-//setup passport
+// Setup passport.
 require('./util/passport')(app, passport);
 
-//setup routes
+// Setup routes.
 require('./components/api/routes')(app);
-
-//setup routes
 require('./components/remote/routes')(app, passport);
-
-//setup routes
 require('./components/web/routes')(app, passport);
 
-//custom (friendly) error handler
+// Custom (friendly) error handler.
 app.use(require('./components/web/http/index').http500);
 
-//setup utilities
+// Setup utilities.
 app.utility = {};
 app.utility.sendmail = require('./util/sendmail');
 app.utility.slugify = require('./util/slugify');
 app.utility.workflow = require('./util/workflow');
 
-//listen up
+// Listen up.
 app.server.listen(app.config.port, app.config.ip, function(){
   //and... we're live
 });
