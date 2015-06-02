@@ -13,6 +13,7 @@
 	"smtpUser": "your@email.com",
 	"smtpPassword": "",
 	"smtpSSL": "1",
+	"twitterKey": "",
 	"twitterSecret": "",
 	"facebookKey": "",
 	"facebookSecret": "",
@@ -24,5 +25,5 @@
 	"tumblrSecret": "",
 	"cryptoKey": "b5ae0db4a032",
 	"publicKey": "pk_E9D9A844F2D91C9038060BC1FBAA1B",
-	"secretKey": "sk_0CA3706D236D4A4E667BBC97315935"
+	"secretKey": "sk_BE60AF08CD8D0144F016A23179CAAA"
 }

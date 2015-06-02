@@ -18,25 +18,23 @@ var renderSettings = function (req, res, next, oauthMessage) {
     if (err) {
       return next(err);
     }
-
-    req.app.db.models.Settings.getParam(['twitterKey', 'githubKey', 'facebookKey', 'googleKey', 'tumblrKey'], function(err, params) {
-      res.render('account/settings/index', {
-        data: {
-          account: escape(JSON.stringify(outcome.account)),
-          user: escape(JSON.stringify(outcome.user))
-        },
-        oauthMessage: oauthMessage,
-        oauthTwitter: !!params.twitterKey,
-        oauthTwitterActive: outcome.user.twitter ? !!outcome.user.twitter.id : false,
-        oauthGitHub: !!params.githubKey,
-        oauthGitHubActive: outcome.user.github ? !!outcome.user.github.id : false,
-        oauthFacebook: !!params.facebookKey,
-        oauthFacebookActive: outcome.user.facebook ? !!outcome.user.facebook.id : false,
-        oauthGoogle: !!params.googleKey,
-        oauthGoogleActive: outcome.user.google ? !!outcome.user.google.id : false,
-        oauthTumblr: !!params.tumblrKey,
-        oauthTumblrActive: outcome.user.tumblr ? !!outcome.user.tumblr.id : false
-      });
+    var settings = req.app.getSettings();
+    res.render('account/settings/index', {
+      data: {
+        account: escape(JSON.stringify(outcome.account)),
+        user: escape(JSON.stringify(outcome.user))
+      },
+      oauthMessage: oauthMessage,
+      oauthTwitter: !!settings.twitterKey,
+      oauthTwitterActive: outcome.user.twitter ? !!outcome.user.twitter.id : false,
+      oauthGitHub: !!settings.githubKey,
+      oauthGitHubActive: outcome.user.github ? !!outcome.user.github.id : false,
+      oauthFacebook: !!settings.facebookKey,
+      oauthFacebookActive: outcome.user.facebook ? !!outcome.user.facebook.id : false,
+      oauthGoogle: !!settings.googleKey,
+      oauthGoogleActive: outcome.user.google ? !!outcome.user.google.id : false,
+      oauthTumblr: !!settings.tumblrKey,
+      oauthTumblrActive: outcome.user.tumblr ? !!outcome.user.tumblr.id : false
     });
   };
 

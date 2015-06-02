@@ -25,10 +25,19 @@ app.config = config;
 // Setup the web server.
 app.server = http.createServer(app);
 
-var settings = JSON.parse(fs.readFileSync(process.env.PWD + '/settings.json', {encoding: 'utf8'}));
+// Settings.
+app.getSettings = function() {
+  return JSON.parse(fs.readFileSync('./settings.json', {encoding: 'utf8'}));
+};
+app.setSettings = function(settings) {
+  fs.writeFileSync('./settings.json', JSON.stringify(settings, null, '\t'));
+};
+
+// Set cryptoKey if there is none.
+var settings = app.getSettings();
 if (!settings.cryptoKey) {
   settings.cryptoKey = crypto.randomBytes(6).toString('hex');
-  fs.writeFileSync(process.env.PWD + '/settings.json', JSON.stringify(settings, null, '\t'));
+  app.setSettings(settings);
 }
 // Setup mongoose.
 app.db = mongoose.createConnection(config.mongodb.uri);
@@ -83,26 +92,22 @@ app.use(function(req, res, next) {
 });
 
 // Global locals.
-app.db.models.Settings.getParam('projectName', function(err, param) {
-  app.locals.projectName = param;
-  app.locals.copyrightName = param;
-});
+app.locals.projectName = settings.projectName;
+app.locals.copyrightName = settings.projectName;
 
 app.locals.copyrightYear = new Date().getFullYear();
 app.locals.cacheBreaker = 'br34k-01';
 
 // CORS middleware.
-app.db.models.Settings.getParam('projectName', function(err, param) {
+app.locals.projectName = settings.projectName;
+app.locals.copyrightName = settings.projectName;
 
-});
 var allowCrossDomain = function(req, res, next) {
-  app.db.models.Settings.getParam('allowDomain', function(err, param) {
-    res.header('Access-Control-Allow-Origin', param);
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT');
-    res.header('Access-Control-Allow-Headers', 'Content-Type');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    next();
-  });
+  res.header('Access-Control-Allow-Origin', settings.allowDomain);
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  next();
 };
 app.use(allowCrossDomain);
 

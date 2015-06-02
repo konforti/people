@@ -16,16 +16,9 @@ exports.info = function (req, res) {
   workflow.on('getInfo', function () {
     var socials = ['twitter', 'facebook', 'github', 'google', 'tumblr'];
     var actives = [];
+    var settings = req.app.getSettings();
     for (var name in socials) {
-      req.app.db.models.Settings.getParam(name + 'Key', function(err, param) {
-        if (err) {
-          return workflow.emit('exception', err);
-        }
-
-        if (param) {
-          actives.push(name);
-        }
-      });
+      actives.push(settings[name + 'Key']);
     }
 
     workflow.outcome.info = {
@@ -247,16 +240,14 @@ exports.login = function (req, res, next) {
         return workflow.emit('exception', err);
       }
 
-      req.app.db.models.Settings.getParam(['loginAttemptsForIp', 'loginAttemptsForIpAndUser'], function(err, params) {
-        if (results.ip >= params.loginAttemptsForIp || results.ipUser >= params.loginAttemptsForIpAndUser) {
-          workflow.outcome.errors.push('You\'ve reached the maximum number of login attempts. Please try again later.');
-          return workflow.emit('response');
-        }
-        else {
-          workflow.emit('attemptLogin');
-        }
-      });
-
+      var settings = req.app.getSettings();
+      if (results.ip >= settings.loginAttemptsForIp || results.ipUser >= settings.loginAttemptsForIpAndUser) {
+        workflow.outcome.errors.push('You\'ve reached the maximum number of login attempts. Please try again later.');
+        return workflow.emit('response');
+      }
+      else {
+        workflow.emit('attemptLogin');
+      }
     };
 
     require('async').parallel({ip: getIpCount, ipUser: getIpUserCount}, asyncFinally);

@@ -5,15 +5,14 @@ exports.init = function (req, res) {
     res.redirect(req.user.defaultReturnUrl());
   }
   else {
-    req.app.db.models.Settings.getParam(['twitterKey', 'githubKey', 'facebookKey', 'googleKey', 'tumblrKey'], function(err, params) {
-      res.render('signup/index', {
-        oauthMessage: '',
-        oauthTwitter: !!params.twitterKey,
-        oauthGitHub: !!params.githubKey,
-        oauthFacebook: !!params.facebookKey,
-        oauthGoogle: !!params.googleKey,
-        oauthTumblr: !!params.tumblrKey
-      });
+    var settings = req.app.getSettings();
+    res.render('signup/index', {
+      oauthMessage: '',
+      oauthTwitter: !!settings.twitterKey,
+      oauthGitHub: !!settings.githubKey,
+      oauthFacebook: !!settings.facebookKey,
+      oauthGoogle: !!settings.googleKey,
+      oauthTumblr: !!settings.tumblrKey
     });
   }
 };
@@ -105,27 +104,26 @@ exports.signup = function (req, res) {
   });
 
   workflow.on('sendWelcomeEmail', function () {
-    req.app.db.models.Settings.getParam(['smtpFromName', 'smtpFromAddress', 'projectName'], function(err, params) {
-      req.app.utility.sendmail(req, res, {
-        from: params.smtpFromName + ' <' + params.smtpFromAddress + '>',
-        to: req.body.email,
-        subject: 'Your ' + params.projectName + ' Account',
-        textPath: 'signup/email-text',
-        htmlPath: 'signup/email-html',
-        locals: {
-          username: req.body.username,
-          email: req.body.email,
-          loginURL: req.protocol + '://' + req.headers.host + '/login/',
-          projectName: params.projectName
-        },
-        success: function (message) {
-          workflow.emit('logUserIn');
-        },
-        error: function (err) {
-          console.log('Error Sending Welcome Email: ' + err);
-          workflow.emit('logUserIn');
-        }
-      });
+    var settings = req.app.getSettings();
+    req.app.utility.sendmail(req, res, {
+      from: settings.smtpFromName + ' <' + settings.smtpFromAddress + '>',
+      to: req.body.email,
+      subject: 'Your ' + settings.projectName + ' Account',
+      textPath: 'signup/email-text',
+      htmlPath: 'signup/email-html',
+      locals: {
+        username: req.body.username,
+        email: req.body.email,
+        loginURL: req.protocol + '://' + req.headers.host + '/login/',
+        projectName: settings.projectName
+      },
+      success: function (message) {
+        workflow.emit('logUserIn');
+      },
+      error: function (err) {
+        console.log('Error Sending Welcome Email: ' + err);
+        workflow.emit('logUserIn');
+      }
     });
   });
 
@@ -171,15 +169,13 @@ exports.signupTwitter = function (req, res, next) {
         res.render('signup/social', {email: ''});
       }
       else {
-        req.app.db.models.Settings.getParam(['twitterKey', 'githubKey', 'facebookKey', 'googleKey', 'tumblrKey'], function(err, params) {
-          res.render('signup/index', {
-            oauthMessage: 'We found a user linked to your Twitter account.',
-            oauthTwitter: !!params.twitterKey,
-            oauthGitHub: !!params.githubKey,
-            oauthFacebook: !!params.facebookKey,
-            oauthGoogle: !!params.googleKey,
-            oauthTumblr: !!params.tumblrKey
-          });
+        res.render('signup/index', {
+          oauthMessage: '',
+          oauthTwitter: !!settings.twitterKey,
+          oauthGitHub: !!settings.githubKey,
+          oauthFacebook: !!settings.facebookKey,
+          oauthGoogle: !!settings.googleKey,
+          oauthTumblr: !!settings.tumblrKey
         });
       }
     });
@@ -202,15 +198,13 @@ exports.signupGitHub = function (req, res, next) {
         res.render('signup/social', {email: info.profile.emails && info.profile.emails[0].value || ''});
       }
       else {
-        req.app.db.models.Settings.getParam(['twitterKey', 'githubKey', 'facebookKey', 'googleKey', 'tumblrKey'], function(err, params) {
-          res.render('signup/index', {
-            oauthMessage: 'We found a user linked to your GitHub account.',
-            oauthTwitter: !!params.twitterKey,
-            oauthGitHub: !!params.githubKey,
-            oauthFacebook: !!params.facebookKey,
-            oauthGoogle: !!params.googleKey,
-            oauthTumblr: !!params.tumblrKey
-          });
+        res.render('signup/index', {
+          oauthMessage: '',
+          oauthTwitter: !!settings.twitterKey,
+          oauthGitHub: !!settings.githubKey,
+          oauthFacebook: !!settings.facebookKey,
+          oauthGoogle: !!settings.googleKey,
+          oauthTumblr: !!settings.tumblrKey
         });
       }
     });
@@ -232,15 +226,13 @@ exports.signupFacebook = function (req, res, next) {
         res.render('signup/social', {email: info.profile.emails && info.profile.emails[0].value || ''});
       }
       else {
-        req.app.db.models.Settings.getParam(['twitterKey', 'githubKey', 'facebookKey', 'googleKey', 'tumblrKey'], function (err, params) {
-          res.render('signup/index', {
-            oauthMessage: 'We found a user linked to your Facebook account.',
-            oauthTwitter: !!params.twitterKey,
-            oauthGitHub: !!params.githubKey,
-            oauthFacebook: !!params.facebookKey,
-            oauthGoogle: !!params.googleKey,
-            oauthTumblr: !!params.tumblrKey
-          });
+        res.render('signup/index', {
+          oauthMessage: '',
+          oauthTwitter: !!settings.twitterKey,
+          oauthGitHub: !!settings.githubKey,
+          oauthFacebook: !!settings.facebookKey,
+          oauthGoogle: !!settings.googleKey,
+          oauthTumblr: !!settings.tumblrKey
         });
       }
     });
@@ -262,15 +254,13 @@ exports.signupGoogle = function (req, res, next) {
         res.render('signup/social', {email: info.profile.emails && info.profile.emails[0].value || ''});
       }
       else {
-        req.app.db.models.Settings.getParam(['twitterKey', 'githubKey', 'facebookKey', 'googleKey', 'tumblrKey'], function(err, params) {
-          res.render('signup/index', {
-            oauthMessage: 'We found a user linked to your Google account.',
-            oauthTwitter: !!params.twitterKey,
-            oauthGitHub: !!params.githubKey,
-            oauthFacebook: !!params.facebookKey,
-            oauthGoogle: !!params.googleKey,
-            oauthTumblr: !!params.tumblrKey
-          });
+        res.render('signup/index', {
+          oauthMessage: '',
+          oauthTwitter: !!settings.twitterKey,
+          oauthGitHub: !!settings.githubKey,
+          oauthFacebook: !!settings.facebookKey,
+          oauthGoogle: !!settings.googleKey,
+          oauthTumblr: !!settings.tumblrKey
         });
       }
     });
@@ -296,15 +286,13 @@ exports.signupTumblr = function (req, res, next) {
         res.render('signup/social', {email: info.profile.emails && info.profile.emails[0].value || ''});
       }
       else {
-        req.app.db.models.Settings.getParam(['twitterKey', 'githubKey', 'facebookKey', 'googleKey', 'tumblrKey'], function(err, params) {
-          res.render('signup/index', {
-            oauthMessage: 'We found a user linked to your Tumblr account.',
-            oauthTwitter: !!params.twitterKey,
-            oauthGitHub: !!params.githubKey,
-            oauthFacebook: !!params.facebookKey,
-            oauthGoogle: !!params.googleKey,
-            oauthTumblr: !!params.tumblrKey
-          });
+        res.render('signup/index', {
+          oauthMessage: '',
+          oauthTwitter: !!settings.twitterKey,
+          oauthGitHub: !!settings.githubKey,
+          oauthFacebook: !!settings.facebookKey,
+          oauthGoogle: !!settings.googleKey,
+          oauthTumblr: !!settings.tumblrKey
         });
       }
     });
@@ -390,29 +378,27 @@ exports.signupSocial = function (req, res) {
   });
 
   workflow.on('sendWelcomeEmail', function () {
-    req.app.db.models.Settings.getParam(['smtpFromName', 'smtpFromAddress', 'projectName'], function(err, params) {
-      req.app.utility.sendmail(req, res, {
-        from: params.smtpFromName + ' <' + params.projectName + '>',
-        to: req.body.email,
-        subject: 'Your ' + params.projectName + ' Account',
-        textPath: 'signup/email-text',
-        htmlPath: 'signup/email-html',
-        locals: {
-          username: workflow.user.username,
-          email: req.body.email,
-          loginURL: req.protocol + '://' + req.headers.host + '/login/',
-          projectName: params.projectName
-        },
-        success: function (message) {
-          workflow.emit('logUserIn');
-        },
-        error: function (err) {
-          console.log('Error Sending Welcome Email: ' + err);
-          workflow.emit('logUserIn');
-        }
-      });
+    var settings = req.app.getSettings();
+    req.app.utility.sendmail(req, res, {
+      from: settings.smtpFromName + ' <' + settings.projectName + '>',
+      to: req.body.email,
+      subject: 'Your ' + settings.projectName + ' Account',
+      textPath: 'signup/email-text',
+      htmlPath: 'signup/email-html',
+      locals: {
+        username: workflow.user.username,
+        email: req.body.email,
+        loginURL: req.protocol + '://' + req.headers.host + '/login/',
+        projectName: settings.projectName
+      },
+      success: function (message) {
+        workflow.emit('logUserIn');
+      },
+      error: function (err) {
+        console.log('Error Sending Welcome Email: ' + err);
+        workflow.emit('logUserIn');
+      }
     });
-
   });
 
   workflow.on('logUserIn', function () {

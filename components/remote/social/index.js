@@ -52,7 +52,7 @@ exports.signupFacebook = function (req, res, next) {
  * @param res
  * @param next
  */
-exports.signupTwitter = function (req, res, next) {console.log('lll');
+exports.signupTwitter = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
   req._passport.instance.authenticate('twitter', {callbackURL: '/remote/signup/twitter/callback/'}, function (err, user, info) {
     if (err) {
@@ -313,26 +313,25 @@ var signupSocial = exports.signupSocial = function (req, res, next) {
   });
 
   workflow.on('sendWelcomeEmail', function () {
-    req.app.db.models.Settings.getParam(['smtpFromName', 'smtpFromAddress', 'projectName'], function(params) {
-      req.app.utility.sendmail(req, res, {
-        from: params.smtpFromName + ' <' + params.smtpFromAddress + '>',
-        to: workflow.email,
-        subject: 'Your ' + params.projectName + ' Account',
-        textPath: '../remote/social/email-text',
-        htmlPath: '../remote/social/email-html',
-        locals: {
-          username: workflow.username,
-          email: workflow.email,
-          projectName: params.projectName
-        },
-        success: function (message) {
-          workflow.emit('logUserIn');
-        },
-        error: function (err) {
-          console.log('Error Sending Welcome Email: ' + err);
-          workflow.emit('logUserIn');
-        }
-      });
+    var settings = req.app.getSettings();
+    req.app.utility.sendmail(req, res, {
+      from: settings.smtpFromName + ' <' + settings.smtpFromAddress + '>',
+      to: workflow.email,
+      subject: 'Your ' + settings.projectName + ' Account',
+      textPath: '../remote/social/email-text',
+      htmlPath: '../remote/social/email-html',
+      locals: {
+        username: workflow.username,
+        email: workflow.email,
+        projectName: settings.projectName
+      },
+      success: function (message) {
+        workflow.emit('logUserIn');
+      },
+      error: function (err) {
+        console.log('Error Sending Welcome Email: ' + err);
+        workflow.emit('logUserIn');
+      }
     });
 
   });
@@ -367,25 +366,24 @@ var loginSocial = function (req, res, workflow) {
 
     var sid = signature.sign(req.sessionID, req.app.config.cryptoKey);
 
-    req.app.db.models.Settings.getParam('allowDomain', function(err, param) {
-      workflow.outcome.success = !workflow.hasErrors();
-      workflow.outcome.allowDomain = param;
-      workflow.outcome.sid = sid;
-      workflow.outcome.user = {
-        email: workflow.user.email,
-        username: workflow.user.username,
-        avatar: workflow.user.avatar
-      };
-      delete req.session.socialProfile;
+    var settings = req.app.getSettings();
+    workflow.outcome.success = !workflow.hasErrors();
+    workflow.outcome.allowDomain = settings.allowDomain;
+    workflow.outcome.sid = sid;
+    workflow.outcome.user = {
+      email: workflow.user.email,
+      username: workflow.user.username,
+      avatar: workflow.user.avatar
+    };
+    delete req.session.socialProfile;
 
-      req.hooks.emit('afterUserLogin', workflow.outcome.user);
+    req.hooks.emit('afterUserLogin', workflow.outcome.user);
 
-      if (!req.body.email) {
-        res.render('../remote/social/success', {data: JSON.stringify(workflow.outcome)});
-      }
-      else {
-        workflow.emit('response');
-      }
-    });
+    if (!req.body.email) {
+      res.render('../remote/social/success', {data: JSON.stringify(workflow.outcome)});
+    }
+    else {
+      workflow.emit('response');
+    }
   });
 };

@@ -42,98 +42,97 @@ exports = module.exports = function(app, passport) {
     }
   ));
 
-  app.db.models.Settings.getParam(['twitterKey', 'githubKey', 'facebookKey', 'googleKey', 'tumblrKey', 'twitterSecret', 'githubSecret', 'facebookSecret', 'googleSecret', 'tumblrSecret', 'projectName'], function(err, params) {
-    if (params.twitterKey) {
-      passport.use(new TwitterStrategy({
-          consumerKey: params.twitterKey,
-          consumerSecret: params.twitterSecret
-        },
-        function(token, tokenSecret, profile, done) {
-          done(null, false, {
-            token: token,
-            tokenSecret: tokenSecret,
-            profile: profile
-          });
-        }
-      ));
-    }
+  var settings = app.getSettings();
+  if (settings.twitterKey) {
+    passport.use(new TwitterStrategy({
+        consumerKey: settings.twitterKey,
+        consumerSecret: settings.twitterSecret
+      },
+      function(token, tokenSecret, profile, done) {
+        done(null, false, {
+          token: token,
+          tokenSecret: tokenSecret,
+          profile: profile
+        });
+      }
+    ));
+  }
 
-    if (params.githubKey) {
-      passport.use(new GitHubStrategy({
-          clientID: params.githubKey,
-          clientSecret: params.githubSecret,
-          customHeaders: { "User-Agent": params.projectName}
-        },
-        function(accessToken, refreshToken, profile, done) {
-          done(null, false, {
-            accessToken: accessToken,
-            refreshToken: refreshToken,
-            profile: profile
-          });
-        }
-      ));
-    }
+  if (settings.githubKey) {
+    passport.use(new GitHubStrategy({
+        clientID: settings.githubKey,
+        clientSecret: settings.githubSecret,
+        customHeaders: { "User-Agent": settings.projectName}
+      },
+      function(accessToken, refreshToken, profile, done) {
+        done(null, false, {
+          accessToken: accessToken,
+          refreshToken: refreshToken,
+          profile: profile
+        });
+      }
+    ));
+  }
 
-    if (params.facebookKey) {
-      passport.use(new FacebookStrategy({
-          clientID: params.facebookKey,
-          clientSecret: params.facebookSecret
-        },
-        function(accessToken, refreshToken, profile, done) {
-          done(null, false, {
-            accessToken: accessToken,
-            refreshToken: refreshToken,
-            profile: profile
-          });
-        }
-      ));
-    }
+  if (settings.facebookKey) {
+    passport.use(new FacebookStrategy({
+        clientID: settings.facebookKey,
+        clientSecret: settings.facebookSecret
+      },
+      function(accessToken, refreshToken, profile, done) {
+        done(null, false, {
+          accessToken: accessToken,
+          refreshToken: refreshToken,
+          profile: profile
+        });
+      }
+    ));
+  }
 
-    if (params.googleKey) {
-      passport.use(new GoogleStrategy({
-          clientID: params.googleKey,
-          clientSecret: params.googleSecret
-        },
-        function(accessToken, refreshToken, profile, done) {
-          done(null, false, {
-            accessToken: accessToken,
-            refreshToken: refreshToken,
-            profile: profile
-          });
-        }
-      ));
-    }
+  if (settings.googleKey) {
+    passport.use(new GoogleStrategy({
+        clientID: settings.googleKey,
+        clientSecret: settings.googleSecret
+      },
+      function(accessToken, refreshToken, profile, done) {
+        done(null, false, {
+          accessToken: accessToken,
+          refreshToken: refreshToken,
+          profile: profile
+        });
+      }
+    ));
+  }
 
-    if (params.tumblrKey) {
-      passport.use(new TumblrStrategy({
-          consumerKey: params.tumblrKey,
-          consumerSecret: params.tumblrKey
-        },
-        function(token, tokenSecret, profile, done) {
-          done(null, false, {
-            token: token,
-            tokenSecret: tokenSecret,
-            profile: profile
-          });
-        }
-      ));
-    }
+  if (settings.tumblrKey) {
+    passport.use(new TumblrStrategy({
+        consumerKey: settings.tumblrKey,
+        consumerSecret: settings.tumblrKey
+      },
+      function(token, tokenSecret, profile, done) {
+        done(null, false, {
+          token: token,
+          tokenSecret: tokenSecret,
+          profile: profile
+        });
+      }
+    ));
+  }
 
-    passport.serializeUser(function(user, done) {
-      done(null, user._id);
-    });
+  passport.serializeUser(function(user, done) {
+    done(null, user._id);
+  });
 
-    passport.deserializeUser(function(id, done) {
-      app.db.models.User.findOne({ _id: id }).exec(function(err, user) {
-        if (user) {
-          user.populate("roles", function(err, admin) {
-            done(err, user);
-          });
-        }
-        else {
+  passport.deserializeUser(function(id, done) {
+    app.db.models.User.findOne({ _id: id }).exec(function(err, user) {
+      if (user) {
+        user.populate("roles", function(err, admin) {
           done(err, user);
-        }
-      });
+        });
+      }
+      else {
+        done(err, user);
+      }
     });
   });
 };

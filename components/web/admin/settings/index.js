@@ -2,10 +2,6 @@
 var fs = require('fs');
 var crypto = require('crypto');
 
-var getSettings =function() {
-  return JSON.parse(fs.readFileSync(process.env.PWD + '/settings.json', {encoding: 'utf8'}));
-};
-
 var generateKey = function(type, settings) {
   settings.secretKey = type + '_' + crypto.randomBytes(15).toString('hex').toUpperCase();
   fs.writeFileSync(process.env.PWD + '/settings.json', JSON.stringify(settings, null, '\t'));
@@ -128,14 +124,16 @@ var getForm = function() {
 
 exports.read = function (req, res, next) {
   var outcome = {};
-  outcome.record = getSettings();
+  outcome.record = req.app.getSettings();
   outcome.fields = getForm();
-
+  console.log(outcome.record);
   var getFields = function (callback) {
     for (var i in outcome.fields) {
       for (var j in outcome.fields[i]) {
         // Set field value to default value.
+
         outcome.fields[i][j].value = outcome.record[j];
+
       }
     }
 
@@ -174,7 +172,7 @@ exports.read = function (req, res, next) {
 };
 
 exports.update = function (req, res, next) {
-  var settings = getSettings();
+  var settings = req.app.getSettings();
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function () {
@@ -209,9 +207,9 @@ exports.update = function (req, res, next) {
   workflow.emit('validate');
 };
 
-exports.reset = function (req, res, next) {//console.log(req.body);
+exports.reset = function (req, res, next) {
 
-  var settings = getSettings();
+  var settings = req.app.getSettings();
   var workflow = req.app.utility.workflow(req, res);
 
   settings = generateKey('sk', settings);

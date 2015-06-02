@@ -5,22 +5,21 @@ var request = require('request');
 exports = module.exports = function(req, res, next) {
   var hooks = new (require('events').EventEmitter)();
 
-  req.app.db.models.Settings.getParam('webhooksURL', function(err, param) {
-    hooks.webhook = function(payload) {
-      if (param) {
-        var options = {
-          uri: param,
-          method: 'POST',
-          json: JSON.stringify(payload)
-        };
-        request(options, function (error, response, body) {
-          if (!error && response.statusCode == 200) {
-            console.log('webhook success');
-          }
-        });
-      }
-    };
-  });
+  var settings = req.app.getSettings();
+  hooks.webhook = function(payload) {
+    if (param) {
+      var options = {
+        uri: settings.webhooksURL,
+        method: 'POST',
+        json: JSON.stringify(payload)
+      };
+      request(options, function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+          console.log('webhook success');
+        }
+      });
+    }
+  };
 
   hooks.log = [];
 
