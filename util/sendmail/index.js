@@ -1,6 +1,6 @@
 'use strict';
 
-exports = module.exports = function(req, res, options) {
+exports = module.exports = function (req, res, options) {
   /* options = {
   from: String,
   to: String,
@@ -15,8 +15,8 @@ exports = module.exports = function(req, res, options) {
   error: Function
 } */
 
-  var renderText = function(callback) {
-    res.render(options.textPath, options.locals, function(err, text) {
+  var renderText = function (callback) {
+    res.render(options.textPath, options.locals, function (err, text) {
       if (err) {
         callback(err, null);
       }
@@ -27,8 +27,8 @@ exports = module.exports = function(req, res, options) {
     });
   };
 
-  var renderHtml = function(callback) {
-    res.render(options.htmlPath, options.locals, function(err, html) {
+  var renderHtml = function (callback) {
+    res.render(options.htmlPath, options.locals, function (err, html) {
       if (err) {
         callback(err, null);
       }
@@ -50,27 +50,27 @@ exports = module.exports = function(req, res, options) {
 
   require('async').parallel(
     renderers,
-    function(err, results){
+    function (err, results) {
       if (err) {
-        options.error('Email template render failed. '+ err);
+        options.error('Email template render failed. ' + err);
         return;
       }
 
       var attachments = [];
 
       if (options.html) {
-        attachments.push({ data: options.html, alternative: true });
+        attachments.push({data: options.html, alternative: true});
       }
 
       if (options.attachments) {
-        for (var i = 0 ; i < options.attachments.length ; i++) {
+        for (var i = 0; i < options.attachments.length; i++) {
           attachments.push(options.attachments[i]);
         }
       }
 
       var nodemailer = require('nodemailer');
       // Create reusable transporter object using SMTP transport.
-      var settings = app.getSettings();
+      var settings = req.app.getSettings();
       var transporter = nodemailer.createTransport({
         host: settings.smtpHost,
         auth: {
@@ -91,17 +91,16 @@ exports = module.exports = function(req, res, options) {
       };
 
       // send mail with defined transport object
-      transporter.sendMail(mailOptions, function(err, message){
-        if(err){
-          options.error('Email failed to send. '+ err);
+      transporter.sendMail(mailOptions, function (err, message) {
+        if (err) {
+          options.error('Email failed to send. ' + err);
           return;
         }
-        else{
+        else {
           options.success(message);
           return;
         }
       });
-
     }
   );
 };
