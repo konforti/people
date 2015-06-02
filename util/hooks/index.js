@@ -7,7 +7,7 @@ exports = module.exports = function(req, res, next) {
 
   var settings = req.app.getSettings();
   hooks.webhook = function(payload) {
-    if (param) {
+    if (settings.webhooksURL) {
       var options = {
         uri: settings.webhooksURL,
         method: 'POST',

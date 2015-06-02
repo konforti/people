@@ -126,7 +126,7 @@ exports.read = function (req, res, next) {
   var outcome = {};
   outcome.record = req.app.getSettings();
   outcome.fields = getForm();
-  console.log(outcome.record);
+
   var getFields = function (callback) {
     for (var i in outcome.fields) {
       for (var j in outcome.fields[i]) {
