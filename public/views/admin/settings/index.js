@@ -25,6 +25,25 @@
     }
   });
 
+  app.Keys = Backbone.Model.extend({
+    idAttribute: '_id',
+    defaults: {
+      success: false,
+      secretKey: ''
+    },
+    url: function() {
+      return '/admin/settings/reset';
+    },
+    parse: function(response) {
+      if (response.settings) {
+        app.mainView.model.set(response.settings);
+        delete response.settings;
+      }
+
+      return response;
+    }
+  });
+
   app.HeaderView = Backbone.View.extend({
     el: '#header',
     template: _.template( $('#tmpl-header').html() ),
@@ -44,19 +63,24 @@
     el: '#settings',
     template: _.template( $('#tmpl-settings').html() ),
     events: {
-      'click .btn-update': 'update'
+      'click .btn-update': 'update',
+      'click .btn-reset-secret': 'reset'
     },
     initialize: function() {
       this.model = new app.Settings();
+      this.modelReset = new app.Keys();
       this.syncUp();
       this.listenTo(app.mainView.model, 'change', this.syncUp);
       this.listenTo(this.model, 'sync', this.render);
+      this.listenTo(this.modelReset, 'sync', this.render);
       this.render();
     },
     syncUp: function() {
       for (var key in app.mainView.model.attributes) {
         this.model.set(key, app.mainView.model.get(key));
       }
+
+      this.modelReset.set('secretKey', app.mainView.model.get('secretKey'));
     },
     render: function() {
       this.$el.html(this.template( this.model.attributes ));
@@ -85,6 +109,12 @@
       });
 
       this.model.save(toSave);
+    },
+
+    reset: function() {
+      if (window.confirm("Your current Secret Key will no long work after reset.\nyou will need to update any application configuration using the old secret because it will no longer work.\nContinue?")) {
+        this.modelReset.save();
+      }
     }
   });
 

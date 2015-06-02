@@ -1,6 +1,19 @@
 'use strict';
+var fs = require('fs');
+var crypto = require('crypto');
 
-var getFields = function() {
+var getSettings =function() {
+  return JSON.parse(fs.readFileSync(process.env.PWD + '/settings.json', {encoding: 'utf8'}));
+};
+
+var generateKey = function(type, settings) {
+  settings.secretKey = type + '_' + crypto.randomBytes(15).toString('hex').toUpperCase();
+  fs.writeFileSync(process.env.PWD + '/settings.json', JSON.stringify(settings, null, '\t'));
+
+  return settings;
+};
+
+var getForm = function() {
   return {
     general: {
       projectName: {
@@ -114,42 +127,38 @@ var getFields = function() {
 };
 
 exports.read = function (req, res, next) {
-  var defaults = require(process.env.PWD + '/defaults.json');
-  var fields = getFields();
   var outcome = {};
-  var flat = {};
-  var gather = {};
-  for (var i in fields) {
-    for (var j in fields[i]) {
-      gather[j] = fields[i][j];
-    }
-  }
+  outcome.record = getSettings();
+  outcome.fields = getForm();
 
-  var keys = Object.keys(gather);
-  req.app.db.models.Settings.getParam(keys, function (err, params) {
-    if (err) {
-      return callback(err);
-    }
-
-    for (var i in fields) {
-      for (var j in fields[i]) {
+  var getFields = function (callback) {
+    for (var i in outcome.fields) {
+      for (var j in outcome.fields[i]) {
         // Set field value to default value.
-        fields[i][j].value = defaults[j];
-        for (var k in params) {
-          if (k === j) {
-            // Override field value with data from the DB.
-            fields[i][j].value = params[k];
-          }
-        }
-        // Set a flat structure obj.
-        flat[j] = fields[i][j].value;
+        outcome.fields[i][j].value = outcome.record[j];
       }
     }
 
-    outcome = {
-      fields: fields,
-      record: escape(JSON.stringify(flat))
-    };
+    return callback(null, 'done');
+  };
+
+  var getKeys = function (callback) {
+    if (!outcome.record.publicKey) {
+      outcome.record = generateKey('pk', outcome.record);
+    }
+
+    if (!outcome.record.secretKey) {
+      outcome.record = generateKey('sk', outcome.record);
+    }
+
+    return callback(null, 'done');
+  };
+
+
+  var asyncFinally = function (err, results) {
+    if (err) {
+      return next(err);
+    }
 
     if (req.xhr) {
       res.send(outcome);
@@ -159,10 +168,13 @@ exports.read = function (req, res, next) {
         data: outcome
       });
     }
-  });
+  };
+
+  require('async').parallel([getFields, getKeys], asyncFinally);
 };
 
 exports.update = function (req, res, next) {
+  var settings = getSettings();
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function () {
@@ -180,22 +192,30 @@ exports.update = function (req, res, next) {
   });
 
   workflow.on('patchSettings', function () {
-    var fields = getFields();
-
-    for (var i in fields) {
-      for (var j in fields[i]) {
-        req.app.db.models.Settings.setParam(j, req.body[j], function (err, param) {
-          if (err) {
-            return workflow.emit('exception', err);
-          }
-
-          workflow.outcome.settings += param;
-        });
-      }
+    for (var i in settings) {
+      settings[i] = req.body[i];
     }
 
-    return workflow.emit('response');
+    fs.writeFile(process.env.PWD + '/settings.json', JSON.stringify(settings, null, '\t'), function (err) {
+      if (err) {
+        return workflow.emit('exception', err);
+      }
+
+      workflow.outcome.settings = settings;
+      return workflow.emit('response');
+    });
   });
 
   workflow.emit('validate');
+};
+
+exports.reset = function (req, res, next) {//console.log(req.body);
+
+  var settings = getSettings();
+  var workflow = req.app.utility.workflow(req, res);
+
+  settings = generateKey('sk', settings);
+
+  workflow.outcome.settings = settings;
+  return workflow.emit('response');
 };

@@ -34,6 +34,18 @@ block body
                     | Changes have been saved.
                 | <% } %>
 
+            div.top
+                div.group(class!="group-keys")
+                    h3 App Keys
+                    dl.keys
+                        dt Public Key
+                        dd #{data.record.publicKey}
+                        dt Secret Key
+                        dd <%- secretKey %>
+
+                    div.form-role
+                        button.btn.btn-danger.btn-reset-secret(type='button') Reset Secret Key
+
             div.left
                  - var n = 0;
                  - for (var i in data.fields)
@@ -61,6 +73,6 @@ block body
             div.form-role
                 button.btn.btn-primary.btn-update(type='button') Update
 
-    script(type='text/template', id='data-record') !{data.record}
+    script(type='text/template', id='data-record') !{JSON.stringify(data.record)}
     //script(type='text/template', id='data-fields') !{JSON.stringify(data.fields)}
 //        - console.log(data);

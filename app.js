@@ -9,6 +9,8 @@ var config = require('./config'),
     mongoStore = require('connect-mongo')(session),
     http = require('http'),
     path = require('path'),
+    fs = require('fs'),
+    crypto = require('crypto'),
     passport = require('passport'),
     mongoose = require('mongoose'),
     helmet = require('helmet'),
@@ -23,6 +25,11 @@ app.config = config;
 // Setup the web server.
 app.server = http.createServer(app);
 
+var settings = JSON.parse(fs.readFileSync(process.env.PWD + '/settings.json', {encoding: 'utf8'}));
+if (!settings.cryptoKey) {
+  settings.cryptoKey = crypto.randomBytes(6).toString('hex');
+  fs.writeFileSync(process.env.PWD + '/settings.json', JSON.stringify(settings, null, '\t'));
+}
 // Setup mongoose.
 app.db = mongoose.createConnection(config.mongodb.uri);
 app.db.on('error', console.error.bind(console, 'mongoose connection error: '));
@@ -46,11 +53,11 @@ app.use(require('serve-static')(path.join(__dirname, 'public')));
 app.use(require('method-override')());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser(config.cryptoKey));
+app.use(cookieParser(settings.cryptoKey));
 app.use(session({
   resave: false,
   saveUninitialized: false,
-  secret: config.cryptoKey,
+  secret: settings.cryptoKey,
   store: new mongoStore({ url: config.mongodb.uri })
 }));
 app.use(passport.initialize());
