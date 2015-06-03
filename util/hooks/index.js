@@ -5,11 +5,11 @@ var request = require('request');
 exports = module.exports = function(req, res, next) {
   var hooks = new (require('events').EventEmitter)();
 
-  var webhooksURL =  req.app.config.webhooksURL;
+  var settings = req.app.getSettings();
   hooks.webhook = function(payload) {
-    if (webhooksURL) {
+    if (settings.webhooksURL) {
       var options = {
-        uri: webhooksURL,
+        uri: settings.webhooksURL,
         method: 'POST',
         json: JSON.stringify(payload)
       };

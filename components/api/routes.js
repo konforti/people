@@ -15,7 +15,7 @@ function requireAuthentication(req, res, next) {
     var encoded = req.headers.authorization.split(' ')[1];
     var decoded = new Buffer(encoded, 'base64').toString('utf8');
 
-    if (decoded.split(':')[0] !== req.app.config.secret_key) {
+    if (decoded.split(':')[0] !== req.app.config.secretKey) {
       return res.json({error: 'Wrong Key'});
     }
   }
@@ -47,7 +47,7 @@ exports = module.exports = function (app) {
   // Prevent empty sessions store.
   app.all('/api/*', unsaveUninitialized);
 
-  // People
+  // People.
   // Require Authentication.
   app.all('/api/*', requireAuthentication);
   // List all users.
@@ -65,7 +65,7 @@ exports = module.exports = function (app) {
   // Remove role from a user.
   app.delete('/api/v1/persons/:id/roles/:role', require('./persons').deleteRoles);
 
-  // Roles
+  // Roles.
   // List all roles.
   app.get('/api/v1/roles/', require('./roles').find);
   // Retrieve a role.

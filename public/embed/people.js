@@ -83,13 +83,13 @@ People.prototype.setEvents = function () {
         break;
 
       case 'ppl-update-profile-btn':
-        var elms = document.querySelectorAll('form#profile input');
+        var elms = document.querySelectorAll('#ppl-profile-form input');
         var values = {sid: self.getCookie('people.sid')};
         for (var i = 0, elm; elm = elms[i]; ++i) {
           values[elm.name] = elm.value;
         }
         self.makeRequest('POST', self.url + '/remote/profile/', values, function (data) {
-          if (!this.alert(data)) {
+          if (!self.alert(data)) {
             var event = new Event('onprofileupdate');
             document.dispatchEvent(event);
             self.profileBlock(data.responseText);
@@ -98,13 +98,13 @@ People.prototype.setEvents = function () {
         break;
 
       case 'ppl-update-password-btn':
-        var elms = document.querySelectorAll('form#password input');
+        var elms = document.querySelectorAll('#ppl-new-password input');
         var values = {sid: self.getCookie('people.sid')};
         for (var i = 0, elm; elm = elms[i]; ++i) {
           values[elm.name] = elm.value;
         }
         self.makeRequest('POST', self.url + '/remote/password/', values, function (data) {
-          if (!this.alert(data)) {
+          if (!self.alert(data)) {
             var event = new Event('onpasswordupdate');
             document.dispatchEvent(event);
             self.profileBlock(data.responseText);
@@ -216,8 +216,8 @@ People.prototype.makeRequest = function (method, url, data, next) {
   httpRequest.open(method, url + query, true);
   httpRequest.onreadystatechange = function () {
     if (httpRequest.readyState === 4 && httpRequest.status === 200) {
-      next(httpRequest);
       throb.parentNode.removeChild(throb);
+      next(httpRequest);
     }
   };
 

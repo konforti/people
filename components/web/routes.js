@@ -94,7 +94,7 @@ exports = module.exports = function (app, passport) {
   }));
   app.get('/login/tumblr/callback/', require('./login/index').loginTumblr);
 
-  // Admin
+  // Admin.
   app.all('/admin*', ensureAuthenticated);
   app.all('/admin*', ensureAdmin);
   app.get('/admin/', require('./admin/index').init);
@@ -138,6 +138,13 @@ exports = module.exports = function (app, passport) {
   app.get('/admin/statuses/:id/', require('./admin/statuses/index').read);
   app.put('/admin/statuses/:id/', require('./admin/statuses/index').update);
   app.delete('/admin/statuses/:id/', require('./admin/statuses/index').delete);
+
+  // Admin > Settings.
+  app.get('/admin/settings/', require('./admin/settings/index').read);
+  app.put('/admin/settings/', require('./admin/settings/index').update);
+  app.post('/admin/settings/', require('./admin/settings/index').update);
+  app.put('/admin/settings/reset', require('./admin/settings/index').reset);
+  app.post('/admin/settings/reset', require('./admin/settings/index').reset);
 
   // Admin > Search.
   app.get('/admin/search/', require('./admin/search/index').find);

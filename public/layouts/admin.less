@@ -7,10 +7,6 @@
 }
 
 .navbar {
-  .navbar-brand {
-    color: #eee;
-  }
-
   .navbar-form .dropdown {
     position: relative;
   }
@@ -40,17 +36,43 @@ ul.admin-menu {
   padding: 0;
   width: 150px;
 
+
+  .admin-menu-header {
+    font-weight: bold;
+    text-transform: uppercase;
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+    padding: 12px;
+    background: #f9f9f9;
+    color: #333;
+  ;
+  }
+
   li {
     list-style: none;
     border-bottom: 1px solid #eee;
 
-    a {
-      padding: 5px 20px;
+
+    a, a.visited {
+      padding: 20px;
       display: block;
+      text-decoration: none;
+      color: #777;
+
+      &:before {
+        margin-right: 10px;
+        color: #333;
+      }
     }
 
     &:hover {
       background: #f8f8f8;
     }
   }
+}
+
+fieldset {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 20px;
 }

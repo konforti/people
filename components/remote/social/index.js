@@ -313,16 +313,17 @@ var signupSocial = exports.signupSocial = function (req, res, next) {
   });
 
   workflow.on('sendWelcomeEmail', function () {
+    var settings = req.app.getSettings();
     req.app.utility.sendmail(req, res, {
-      from: req.app.config.smtp.from.name + ' <' + req.app.config.smtp.from.address + '>',
+      from: settings.smtpFromName + ' <' + settings.smtpFromAddress + '>',
       to: workflow.email,
-      subject: 'Your ' + req.app.config.projectName + ' Account',
+      subject: 'Your ' + settings.projectName + ' Account',
       textPath: '../remote/social/email-text',
       htmlPath: '../remote/social/email-html',
       locals: {
         username: workflow.username,
         email: workflow.email,
-        projectName: req.app.config.projectName
+        projectName: settings.projectName
       },
       success: function (message) {
         workflow.emit('logUserIn');
@@ -332,6 +333,7 @@ var signupSocial = exports.signupSocial = function (req, res, next) {
         workflow.emit('logUserIn');
       }
     });
+
   });
 
   workflow.on('logUserIn', function () {
@@ -348,7 +350,6 @@ var signupSocial = exports.signupSocial = function (req, res, next) {
  * @param next
  */
 var loginSocial = function (req, res, workflow) {
-
   req.login(workflow.user, function (err) {
     if (err) {
       return workflow.emit('exception', err);
@@ -365,8 +366,9 @@ var loginSocial = function (req, res, workflow) {
 
     var sid = signature.sign(req.sessionID, req.app.config.cryptoKey);
 
+    var settings = req.app.getSettings();
     workflow.outcome.success = !workflow.hasErrors();
-    workflow.outcome.allowDomain = req.app.config.allowDomain;
+    workflow.outcome.allowDomain = settings.allowDomain;
     workflow.outcome.sid = sid;
     workflow.outcome.user = {
       email: workflow.user.email,

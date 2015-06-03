@@ -207,7 +207,7 @@ exports.update = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function () {
-    //if (req.body.isActive) {}
+    // if (req.body.isActive) {}
 
     workflow.emit('patchUser');
   });
@@ -242,7 +242,7 @@ exports.updateFields = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function () {
-    //if (req.body.isActive) {}
+    // if (req.body.isActive) {}
 
     workflow.emit('patchUser');
   });
@@ -288,7 +288,7 @@ exports.createRoles = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function () {
-    //if (req.body.role) {}
+    // if (req.body.role) {}
 
     workflow.emit('roleExistCheck');
   });
@@ -351,7 +351,7 @@ exports.deleteRoles = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function () {
-    //if (req.params.role) {}
+    // if (req.params.role) {}
 
     workflow.emit('patchUser');
   });

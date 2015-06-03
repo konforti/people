@@ -1,0 +1,26 @@
+{
+  "ON": "userCreated",
+  "operator": "and",
+  "IF": [
+    {
+      "key": "email",
+      "value": "k@g.com",
+      "operator": "is"
+    },
+    {
+      "key": "role",
+      "value": ["admin", "editor"],
+      "operator": "oneOf"
+    }
+  ],
+  "DO" : [
+    {
+      "key": "webhook"
+    },
+    {
+      "key": "role",
+      "value": ["writer", "editor"],
+      "operator": "add"
+    }
+  ]
+}

@@ -1,11 +1,11 @@
 'use strict';
 
 exports = module.exports = function(app, mongoose) {
-  var settings = app.getSettings()
+  var settings = app.getSettings();
   var attemptSchema = new mongoose.Schema({
     ip: { type: String, default: '' },
     user: { type: String, default: '' },
-    time: { type: Date, default: Date.now, expires: app.config.loginAttempts.logExpiration }
+    time: { type: Date, default: Date.now, expires: settings.loginAttemptsLogExpiration }
   });
   attemptSchema.index({ ip: 1 });
   attemptSchema.index({ user: 1 });

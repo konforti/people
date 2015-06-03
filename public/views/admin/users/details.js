@@ -304,7 +304,7 @@
     el: '#delete',
     template: _.template( $('#tmpl-delete').html() ),
     events: {
-      'click .btn-delete': 'delete',
+      'click .btn-delete': 'delete'
     },
     initialize: function() {
       this.model = new app.Delete({ _id: app.mainView.model.id });

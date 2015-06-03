@@ -14,20 +14,19 @@ exports.info = function (req, res) {
   });
 
   workflow.on('getInfo', function () {
-    var socials = [];
-    for (var name in req.app.config.oauth) {
-      if (req.app.config.oauth[name].key) {
-        socials.push(name);
-      }
+    var socials = ['twitter', 'facebook', 'github', 'google', 'tumblr'];
+    var actives = [];
+    var settings = req.app.getSettings();
+    for (var name in socials) {
+      actives.push(settings[name + 'Key']);
     }
+
     workflow.outcome.info = {
-      socials: socials
+      socials: actives
     };
 
     workflow.emit('response');
   });
-
-  workflow.emit('validate');
 };
 
 /**
@@ -241,7 +240,8 @@ exports.login = function (req, res, next) {
         return workflow.emit('exception', err);
       }
 
-      if (results.ip >= req.app.config.loginAttempts.forIp || results.ipUser >= req.app.config.loginAttempts.forIpAndUser) {
+      var settings = req.app.getSettings();
+      if (results.ip >= settings.loginAttemptsForIp || results.ipUser >= settings.loginAttemptsForIpAndUser) {
         workflow.outcome.errors.push('You\'ve reached the maximum number of login attempts. Please try again later.');
         return workflow.emit('response');
       }

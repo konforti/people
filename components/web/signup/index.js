@@ -5,13 +5,14 @@ exports.init = function (req, res) {
     res.redirect(req.user.defaultReturnUrl());
   }
   else {
+    var settings = req.app.getSettings();
     res.render('signup/index', {
       oauthMessage: '',
-      oauthTwitter: !!req.app.config.oauth.twitter.key,
-      oauthGitHub: !!req.app.config.oauth.github.key,
-      oauthFacebook: !!req.app.config.oauth.facebook.key,
-      oauthGoogle: !!req.app.config.oauth.google.key,
-      oauthTumblr: !!req.app.config.oauth.tumblr.key
+      oauthTwitter: !!settings.twitterKey,
+      oauthGitHub: !!settings.githubKey,
+      oauthFacebook: !!settings.facebookKey,
+      oauthGoogle: !!settings.googleKey,
+      oauthTumblr: !!settings.tumblrKey
     });
   }
 };
@@ -103,17 +104,18 @@ exports.signup = function (req, res) {
   });
 
   workflow.on('sendWelcomeEmail', function () {
+    var settings = req.app.getSettings();
     req.app.utility.sendmail(req, res, {
-      from: req.app.config.smtp.from.name + ' <' + req.app.config.smtp.from.address + '>',
+      from: settings.smtpFromName + ' <' + settings.smtpFromAddress + '>',
       to: req.body.email,
-      subject: 'Your ' + req.app.config.projectName + ' Account',
+      subject: 'Your ' + settings.projectName + ' Account',
       textPath: 'signup/email-text',
       htmlPath: 'signup/email-html',
       locals: {
         username: req.body.username,
         email: req.body.email,
         loginURL: req.protocol + '://' + req.headers.host + '/login/',
-        projectName: req.app.config.projectName
+        projectName: settings.projectName
       },
       success: function (message) {
         workflow.emit('logUserIn');
@@ -168,12 +170,12 @@ exports.signupTwitter = function (req, res, next) {
       }
       else {
         res.render('signup/index', {
-          oauthMessage: 'We found a user linked to your Twitter account.',
-          oauthTwitter: !!req.app.config.oauth.twitter.key,
-          oauthGitHub: !!req.app.config.oauth.github.key,
-          oauthFacebook: !!req.app.config.oauth.facebook.key,
-          oauthGoogle: !!req.app.config.oauth.google.key,
-          oauthTumblr: !!req.app.config.oauth.tumblr.key
+          oauthMessage: '',
+          oauthTwitter: !!settings.twitterKey,
+          oauthGitHub: !!settings.githubKey,
+          oauthFacebook: !!settings.facebookKey,
+          oauthGoogle: !!settings.googleKey,
+          oauthTumblr: !!settings.tumblrKey
         });
       }
     });
@@ -197,12 +199,12 @@ exports.signupGitHub = function (req, res, next) {
       }
       else {
         res.render('signup/index', {
-          oauthMessage: 'We found a user linked to your GitHub account.',
-          oauthTwitter: !!req.app.config.oauth.twitter.key,
-          oauthGitHub: !!req.app.config.oauth.github.key,
-          oauthFacebook: !!req.app.config.oauth.facebook.key,
-          oauthGoogle: !!req.app.config.oauth.google.key,
-          oauthTumblr: !!req.app.config.oauth.tumblr.key
+          oauthMessage: '',
+          oauthTwitter: !!settings.twitterKey,
+          oauthGitHub: !!settings.githubKey,
+          oauthFacebook: !!settings.facebookKey,
+          oauthGoogle: !!settings.googleKey,
+          oauthTumblr: !!settings.tumblrKey
         });
       }
     });
@@ -225,12 +227,12 @@ exports.signupFacebook = function (req, res, next) {
       }
       else {
         res.render('signup/index', {
-          oauthMessage: 'We found a user linked to your Facebook account.',
-          oauthTwitter: !!req.app.config.oauth.twitter.key,
-          oauthGitHub: !!req.app.config.oauth.github.key,
-          oauthFacebook: !!req.app.config.oauth.facebook.key,
-          oauthGoogle: !!req.app.config.oauth.google.key,
-          oauthTumblr: !!req.app.config.oauth.tumblr.key
+          oauthMessage: '',
+          oauthTwitter: !!settings.twitterKey,
+          oauthGitHub: !!settings.githubKey,
+          oauthFacebook: !!settings.facebookKey,
+          oauthGoogle: !!settings.googleKey,
+          oauthTumblr: !!settings.tumblrKey
         });
       }
     });
@@ -253,12 +255,12 @@ exports.signupGoogle = function (req, res, next) {
       }
       else {
         res.render('signup/index', {
-          oauthMessage: 'We found a user linked to your Google account.',
-          oauthTwitter: !!req.app.config.oauth.twitter.key,
-          oauthGitHub: !!req.app.config.oauth.github.key,
-          oauthFacebook: !!req.app.config.oauth.facebook.key,
-          oauthGoogle: !!req.app.config.oauth.google.key,
-          oauthTumblr: !!req.app.config.oauth.tumblr.key
+          oauthMessage: '',
+          oauthTwitter: !!settings.twitterKey,
+          oauthGitHub: !!settings.githubKey,
+          oauthFacebook: !!settings.facebookKey,
+          oauthGoogle: !!settings.googleKey,
+          oauthTumblr: !!settings.tumblrKey
         });
       }
     });
@@ -285,12 +287,12 @@ exports.signupTumblr = function (req, res, next) {
       }
       else {
         res.render('signup/index', {
-          oauthMessage: 'We found a user linked to your Tumblr account.',
-          oauthTwitter: !!req.app.config.oauth.twitter.key,
-          oauthGitHub: !!req.app.config.oauth.github.key,
-          oauthFacebook: !!req.app.config.oauth.facebook.key,
-          oauthGoogle: !!req.app.config.oauth.google.key,
-          oauthTumblr: !!req.app.config.oauth.tumblr.key
+          oauthMessage: '',
+          oauthTwitter: !!settings.twitterKey,
+          oauthGitHub: !!settings.githubKey,
+          oauthFacebook: !!settings.facebookKey,
+          oauthGoogle: !!settings.googleKey,
+          oauthTumblr: !!settings.tumblrKey
         });
       }
     });
@@ -376,17 +378,18 @@ exports.signupSocial = function (req, res) {
   });
 
   workflow.on('sendWelcomeEmail', function () {
+    var settings = req.app.getSettings();
     req.app.utility.sendmail(req, res, {
-      from: req.app.config.smtp.from.name + ' <' + req.app.config.smtp.from.address + '>',
+      from: settings.smtpFromName + ' <' + settings.projectName + '>',
       to: req.body.email,
-      subject: 'Your ' + req.app.config.projectName + ' Account',
+      subject: 'Your ' + settings.projectName + ' Account',
       textPath: 'signup/email-text',
       htmlPath: 'signup/email-html',
       locals: {
         username: workflow.user.username,
         email: req.body.email,
         loginURL: req.protocol + '://' + req.headers.host + '/login/',
-        projectName: req.app.config.projectName
+        projectName: settings.projectName
       },
       success: function (message) {
         workflow.emit('logUserIn');

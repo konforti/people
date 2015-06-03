@@ -18,22 +18,22 @@ var renderSettings = function (req, res, next, oauthMessage) {
     if (err) {
       return next(err);
     }
-
+    var settings = req.app.getSettings();
     res.render('account/settings/index', {
       data: {
         account: escape(JSON.stringify(outcome.account)),
         user: escape(JSON.stringify(outcome.user))
       },
       oauthMessage: oauthMessage,
-      oauthTwitter: !!req.app.config.oauth.twitter.key,
+      oauthTwitter: !!settings.twitterKey,
       oauthTwitterActive: outcome.user.twitter ? !!outcome.user.twitter.id : false,
-      oauthGitHub: !!req.app.config.oauth.github.key,
+      oauthGitHub: !!settings.githubKey,
       oauthGitHubActive: outcome.user.github ? !!outcome.user.github.id : false,
-      oauthFacebook: !!req.app.config.oauth.facebook.key,
+      oauthFacebook: !!settings.facebookKey,
       oauthFacebookActive: outcome.user.facebook ? !!outcome.user.facebook.id : false,
-      oauthGoogle: !!req.app.config.oauth.google.key,
+      oauthGoogle: !!settings.googleKey,
       oauthGoogleActive: outcome.user.google ? !!outcome.user.google.id : false,
-      oauthTumblr: !!req.app.config.oauth.tumblr.key,
+      oauthTumblr: !!settings.tumblrKey,
       oauthTumblrActive: outcome.user.tumblr ? !!outcome.user.tumblr.id : false
     });
   };

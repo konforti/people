@@ -14,13 +14,14 @@ exports.init = function (req, res) {
     res.redirect(getReturnUrl(req));
   }
   else {
+    var settings = req.app.getSettings();
     res.render('login/index', {
       oauthMessage: '',
-      oauthTwitter: !!req.app.config.oauth.twitter.key,
-      oauthGitHub: !!req.app.config.oauth.github.key,
-      oauthFacebook: !!req.app.config.oauth.facebook.key,
-      oauthGoogle: !!req.app.config.oauth.google.key,
-      oauthTumblr: !!req.app.config.oauth.tumblr.key
+      oauthTwitter: !!settings.twitterKey,
+      oauthGitHub: !!settings.githubKey,
+      oauthFacebook: !!settings.facebookKey,
+      oauthGoogle: !!settings.googleKey,
+      oauthTumblr: !!settings.tumblrKey
     });
   }
 };
@@ -72,7 +73,8 @@ exports.login = function (req, res) {
         return workflow.emit('exception', err);
       }
 
-      if (results.ip >= req.app.config.loginAttempts.forIp || results.ipUser >= req.app.config.loginAttempts.forIpAndUser) {
+      var settings = req.app.getSettings();
+      if (results.ip >= settings.loginAttemptsForIp || results.ipUser >= settings.loginAttemptsForIpAndUser) {
         workflow.outcome.errors.push('You\'ve reached the maximum number of login attempts. Please try again later.');
         return workflow.emit('response');
       }
@@ -128,13 +130,14 @@ exports.loginTwitter = function (req, res, next) {
       }
 
       if (!user) {
+        var settings = req.app.getSettings();
         res.render('login/index', {
-          oauthMessage: 'No users found linked to your Twitter account. You may need to create an account first.',
-          oauthTwitter: !!req.app.config.oauth.twitter.key,
-          oauthGitHub: !!req.app.config.oauth.github.key,
-          oauthFacebook: !!req.app.config.oauth.facebook.key,
-          oauthGoogle: !!req.app.config.oauth.google.key,
-          oauthTumblr: !!req.app.config.oauth.tumblr.key
+          oauthMessage: '',
+          oauthTwitter: !!settings.twitterKey,
+          oauthGitHub: !!settings.githubKey,
+          oauthFacebook: !!settings.facebookKey,
+          oauthGoogle: !!settings.googleKey,
+          oauthTumblr: !!settings.tumblrKey
         });
       }
       else {
@@ -162,13 +165,14 @@ exports.loginGitHub = function (req, res, next) {
       }
 
       if (!user) {
+        var settings = req.app.getSettings();
         res.render('login/index', {
-          oauthMessage: 'No users found linked to your GitHub account. You may need to create an account first.',
-          oauthTwitter: !!req.app.config.oauth.twitter.key,
-          oauthGitHub: !!req.app.config.oauth.github.key,
-          oauthFacebook: !!req.app.config.oauth.facebook.key,
-          oauthGoogle: !!req.app.config.oauth.google.key,
-          oauthTumblr: !!req.app.config.oauth.tumblr.key
+          oauthMessage: '',
+          oauthTwitter: !!settings.twitterKey,
+          oauthGitHub: !!settings.githubKey,
+          oauthFacebook: !!settings.facebookKey,
+          oauthGoogle: !!settings.googleKey,
+          oauthTumblr: !!settings.tumblrKey
         });
       }
       else {
@@ -196,13 +200,14 @@ exports.loginFacebook = function (req, res, next) {
       }
 
       if (!user) {
+        var settings = req.app.getSettings();
         res.render('login/index', {
-          oauthMessage: 'No users found linked to your Facebook account. You may need to create an account first.',
-          oauthTwitter: !!req.app.config.oauth.twitter.key,
-          oauthGitHub: !!req.app.config.oauth.github.key,
-          oauthFacebook: !!req.app.config.oauth.facebook.key,
-          oauthGoogle: !!req.app.config.oauth.google.key,
-          oauthTumblr: !!req.app.config.oauth.tumblr.key
+          oauthMessage: '',
+          oauthTwitter: !!settings.twitterKey,
+          oauthGitHub: !!settings.githubKey,
+          oauthFacebook: !!settings.facebookKey,
+          oauthGoogle: !!settings.googleKey,
+          oauthTumblr: !!settings.tumblrKey
         });
       }
       else {
@@ -230,13 +235,14 @@ exports.loginGoogle = function (req, res, next) {
       }
 
       if (!user) {
+        var settings = req.app.getSettings();
         res.render('login/index', {
-          oauthMessage: 'No users found linked to your Google account. You may need to create an account first.',
-          oauthTwitter: !!req.app.config.oauth.twitter.key,
-          oauthGitHub: !!req.app.config.oauth.github.key,
-          oauthFacebook: !!req.app.config.oauth.facebook.key,
-          oauthGoogle: !!req.app.config.oauth.google.key,
-          oauthTumblr: !!req.app.config.oauth.tumblr.key
+          oauthMessage: '',
+          oauthTwitter: !!settings.twitterKey,
+          oauthGitHub: !!settings.githubKey,
+          oauthFacebook: !!settings.facebookKey,
+          oauthGoogle: !!settings.googleKey,
+          oauthTumblr: !!settings.tumblrKey
         });
       }
       else {
@@ -268,13 +274,14 @@ exports.loginTumblr = function (req, res, next) {
       }
 
       if (!user) {
+        var settings = req.app.getSettings();
         res.render('login/index', {
-          oauthMessage: 'No users found linked to your Tumblr account. You may need to create an account first.',
-          oauthTwitter: !!req.app.config.oauth.twitter.key,
-          oauthGitHub: !!req.app.config.oauth.github.key,
-          oauthFacebook: !!req.app.config.oauth.facebook.key,
-          oauthGoogle: !!req.app.config.oauth.google.key,
-          oauthTumblr: !!req.app.config.oauth.tumblr.key
+          oauthMessage: '',
+          oauthTwitter: !!settings.twitterKey,
+          oauthGitHub: !!settings.githubKey,
+          oauthFacebook: !!settings.facebookKey,
+          oauthGoogle: !!settings.googleKey,
+          oauthTumblr: !!settings.tumblrKey
         });
       }
       else {

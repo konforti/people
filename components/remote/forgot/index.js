@@ -2,6 +2,13 @@
 
 var crypto = require('crypto');
 
+var getHash = function(req, token) {
+  return crypto
+    .createHmac('sha256', req.app.config.cryptoKey)
+    .update(token)
+    .digest('base64');
+}
+
 exports.forgot = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
@@ -41,7 +48,7 @@ exports.forgot = function (req, res, next) {
         return next(err);
       }
       var token = buf.toString('base64');
-      var hash = crypto.createHmac('sha256', req.app.config.cryptoKey).update(token).digest('base64');
+      var hash = getHash(req, token);
       workflow.emit('patchUser', token, hash);
     });
   });
@@ -66,16 +73,17 @@ exports.forgot = function (req, res, next) {
   });
 
   workflow.on('sendEmail', function (token, user) {
+    var settings = req.app.getSettings();
     req.app.utility.sendmail(req, res, {
-      from: req.app.config.smtp.from.name + ' <' + req.app.config.smtp.from.address + '>',
+      from: settings.smtpFromName + ' <' + settings.smtpFromAddress + '>',
       to: user.email,
-      subject: 'Reset your ' + req.app.config.projectName + ' password',
+      subject: 'Reset your ' + settings.projectName + ' password',
       textPath: '../remote/forgot/email-text',
       htmlPath: '../remote/forgot/email-html',
       locals: {
         username: user.username,
         resetCode: token,
-        projectName: req.app.config.projectName
+        projectName: settings.projectName
       },
       success: function (message) {
         return workflow.emit('response');
@@ -110,7 +118,7 @@ exports.forgotReset = function (req, res, next) {
   });
 
   workflow.on('findUser', function () {
-    var hash = crypto.createHmac('sha256', req.app.config.cryptoKey).update(req.body.token).digest('base64');
+    var hash = getHash(req, req.body.token);
     var conditions = {
       resetPasswordToken: hash,
       resetPasswordExpires: {$gt: Date.now()}

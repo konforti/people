@@ -68,7 +68,7 @@ module.exports = function pagedFindPlugin (schema) {
         cb(err, null);
       }
 
-      //final paging math
+      // Final paging math.
       output.pages.total = Math.ceil(output.items.total / options.limit);
       output.pages.next = ((output.pages.current + 1) > output.pages.total ? 0 : output.pages.current + 1);
       output.pages.hasNext = (output.pages.next !== 0);

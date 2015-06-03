@@ -3,15 +3,16 @@
 var crypto = require('crypto');
 
 exports.sendVerificationEmail = function (req, res, options) {
+  var settings = req.app.getSettings();
   req.app.utility.sendmail(req, res, {
-    from: req.app.config.smtp.from.name + ' <' + req.app.config.smtp.from.address + '>',
+    from: settings.smtpFromName + ' <' + settings.smtpFromAddress + '>',
     to: options.email,
-    subject: 'Verify Your ' + req.app.config.projectName + ' Account',
+    subject: 'Verify Your ' + settings.projectName + ' Account',
     textPath: '../remote/verification/email-text',
     htmlPath: '../remote/verification/email-html',
     locals: {
       verifyURL: req.protocol + '://' + req.headers.host + '/remote/verification/' + options.verificationToken + '/',
-      projectName: req.app.config.projectName
+      projectName: settings.projectName
     },
     success: function () {
       options.onSuccess();
@@ -24,7 +25,8 @@ exports.sendVerificationEmail = function (req, res, options) {
 
 exports.verification = function (req, res, next) {
   if (req.user.isVerified === 'yes') {
-    return res.redirect(req.app.config.defaultReturnUrl);
+    var settings = req.app.getSettings();
+    return res.redirect(settings.defaultReturnUrl);
   }
   var workflow = req.app.utility.workflow(req, res);
   workflow.on('validate', function () {
@@ -82,8 +84,8 @@ exports.verify = function (req, res, next) {
 
     var fieldsToSet = {isVerified: 'yes', verificationToken: ''};
     req.app.db.models.User.findByIdAndUpdate(req.user.id, fieldsToSet, function (err, user) {
-
-      return res.redirect(req.app.config.defaultReturnUrl + '?verified=true');
+      var settings = req.app.getSettings();
+      return res.redirect(settings.defaultReturnUrl + '?verified=true');
     });
   });
 };

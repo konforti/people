@@ -1,5 +1,5 @@
 div.title
-    h2 #{data.record.username}
+    h2 Profile
 form#ppl-profile-form
     input.form-control(type='hidden', name='csrf', value!='#{data.csrfToken}')
     div.form-role
@@ -12,13 +12,14 @@ form#ppl-profile-form
         if !data.record.isVerified || data.record.isVerified === 'no'
             span.ppl-verify-email Verify
         span.help-block
-    for field in data.fields
+
+    - for (var key in data.fields)
         div.form-role
-            label #{field.name}:
-            input.form-control(type='text', name='#{field.key}', value!='#{field.value}')
+            label #{data.fields[key].name}:
+            input.form-control(type='text', name='#{key}', value!='#{data.fields[key].value}')
             span.help-block
     div.form-role
-        button#update-profile-btn.btn.btn-primary.btn-update(type='button') Update profile
+        button#ppl-update-profile-btn.btn.btn-primary.btn-update(type='button') Update profile
 
 h4.ppl-change-password Change Password
 form#ppl-new-password.hidden
@@ -32,6 +33,6 @@ form#ppl-new-password.hidden
         input.form-control(type='password', name='confirm', value!='')
         span.help-block
     div.form-role
-        button#update-password-btn.btn.btn-primary.btn-password(type='button') Update Password
+        button#ppl-update-password-btn.btn.btn-primary.btn-password(type='button') Update Password
 
     //script(type='text/template', id='data-record') !{data.record}

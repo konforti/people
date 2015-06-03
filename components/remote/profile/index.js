@@ -41,8 +41,9 @@ exports.readProfile = function (req, res, next) {
   };
 
   var asyncFinally = function (err, results) {
+    var workflow = req.app.utility.workflow(req, res);
     if (err) {
-      return callback(err);
+      return workflow.emit('exception', err);
     }
 
     var csrfToken = crypto.pseudoRandomBytes(16).toString('hex');
@@ -53,6 +54,9 @@ exports.readProfile = function (req, res, next) {
         record: outcome.record,
         fields: outcome.fields
       }
+    }, function (err, html) {
+      workflow.outcome.html = html;
+      workflow.emit('response');
     });
   };
 
@@ -148,24 +152,25 @@ exports.updateProfile = function (req, res, next) {
   });
 
   workflow.on('patchFields', function () {
-    workflow.outcome.fields = [];
+    workflow.outcome.fields = {};
     req.app.db.models.Field.getAll(function(err, fields) {
       for (var i = 0; i < fields.length; i++) {
         var extraFieldsToSet = {};
-        extraFieldsToSet.key = fields[i].key;
-        extraFieldsToSet.value = req.body[fields[i].key];
+        extraFieldsToSet.key = fields[i]._id;
+        extraFieldsToSet.value = req.body[fields[i]._id];
 
         (function(i) {
           req.app.db.models.UserMeta.findOneAndUpdate({
             user: req.user.id,
-            key: fields[i].key
+            key: fields[i]._id
           }, extraFieldsToSet, {upsert: true}, function (err, userField) {
             if (err) {
               return workflow.emit('exception', err);
             }
 
             fields[i].value = userField.value;
-            workflow.outcome.fields.push(fields[i]);
+            workflow.outcome.fields[userField.key] = {name: fields[i].name, value: userField.value};
+
             if (i >= fields.length - 1) {
               workflow.emit('renderProfile');
             }
@@ -250,13 +255,13 @@ exports.updatePassword = function (req, res, next) {
     req.app.db.models.Field.getAll(function(err, fields) {
       for (var i = 0; i < fields.length; i++) {
         (function(i) {
-          req.app.db.models.UserMeta.findOne({user: req.user.id, key: fields[i].key}, function (err, userField) {
+          req.app.db.models.UserMeta.findOne({user: req.user.id, key: fields[i]._id}, function (err, userField) {
             if (err) {
               return workflow.emit('exception', err);
             }
 
             fields[i].value = userField.value;
-            workflow.outcome.fields.push(fields[i]);
+            workflow.outcome.fields[userField.key] = {name: fields[i].name, value: userField.value};
             if (i >= fields.length - 1) {
               workflow.emit('renderProfile');
             }
