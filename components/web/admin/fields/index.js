@@ -135,41 +135,6 @@ exports.update = function (req, res, next) {
   workflow.emit('validate');
 };
 
-exports.permissions = function (req, res, next) {
-  var workflow = req.app.utility.workflow(req, res);
-
-  workflow.on('validate', function () {
-    if (!req.user.isMemberOf('root')) {
-      workflow.outcome.errors.push('You may not change the permissions of fields.');
-      return workflow.emit('response');
-    }
-
-    if (!req.body.permissions) {
-      workflow.outcome.errfor.permissions = 'required';
-      return workflow.emit('response');
-    }
-
-    workflow.emit('patchField');
-  });
-
-  workflow.on('patchField', function () {
-    var fieldsToSet = {
-      permissions: req.body.permissions
-    };
-
-    req.app.db.models.Field.findByIdAndUpdate(req.params.id, fieldsToSet, function (err, field) {
-      if (err) {
-        return workflow.emit('exception', err);
-      }
-
-      workflow.outcome.field = field;
-      return workflow.emit('response');
-    });
-  });
-
-  workflow.emit('validate');
-};
-
 exports.delete = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 

@@ -117,7 +117,7 @@ exports = module.exports = function (app, passport) {
   app.put('/admin/fields/:id/', require('./admin/fields/index').update);
   app.delete('/admin/fields/:id/', require('./admin/fields/index').delete);
 
-  // Admin > Fields.
+  // Admin > Rules.
   app.get('/admin/rules/', require('./admin/rules/index').find);
   app.post('/admin/rules/', require('./admin/rules/index').create);
   app.get('/admin/rules/:id/', require('./admin/rules/index').read);

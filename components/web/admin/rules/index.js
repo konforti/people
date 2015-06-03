@@ -11,7 +11,7 @@ exports.find = function (req, res, next) {
     filters.name = new RegExp('^.*?' + req.query.name + '.*$', 'i');
   }
 
-  req.app.db.models.Field.pagedFind({
+  req.app.db.models.Rule.pagedFind({
     filters: filters,
     keys: 'name',
     limit: req.query.limit,
@@ -29,22 +29,22 @@ exports.find = function (req, res, next) {
     }
     else {
       results.filters = req.query;
-      res.render('admin/fields/index', {data: {results: escape(JSON.stringify(results))}});
+      res.render('admin/rules/index', {data: {results: escape(JSON.stringify(results))}});
     }
   });
 };
 
 exports.read = function (req, res, next) {
-  req.app.db.models.Field.findById(req.params.id).exec(function (err, field) {
+  req.app.db.models.Rule.findById(req.params.id).exec(function (err, rule) {
     if (err) {
       return next(err);
     }
 
     if (req.xhr) {
-      res.send(field);
+      res.send(rule);
     }
     else {
-      res.render('admin/fields/details', {data: {record: escape(JSON.stringify(field))}});
+      res.render('admin/rules/details', {data: {record: escape(JSON.stringify(rule))}});
     }
   });
 };
@@ -54,7 +54,7 @@ exports.create = function (req, res, next) {
 
   workflow.on('validate', function () {
     if (!req.user.isMemberOf('root')) {
-      workflow.outcome.errors.push('You may not create fields.');
+      workflow.outcome.errors.push('You may not create rules.');
       return workflow.emit('response');
     }
 
@@ -63,36 +63,36 @@ exports.create = function (req, res, next) {
       return workflow.emit('response');
     }
 
-    workflow.emit('duplicateFieldCheck');
+    workflow.emit('duplicateRuleCheck');
   });
 
-  workflow.on('duplicateFieldCheck', function () {
-    req.app.db.models.Field.findById(req.app.utility.slugify(req.body.name)).exec(function (err, field) {
+  workflow.on('duplicateRuleCheck', function () {
+    req.app.db.models.Rule.findById(req.app.utility.slugify(req.body.name)).exec(function (err, rule) {
       if (err) {
         return workflow.emit('exception', err);
       }
 
-      if (field) {
-        workflow.outcome.errors.push('That field already exists.');
+      if (rule) {
+        workflow.outcome.errors.push('That rule already exists.');
         return workflow.emit('response');
       }
 
-      workflow.emit('createField');
+      workflow.emit('createRule');
     });
   });
 
-  workflow.on('createField', function () {
+  workflow.on('createRule', function () {
     var fieldsToSet = {
       _id: req.app.utility.slugify(req.body.name),
       name: req.body.name
     };
 
-    req.app.db.models.Field.create(fieldsToSet, function (err, field) {
+    req.app.db.models.Rule.create(fieldsToSet, function (err, rule) {
       if (err) {
         return workflow.emit('exception', err);
       }
 
-      workflow.outcome.record = field;
+      workflow.outcome.record = rule;
       return workflow.emit('response');
     });
   });
@@ -105,7 +105,7 @@ exports.update = function (req, res, next) {
 
   workflow.on('validate', function () {
     if (!req.user.isMemberOf('root')) {
-      workflow.outcome.errors.push('You may not update fields.');
+      workflow.outcome.errors.push('You may not update rules.');
       return workflow.emit('response');
     }
 
@@ -114,55 +114,20 @@ exports.update = function (req, res, next) {
       return workflow.emit('response');
     }
 
-    workflow.emit('patchField');
+    workflow.emit('patchRule');
   });
 
-  workflow.on('patchField', function () {
+  workflow.on('patchRule', function () {
     var fieldsToSet = {
       name: req.body.name
     };
 
-    req.app.db.models.Field.findByIdAndUpdate(req.params.id, fieldsToSet, function (err, field) {
+    req.app.db.models.Rule.findByIdAndUpdate(req.params.id, fieldsToSet, function (err, rule) {
       if (err) {
         return workflow.emit('exception', err);
       }
 
-      workflow.outcome.field = field;
-      return workflow.emit('response');
-    });
-  });
-
-  workflow.emit('validate');
-};
-
-exports.permissions = function (req, res, next) {
-  var workflow = req.app.utility.workflow(req, res);
-
-  workflow.on('validate', function () {
-    if (!req.user.isMemberOf('root')) {
-      workflow.outcome.errors.push('You may not change the permissions of fields.');
-      return workflow.emit('response');
-    }
-
-    if (!req.body.permissions) {
-      workflow.outcome.errfor.permissions = 'required';
-      return workflow.emit('response');
-    }
-
-    workflow.emit('patchField');
-  });
-
-  workflow.on('patchField', function () {
-    var fieldsToSet = {
-      permissions: req.body.permissions
-    };
-
-    req.app.db.models.Field.findByIdAndUpdate(req.params.id, fieldsToSet, function (err, field) {
-      if (err) {
-        return workflow.emit('exception', err);
-      }
-
-      workflow.outcome.field = field;
+      workflow.outcome.rule = rule;
       return workflow.emit('response');
     });
   });
@@ -175,15 +140,15 @@ exports.delete = function (req, res, next) {
 
   workflow.on('validate', function () {
     if (!req.user.isMemberOf('root')) {
-      workflow.outcome.errors.push('You may not delete fields.');
+      workflow.outcome.errors.push('You may not delete rules.');
       return workflow.emit('response');
     }
 
-    workflow.emit('deleteField');
+    workflow.emit('deleteRule');
   });
 
-  workflow.on('deleteField', function (err) {
-    req.app.db.models.Field.findByIdAndRemove(req.params.id, function (err, field) {
+  workflow.on('deleteRule', function (err) {
+    req.app.db.models.Rule.findByIdAndRemove(req.params.id, function (err, rule) {
       if (err) {
         return workflow.emit('exception', err);
       }
