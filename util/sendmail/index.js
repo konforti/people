@@ -1,6 +1,20 @@
 'use strict';
 
 exports = module.exports = function(req, res, options) {
+  /* options = {
+  from: String,
+  to: String,
+  cc: String,
+  bcc: String,
+  text: String,
+  textPath String,
+  html: String,
+  htmlPath: String,
+  attachments: [String],
+  success: Function,
+  error: Function
+} */
+
   var renderText = function(callback) {
     res.render(options.textPath, options.locals, function(err, text) {
       if (err) {

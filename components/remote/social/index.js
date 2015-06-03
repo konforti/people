@@ -252,7 +252,7 @@ var signupSocial = exports.signupSocial = function (req, res, next) {
   });
 
   workflow.on('duplicateUsernameCheck', function () {
-    workflow.username = req.session.socialProfile.username || req.session.socialProfile.id;
+    workflow.username = req.session.socialProfile.displayName ||  req.session.socialProfile.username || req.session.socialProfile.id;
     if (!/^[a-zA-Z0-9\-\_]+$/.test(workflow.username)) {
       workflow.username = workflow.username.replace(/[^a-zA-Z0-9\-\_]/g, '');
     }

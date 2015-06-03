@@ -129,7 +129,9 @@ People.prototype.setEvents = function () {
           left = (window.outerWidth - width) / 2;
         window.open(url, '', 'width=' + width + ',height=' + height + ',scrollbars=0,top=' + top + ',left=' + left);
 
-        window.addEventListener('message', self.receiveMessage, false);
+        window.addEventListener('message', function(e) {
+          self.receiveMessage(e, self)
+        }, false);
         break;
 
       case 'ppl-to-login':
@@ -571,9 +573,9 @@ People.prototype.userProfileRemove = function () {
  * Receive message from popup.
  * @param event
  */
-People.prototype.receiveMessage = function (event) {
+People.prototype.receiveMessage = function (event, self) {
   //window.removeEventListener('message', receiveMessage, false);
-  if (event.origin !== this.url) {
+  if (event.origin !== self.url) {
     return;
   }
 

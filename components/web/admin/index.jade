@@ -9,18 +9,20 @@ block neck
 block body
     div.row
         div.col-sm-8
-            div.page-header
-                h1 Admin Area
+            h1 Admin Area
             div.row
-                div.col-sm-4
-                    div.well.stat
-                        div.stat-value #{countUser}
-                        div.stat-label Users
-                div.col-sm-4
-                    div.well.stat
-                        div.stat-value #{countRole}
-                        div.stat-label Roles
-                div.col-sm-4
-                    div.well.stat
-                        div.stat-value #{countStatus}
-                        div.stat-label Statuses
+                div.stat
+                    div.stat-label
+                        a(href='/admin/users/') Users
+                    div.stat-value #{countUser}
+
+                div.stat
+                    div.stat-label
+                        a(href='/admin/roles/') Roles
+                    div.stat-value #{countRole}
+
+                div.stat
+                    div.stat-label
+                        a(href='/admin/statuses/') Statuses
+                    div.stat-value #{countStatus}
+

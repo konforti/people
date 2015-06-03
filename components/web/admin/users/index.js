@@ -110,18 +110,18 @@ exports.read = function (req, res, next) {
         return callback(err, null);
       }
 
-      outcome.fields = [];
-      for (var i = 0; i < req.app.config.fields.length; i++) {
-        outcome.fields[i] = req.app.config.fields[i];
-
-        for (var j = 0; j < fields.length; j++) {
-          if (fields[j].key === req.app.config.fields[i].key) {
-            outcome.fields[i].value = typeof fields[j] !== 'undefined' ? fields[j].value : '';
+      req.app.db.models.Field.getAll(function(err, list) {
+        outcome.fields = {};
+        for (var i = 0; i < list.length; i++) {
+          outcome.fields[list[i]._id] = {name: list[i].name, value: ''};
+          for (var j = 0; j < fields.length; j++) {
+            if (fields[j].key === list[i]._id) {
+              outcome.fields[list[i]._id].value = typeof fields[j] !== 'undefined' ? fields[j].value : '';
+            }
           }
         }
-      }
-
-      return callback(null, 'done');
+        return callback(null, 'done');
+      });
     });
   };
 
@@ -204,6 +204,11 @@ exports.update = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function () {
+    if (req.body._id === req.app.config.uid1) {
+      workflow.outcome.errors.push('You\'re not allowed to update this user.');
+      return workflow.emit('response');
+    }
+
     if (!req.body.isActive) {
       req.body.isActive = 'no';
     }
@@ -282,29 +287,31 @@ exports.update = function (req, res, next) {
       workflow.outcome.user = user;
 
       workflow.outcome.user.extra = [];
-      var fields = req.app.config.fields;
-      for (var i = 0; i < fields.length; ++i) {
-        var extraFieldsToSet = {};
-        extraFieldsToSet.key = fields[i].key;
-        extraFieldsToSet.value = req.body[fields[i].key];
+      req.app.db.models.Field.getAll(function(err, fields) {
+        for (var i = 0; i < fields.length; ++i) {
+          var extraFieldsToSet = {};
+          extraFieldsToSet.key = fields[i]._id;
+          extraFieldsToSet.value = req.body[fields[i]._id];
 
-        (function(i) {
-          req.app.db.models.UserMeta.findOneAndUpdate({
-            user: req.params.id,
-            key: fields[i].key
-          }, extraFieldsToSet, {upsert: true}, function (err, userField) {
-            if (err) {
-              return workflow.emit('exception', err);
-            }
+          (function(i) {
+            req.app.db.models.UserMeta.findOneAndUpdate({
+              user: req.params.id,
+              key: fields[i]._id
+            }, extraFieldsToSet, {upsert: true}, function (err, userField) {
+              if (err) {
+                return //workflow.emit('exception', err);
+              }
 
-            fields[i].value = userField.value;
-            workflow.outcome.user.extra.push(fields[i]);
-            if (i >= fields.length - 1) {
-              workflow.emit('response');
-            }
-          });
-        })(i);
-      }
+              fields[i].value = userField.value;
+              workflow.outcome.user.extra.push(fields[i]);
+              if (i >= fields.length - 1) {
+                workflow.emit('response');
+              }
+            });
+          })(i);
+        }
+      });
+
     });
   });
 
@@ -315,8 +322,13 @@ exports.roles = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function () {
+    if (req.body._id === req.app.config.uid1) {
+      workflow.outcome.errors.push('You\'re not allowed to change this user roles.');
+      return workflow.emit('response');
+    }
+
     if (!req.user.isMemberOf('root')) {
-      workflow.outcome.errors.push('You may not change the role memberships of admins.');
+      workflow.outcome.errors.push('You may not change this role memberships.');
       return workflow.emit('response');
     }
 
@@ -356,6 +368,11 @@ exports.password = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function () {
+    if (req.body._id === req.app.config.uid1) {
+      workflow.outcome.errors.push('You\'re not allowed to change this user password.');
+      return workflow.emit('response');
+    }
+
     if (!req.body.newPassword) {
       workflow.outcome.errfor.newPassword = 'required';
     }
@@ -479,8 +496,12 @@ exports.delete = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function () {
+    if (req.params.id === req.app.config.uid1) {
+      workflow.outcome.errors.push('You\'re not allowed to delete this user.');
+      return workflow.emit('response');
+    }
 
-    if (req.user._id === req.params.id) {
+    if (req.user._id.toString() === req.params.id) {
       workflow.outcome.errors.push('You may not delete yourself from user.');
       return workflow.emit('response');
     }
@@ -493,6 +514,12 @@ exports.delete = function (req, res, next) {
       if (err) {
         return workflow.emit('exception', err);
       }
+
+      req.app.db.models.UserMeta.remove({user: user._id}, function(err) {
+        if (err) {
+          return workflow.emit('exception', err);
+        }
+      });
 
       workflow.emit('response');
     });
