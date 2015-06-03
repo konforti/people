@@ -6,6 +6,7 @@ exports = module.exports = function(app, mongoose) {
   require('./Status')(app, mongoose);
   require('./StatusLog')(app, mongoose);
   require('./Field')(app, mongoose);
+  require('./Rule')(app, mongoose);
 
   //then regular docs
   require('./User')(app, mongoose);

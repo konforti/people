@@ -1,6 +1,7 @@
 'use strict';
 
 exports = module.exports = function(app, mongoose) {
+  var settings = app.getSettings()
   var attemptSchema = new mongoose.Schema({
     ip: { type: String, default: '' },
     user: { type: String, default: '' },
