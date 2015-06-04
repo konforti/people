@@ -42,7 +42,7 @@ block body
                 legend Event
                 div.form-role(class!='<%- errfor.event ? "has-error" : "" %>')
                     label Event:
-                    select.form-control(name='ON')
+                    select.form-control(name='event')
                         option(value='userCreated') User Created
                         option(value='userUpdated') User Updated
                         option(value='userDeleted') User Deleted
@@ -56,67 +56,64 @@ block body
                     span.help-block <%- errfor.On %>
 
         fieldset
-            div.conditions
+            div
                 legend Conditions
-                div.form-role(class!='<%- errfor.andOr ? "has-error" : "" %>')
+                div.form-role(class!='<%- errfor.and_or ? "has-error" : "" %>')
                     select.form-control(name='and-or')
                         option(value='all') ALL
                         option(value='any') ANY
-                    span.help-block <%- errfor.andOr %>
+                    span.help-block <%- errfor.and_or %>
 
                 span Conditions:
+                button.btn.btn-success.btn-addCondition(type='button') + Add
 
-                div.conditions
-                    button.btn.btn-success.btn-add(type='button') + Add
-                    | <% _.each(conditions, function(condition) { %>
-                    div.form-role(class!='<%- errfor.condition ? "has-error" : "" %>')
-                        label IF User's:
-                        select.form-control(name='condition')
-                            option(value='email') Email
-                            option(value='name') Name
-                            option(value='role') Role
-                            option(value='status') Status
-                            option(value='isActive') Is Active
-                        span.help-block <%- errfor.condition %>
-
-                    div.form-role(class!='<%- errfor.operator ? "has-error" : "" %>')
-                        select.form-control(name='operator')
-                            option(value='is') IS
-                            option(value='isNot') IS NOT
-                            option(value='IsIn') IS IN
-                            option(value='IsNotIn') IS NOT IN
-                        span.help-block <%- errfor.operator %>
-
-                    div.form-role(class!='<%- errfor.match ? "has-error" : "" %>')
-                        input.form-control(type='text', name='match', value!='<%= name %>')
-                        span.help-block <%- errfor.match %>
-
-                    button.btn.btn-danger.btn-delete(type='button')
-                        i.fa.fa-trash-o.fa-inverce
-                    | <% }); %>
-                    | <% if (conditions && conditions.length == 0) { %>
-                    span.badge Add a condition
-                        button.btn.btn-success.btn-add(type='button') + Add
-                    | <% } %>
+                div#conditions
 
         fieldset
-            div.actions
+            div
                 legend Actions
-                div.form-role(class!='<%- errfor.DO ? "has-error" : "" %>')
-                    label DO:
-                    select.form-control(name='DO')
-                        option(value='nothing') Nothing
-                        option(value='webhook') Webhook
-                        option(value='addRole') Add Role
-                        option(value='removeRole') Remove Role
-                        option(value='activate') Activate
-                        option(value='inactivate') Inactivate
-                        option(value='setStatus') Set Status
-                        option(value='addNote') Add Note
-                    span.help-block <%- errfor.DO %>
+
+                div#actions
 
         div.form-role
             button.btn.btn-primary.btn-update(type='button') Update
+
+    script(type='text/template', id='tmpl-conditions')
+        div.condition
+            div.form-role
+                label IF User's:
+                select.form-control(name='condition')
+                    option(value='email') Email
+                    option(value='name') Name
+                    option(value='role') Role
+                    option(value='status') Status
+                    option(value='isActive') Is Active
+
+            div.form-role
+                select.form-control(name='operator')
+                    option(value='is') IS
+                    option(value='isNot') IS NOT
+                    option(value='IsIn') IS IN
+                    option(value='IsNotIn') IS NOT IN
+
+            div.form-role
+                input.form-control(type='text', name='match', value!='<%= name %>')
+
+            button.btn.btn-danger.btn-delete(type='button')
+                i.fa.fa-trash-o.fa-inverce
+
+    script(type='text/template', id='tmpl-actions')
+        div.form-role
+            label Do:
+            select.form-control(name='action')
+                option(value='nothing') Nothing
+                option(value='webhook') Webhook
+                option(value='addRole') Add Role
+                option(value='removeRole') Remove Role
+                option(value='activate') Activate
+                option(value='inactivate') Inactivate
+                option(value='setStatus') Set Status
+                option(value='addNote') Add Note
 
     script(type='text/template', id='tmpl-delete')
         legend Danger Zone

@@ -32,7 +32,7 @@
       errfor: {},
       name: '',
       event: '',
-      andOr: '',
+      and_or: '',
       conditions: [],
       actions: []
     },
@@ -65,8 +65,13 @@
   app.DetailsView = Backbone.View.extend({
     el: '#details',
     template: _.template( $('#tmpl-details').html() ),
+    templateConditions: _.template( $('#tmpl-conditions').html() ),
+    templateActions: _.template( $('#tmpl-actions').html() ),
     events: {
-      'click .btn-update': 'update'
+      'click .btn-update': 'update',
+      'click .btn-addCondition': 'addCondition',
+      'click .btn-addAction': 'addAction',
+      'click .btn-delete': 'deleteItem'
     },
     initialize: function() {
       this.model = new app.Details();
@@ -77,27 +82,68 @@
     },
     syncUp: function() {
       this.model.set({
-        _id: app.mainView.model.id,
         name: app.mainView.model.get('name'),
         event: app.mainView.model.get('event'),
-        andOr: app.mainView.model.get('andOr'),
-        conditions: app.mainView.model.get('name'),
-        actions: app.mainView.model.get('name')
+        and_or: app.mainView.model.get('and_or'),
+        conditions: app.mainView.model.get('conditions'),
+        actions: app.mainView.model.get('actions')
       });
     },
     render: function() {
       this.$el.html(this.template( this.model.attributes ));
-
       for (var key in this.model.attributes) {
         if (this.model.attributes.hasOwnProperty(key)) {
           this.$el.find('[name="'+ key +'"]').val(this.model.attributes[key]);
         }
       }
+
+      $('#conditions').html(this.templateConditions( this.model.attributes.conditions ));
+      for (var key in this.model.attributes.conditions) {
+        if (this.model.attributes.conditions.hasOwnProperty(key)) {
+          $('#conditions').find('[name="'+ key +'"]').val(this.model.attributes.conditions[key]);
+        }
+      }
+
+      $('#actions').html(this.templateActions( this.model.attributes.actions ));
+      for (var key in this.model.attributes.actions) {
+        if (this.model.attributes.actions.hasOwnProperty(key)) {
+          this.$el.find('[name="'+ key +'"]').val(this.model.attributes[key]);
+        }
+      }
     },
     update: function() {
-      this.model.save({
-        name: this.$el.find('[name="name"]').val()
+      var conditions = [];
+      $('.condition').each(function(i, el) {
+        var condition = {
+          condition: $(el).find('[name="condition"]').val(),
+          operator: $(el).find('[name="operator"]').val(),
+          match: $(el).find('[name="match"]').val()
+        }
+        conditions.push(condition);
       });
+
+      var actions = [];
+      $('.action').each(function(i, el) {
+        var action = {
+          action: $(el).find('[name="action"]').val(),
+          value: $(el).find('[name="value"]').val()
+        };
+        actions.push(action);
+      });
+
+      this.model.save({
+        name: this.$el.find('[name="name"]').val(),
+        events: this.$el.find('[name="event"]').val(),
+        and_or: this.$el.find('[name="and-or"]').val(),
+        conditions: conditions,
+        actions: actions
+      });
+    },
+    addCondition: function() {
+      $('#conditions').append(this.templateConditions( this.model.attributes.conditions ));
+    },
+    deleteItem: function(e) {
+      $(e.currentTarget).parent().remove();
     }
   });
 

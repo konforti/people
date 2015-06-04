@@ -1,6 +1,6 @@
 {
   "event": "userCreated",
-  "andOr": "and",
+  "and_or": "and",
   "conditions": [
     {
       "key": "email",

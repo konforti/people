@@ -122,6 +122,7 @@ exports = module.exports = function (app, passport) {
   app.post('/admin/rules/', require('./admin/rules/index').create);
   app.get('/admin/rules/:id/', require('./admin/rules/index').read);
   app.put('/admin/rules/:id/', require('./admin/rules/index').update);
+  app.post('/admin/rules/:id/', require('./admin/rules/index').update);
   app.delete('/admin/rules/:id/', require('./admin/rules/index').delete);
 
   // Admin > Roles.

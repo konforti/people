@@ -3,8 +3,9 @@
 exports = module.exports = function(app, mongoose) {
   var RuleSchema = new mongoose.Schema({
     _id: { type: String },
+    name: { type: String, default: '' },
     event: { type: String, default: '' },
-    andOr: { type: String, default: '' },
+    and_or: { type: String, default: '' },
     conditions: { type: Array, default: [] },
     actions: { type: Array, default: [] }
   });
