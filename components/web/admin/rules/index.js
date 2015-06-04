@@ -44,7 +44,11 @@ exports.read = function (req, res, next) {
       res.send(rule);
     }
     else {
-      res.render('admin/rules/details', {data: {record: escape(JSON.stringify(rule))}});
+      res.render('admin/rules/details', {
+        data: {
+          record: escape(JSON.stringify(rule))
+        }
+      });
     }
   });
 };

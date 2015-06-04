@@ -2,7 +2,6 @@ extends ./../../layouts/admin
 
 block head
     title Rules / Details
-    link(rel='stylesheet', href='/views/admin/rules/details.min.css?#{cacheBreaker}')
 
 block feet
     script(src='/views/admin/rules/details.min.js?#{cacheBreaker}')
@@ -11,8 +10,7 @@ block body
     div.row
         div.col-xs-12
             div#header
-            fieldset
-                div#details
+            div#details
             fieldset
                 div#delete
     script(type='text/template', id='tmpl-header')
@@ -21,7 +19,7 @@ block body
                 a(href='/admin/rules/') Rules
                 |  / <%- name %>
     script(type='text/template', id='tmpl-details')
-        legend Details
+
         div.alerts
             | <% _.each(errors, function(err) { %>
             div.alert.alert-danger.alert-dismissable
@@ -33,56 +31,93 @@ block body
                 button.close(type='button', data-dismiss='alert') &times;
                 | Changes have been saved.
             | <% } %>
+
         div.form-role(class!='<%- errfor.name ? "has-error" : "" %>')
             label Name:
             input.form-control(type='text', name='name', value!='<%= name %>')
             span.help-block <%- errfor.name %>
 
-        div.form-role(class!='<%- errfor.on ? "has-error" : "" %>')
-            label On:
-            select.form-control(name='ON')
-                option(value='userCreated') User Created
-                option(value='userUpdated') User Updated
-                option(value='userDeleted') User Deleted
-                option(value='userLoggedIn') User Logged In
-                option(value='userLoggedOut') User Logged Out
-                option(value='userGotRole') User Got Role
-                option(value='userLostRole') User Lost Role
-                option(value='userStatusChanged') User Status Changed
-                option(value='userPasswordChanged') User Password Changed
-                option(value='userVerified') User Verified
-            span.help-block <%- errfor.on %>
+        fieldset
+            div.event
+                legend Event
+                div.form-role(class!='<%- errfor.event ? "has-error" : "" %>')
+                    label Event:
+                    select.form-control(name='ON')
+                        option(value='userCreated') User Created
+                        option(value='userUpdated') User Updated
+                        option(value='userDeleted') User Deleted
+                        option(value='userLoggedIn') User Logged In
+                        option(value='userLoggedOut') User Logged Out
+                        option(value='userGotRole') User Got Role
+                        option(value='userLostRole') User Lost Role
+                        option(value='userStatusChanged') User Status Changed
+                        option(value='userPasswordChanged') User Password Changed
+                        option(value='userVerified') User Verified
+                    span.help-block <%- errfor.On %>
 
-        div.form-role(class!='<%- errfor.if ? "has-error" : "" %>')
-            label If User's:
-            select.form-control(name='IF')
-                option(value='email') Email
-                option(value='name') Name
-                option(value='role') Role
-                option(value='status') Status
-                option(value='isActive') Is Active
-            span.help-block <%- errfor.if %>
+        fieldset
+            div.conditions
+                legend Conditions
+                div.form-role(class!='<%- errfor.andOr ? "has-error" : "" %>')
+                    select.form-control(name='and-or')
+                        option(value='all') ALL
+                        option(value='any') ANY
+                    span.help-block <%- errfor.andOr %>
 
-        div.form-role(class!='<%- errfor.is ? "has-error" : "" %>')
-            label Is:
-            input.form-control(type='text', name='is', value!='<%= is %>')
-            span.help-block <%- errfor.is %>
+                span Conditions:
 
-        div.form-role(class!='<%- errfor.do ? "has-error" : "" %>')
-            label Do:
-            select.form-control(name='DO')
-                option(value='webhook') Email
-                option(value='addRole') Name
-                option(value='removeRole') Role
-                option(value='activate') Status
-                option(value='inactivate') Is Active
-                option(value='setStatus') Is Active
-                option(value='addNote') Is Active
-            span.help-block <%- errfor.do %>
+                div.conditions
+                    button.btn.btn-success.btn-add(type='button') + Add
+                    | <% _.each(conditions, function(condition) { %>
+                    div.form-role(class!='<%- errfor.condition ? "has-error" : "" %>')
+                        label IF User's:
+                        select.form-control(name='condition')
+                            option(value='email') Email
+                            option(value='name') Name
+                            option(value='role') Role
+                            option(value='status') Status
+                            option(value='isActive') Is Active
+                        span.help-block <%- errfor.condition %>
 
+                    div.form-role(class!='<%- errfor.operator ? "has-error" : "" %>')
+                        select.form-control(name='operator')
+                            option(value='is') IS
+                            option(value='isNot') IS NOT
+                            option(value='IsIn') IS IN
+                            option(value='IsNotIn') IS NOT IN
+                        span.help-block <%- errfor.operator %>
+
+                    div.form-role(class!='<%- errfor.match ? "has-error" : "" %>')
+                        input.form-control(type='text', name='match', value!='<%= name %>')
+                        span.help-block <%- errfor.match %>
+
+                    button.btn.btn-danger.btn-delete(type='button')
+                        i.fa.fa-trash-o.fa-inverce
+                    | <% }); %>
+                    | <% if (conditions && conditions.length == 0) { %>
+                    span.badge Add a condition
+                        button.btn.btn-success.btn-add(type='button') + Add
+                    | <% } %>
+
+        fieldset
+            div.actions
+                legend Actions
+                div.form-role(class!='<%- errfor.DO ? "has-error" : "" %>')
+                    label DO:
+                    select.form-control(name='DO')
+                        option(value='nothing') Nothing
+                        option(value='webhook') Webhook
+                        option(value='addRole') Add Role
+                        option(value='removeRole') Remove Role
+                        option(value='activate') Activate
+                        option(value='inactivate') Inactivate
+                        option(value='setStatus') Set Status
+                        option(value='addNote') Add Note
+                    span.help-block <%- errfor.DO %>
 
         div.form-role
             button.btn.btn-primary.btn-update(type='button') Update
+
     script(type='text/template', id='tmpl-delete')
         legend Danger Zone
         div.alerts

@@ -3,10 +3,10 @@
 exports = module.exports = function(app, mongoose) {
   var RuleSchema = new mongoose.Schema({
     _id: { type: String },
-    ON: { type: String, default: '' },
-    OP: { type: String, default: '' },
-    IF: { type: Array, default: [] },
-    DO: { type: Array, default: [] }
+    event: { type: String, default: '' },
+    andOr: { type: String, default: '' },
+    conditions: { type: Array, default: [] },
+    actions: { type: Array, default: [] }
   });
 
   RuleSchema.statics.getAll = function(done) {

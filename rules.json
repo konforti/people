@@ -1,7 +1,7 @@
 {
-  "ON": "userCreated",
-  "operator": "and",
-  "IF": [
+  "event": "userCreated",
+  "andOr": "and",
+  "conditions": [
     {
       "key": "email",
       "value": "k@g.com",
@@ -13,7 +13,7 @@
       "operator": "oneOf"
     }
   ],
-  "DO" : [
+  "actions" : [
     {
       "key": "webhook"
     },

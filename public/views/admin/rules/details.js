@@ -30,7 +30,11 @@
       success: false,
       errors: [],
       errfor: {},
-      name: ''
+      name: '',
+      event: '',
+      andOr: '',
+      conditions: [],
+      actions: []
     },
     url: function() {
       return '/admin/rules/'+ app.mainView.model.id +'/';
@@ -74,7 +78,11 @@
     syncUp: function() {
       this.model.set({
         _id: app.mainView.model.id,
-        name: app.mainView.model.get('name')
+        name: app.mainView.model.get('name'),
+        event: app.mainView.model.get('event'),
+        andOr: app.mainView.model.get('andOr'),
+        conditions: app.mainView.model.get('name'),
+        actions: app.mainView.model.get('name')
       });
     },
     render: function() {
