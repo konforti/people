@@ -129,7 +129,7 @@ exports.update = function (req, res, next) {
       conditions: req.body.conditions,
       actions: req.body.actions
     };
-    console.log(fieldsToSet);
+
     req.app.db.models.Rule.findByIdAndUpdate(req.params.id, fieldsToSet, function (err, rule) {
       if (err) {
         return workflow.emit('exception', err);

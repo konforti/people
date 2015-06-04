@@ -118,7 +118,7 @@
           condition: $(el).find('[name="condition"]').val(),
           operator: $(el).find('[name="operator"]').val(),
           match: $(el).find('[name="match"]').val()
-        }
+        };
         conditions.push(condition);
       });
 
