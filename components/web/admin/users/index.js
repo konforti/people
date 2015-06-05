@@ -268,11 +268,11 @@ exports.update = function (req, res, next) {
   });
 
   workflow.on('patchUser', function () {
-
     var fieldsToSet = {
       mode: req.body.mode,
       username: req.body.username,
       email: req.body.email.toLowerCase(),
+      fields: req.body.fields,
       search: [
         req.body.username,
         req.body.email
@@ -284,34 +284,15 @@ exports.update = function (req, res, next) {
         return workflow.emit('exception', err);
       }
 
-      workflow.outcome.user = user;
-
-      workflow.outcome.user.extra = [];
-      req.app.db.models.Field.getAll(function(err, fields) {
-        for (var i = 0; i < fields.length; ++i) {
-          var extraFieldsToSet = {};
-          extraFieldsToSet.key = fields[i]._id;
-          extraFieldsToSet.value = req.body[fields[i]._id];
-
-          (function(i) {
-            req.app.db.models.UserMeta.findOneAndUpdate({
-              user: req.params.id,
-              key: fields[i]._id
-            }, extraFieldsToSet, {upsert: true}, function (err, userField) {
-              if (err) {
-                return //workflow.emit('exception', err);
-              }
-
-              fields[i].value = userField.value;
-              workflow.outcome.user.extra.push(fields[i]);
-              if (i >= fields.length - 1) {
-                workflow.emit('response');
-              }
-            });
-          })(i);
+      user.populate('fields', 'name', function (err, user) {
+        if (err) {
+          return workflow.emit('exception', err);
         }
-      });
 
+        req.hooks.emit('userUpdate', user);
+        workflow.outcome.user = user;
+        workflow.emit('response');
+      });
     });
   });
 

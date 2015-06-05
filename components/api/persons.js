@@ -74,49 +74,12 @@ exports.find = function (req, res, next) {
  */
 exports.read = function (req, res, next) {
   var outcome = {};
-
-  var getRecord = function (callback) {
-    req.app.db.models.User.findById(req.params.id).populate('roles', 'name').exec(function (err, record) {
-      if (err) {
-        return callback(err);
-      }
-      outcome.record = record;
-      return callback(null, 'done');
-    });
-  };
-
-  var getUserFields = function (callback) {
-    req.app.db.models.UserMeta.find({user: req.params.id}).sort('name').exec(function (err, fields) {
-      if (err) {
-        return callback(err, null);
-      }
-
-      outcome.fields = [];
-      req.app.db.models.Field.getAll(function(err, list) {
-        for (var i in list) {
-          outcome.fields[i] = list[i];
-
-          for (var j in fields) {
-            if (fields[j].key === list[i].key) {
-              outcome.fields[i].value = typeof fields[j] !== 'undefined' ? fields[j].value : '';
-            }
-          }
-        }
-
-        return callback(null, 'done');
-      });
-    });
-  };
-
-  var asyncFinally = function (err, results) {
+  req.app.db.models.User.findById(req.params.id).populate('roles', 'name').exec(function (err, record) {
     if (err) {
-      return next(err);
+      return callback(err);
     }
-
-    res.send({record: outcome.record, fields: outcome.fields});
-  };
-
-  require('async').parallel([getRecord, getUserFields], asyncFinally);
+    res.send({record: record});
+  });
 };
 
 /**
@@ -126,75 +89,26 @@ exports.read = function (req, res, next) {
  * @param next
  */
 exports.readCurrent = function (req, res, next) {
-  var outcome = {};
+  var collection = req.app.db.collection('sessions');
+  var sid = signature.unsign(req.params.sid, req.app.config.cryptoKey);
 
-  var getRecord = function (callback) {
-    var collection = req.app.db.collection('sessions');
-    var sid = signature.unsign(req.params.sid, req.app.config.cryptoKey);
-
-    collection.find({_id: sid}).toArray(function (err, record) {
-      if (err) {
-        return callback(err, null);
-      }
-
-      if (!record || !record[0]) {
-        return callback('No Record', null);
-      }
-      var session = JSON.parse(record[0].session);
-      req.app.db.models.User.findById(session.passport.user).populate('roles', 'name').exec(function (err, record) {
-        if (err) {
-          return callback(err);
-        }
-        outcome.record = record;
-        return callback(null, 'done');
-      });
-    });
-  };
-
-  var getUserFields = function (callback) {
-    var collection = req.app.db.collection('sessions');
-    var sid = signature.unsign(req.params.sid, req.app.config.cryptoKey);
-
-    collection.find({_id: sid}).toArray(function (err, record) {
-      if (err) {
-        return callback(err, null);
-      }
-
-      if (!record || !record[0]) {
-        return callback('No Record', null);
-      }
-
-      var session = JSON.parse(record[0].session);
-      req.app.db.models.UserMeta.find({user: session.passport.user}).exec(function (err, fields) {
-        if (err) {
-          return callback(err, null);
-        }
-
-        req.app.db.models.Field.getAll(function(err, list) {
-          outcome.fields = {};
-          for (var i = 0; i < list.length; i++) {
-            outcome.fields[list[i]._id] = {name: list[i].name, value: ''};
-            for (var j = 0; j < fields.length; j++) {
-              if (fields[j].key === list[i]._id) {
-                outcome.fields[list[i]._id].value = typeof fields[j] !== 'undefined' ? fields[j].value : '';
-              }
-            }
-          }
-          return callback(null, 'done');
-        });
-      });
-    });
-  };
-
-  var asyncFinally = function (err, results) {
+  collection.find({_id: sid}).toArray(function (err, record) {
     if (err) {
-      return next(err);
+      return callback(err, null);
     }
 
-    res.send({record: outcome.record, fields: outcome.fields});
-  };
+    if (!record || !record[0]) {
+      return callback('No Record', null);
+    }
+    var session = JSON.parse(record[0].session);
+    req.app.db.models.User.findById(session.passport.user).populate('roles', 'name').exec(function (err, record) {
+      if (err) {
+        return callback(err);
+      }
 
-  require('async').parallel([getRecord, getUserFields], asyncFinally);
+      res.send({record: record);
+    });
+  });
 };
 
 /**
@@ -223,56 +137,11 @@ exports.update = function (req, res, next) {
           return workflow.emit('exception', err);
         }
 
+        req.hooks.emit('userUpdate', user);
         workflow.outcome.record = user;
         return workflow.emit('response');
       });
     }
-  });
-
-  workflow.emit('validate');
-};
-
-/**
- * Update a user extra fields.
- * @param req
- * @param res
- * @param next
- */
-exports.updateFields = function (req, res, next) {
-  var workflow = req.app.utility.workflow(req, res);
-
-  workflow.on('validate', function () {
-    // if (req.body.mode) {}
-
-    workflow.emit('patchUser');
-  });
-
-  workflow.on('patchUser', function () {
-    workflow.outcome.fields = [];
-    req.app.db.models.Field.getAll(function(err, list) {
-      for (var i = 0; i < fields.length; i++) {
-        var extraFieldsToSet = {};
-        extraFieldsToSet.key = fields[i].key;
-        extraFieldsToSet.value = req.body[fields[i].key];
-
-        (function(i) {
-          req.app.db.models.UserMeta.findOneAndUpdate({
-            user: req.params.id,
-            key: fields[i].key
-          }, extraFieldsToSet, {upsert: true}, function (err, userField) {
-            if (err) {
-              return workflow.emit('exception', err);
-            }
-
-            fields[i].value = userField.value;
-            workflow.outcome.fields.push(fields[i]);
-            if (i >= fields.length - 1) {
-              exports.read(req, res, next);
-            }
-          });
-        })(i);
-      }
-    });
   });
 
   workflow.emit('validate');

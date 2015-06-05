@@ -8,42 +8,11 @@ var signature = require('cookie-signature');
  * @param res
  */
 exports.readProfile = function (req, res, next) {
-  var outcome = {};
-  var getRecord = function (callback) {
-    req.app.db.models.User.findById(req.user.id).exec(function (err, record) {
-      if (err) {
-        return callback(err);
-      }
-      outcome.record = record;
-      return callback(null, 'done');
-    });
-  };
+  var workflow = req.app.utility.workflow(req, res);
 
-  var getUserFields = function (callback) {
-    req.app.db.models.UserMeta.find({user: req.user.id}).exec(function (err, fields) {
-      if (err) {
-        return callback(err, null);
-      }
-
-      req.app.db.models.Field.getAll(function(err, list) {
-        outcome.fields = {};
-        for (var i = 0; i < list.length; i++) {
-          outcome.fields[list[i]._id] = {name: list[i].name, value: ''};
-          for (var j = 0; j < fields.length; j++) {
-            if (fields[j].key === list[i]._id) {
-              outcome.fields[list[i]._id].value = typeof fields[j] !== 'undefined' ? fields[j].value : '';
-            }
-          }
-        }
-        return callback(null, 'done');
-      });
-    });
-  };
-
-  var asyncFinally = function (err, results) {
-    var workflow = req.app.utility.workflow(req, res);
+  req.app.db.models.User.findById(req.user.id).exec(function (err, record) {
     if (err) {
-      return workflow.emit('exception', err);
+      return callback(err);
     }
 
     var csrfToken = crypto.pseudoRandomBytes(16).toString('hex');
@@ -51,16 +20,13 @@ exports.readProfile = function (req, res, next) {
     req.app.render('../remote/profile/index', {
       data: {
         csrfToken: csrfToken,
-        record: outcome.record,
-        fields: outcome.fields
+        record: record
       }
     }, function (err, html) {
       workflow.outcome.html = html;
       workflow.emit('response');
     });
-  };
-
-  require('async').parallel([getRecord, getUserFields], asyncFinally);
+  });
 };
 
 /**
@@ -154,29 +120,28 @@ exports.updateProfile = function (req, res, next) {
   workflow.on('patchFields', function () {
     workflow.outcome.fields = {};
     req.app.db.models.Field.getAll(function(err, fields) {
-      for (var i = 0; i < fields.length; i++) {
+      fields.forEach(function(field, index, array) {
         var extraFieldsToSet = {};
-        extraFieldsToSet.key = fields[i]._id;
-        extraFieldsToSet.value = req.body[fields[i]._id];
+        extraFieldsToSet.key = field._id;
+        extraFieldsToSet.value = req.body[fields._id];
 
-        (function(i) {
-          req.app.db.models.UserMeta.findOneAndUpdate({
-            user: req.user.id,
-            key: fields[i]._id
-          }, extraFieldsToSet, {upsert: true}, function (err, userField) {
-            if (err) {
-              return workflow.emit('exception', err);
-            }
+        req.app.db.models.UserMeta.findOneAndUpdate({
+          user: req.params.id,
+          key: field._id
+        }, extraFieldsToSet, {upsert: true}, function (err, userField) {
+          if (err) {
+            return workflow.emit('exception', err);
+          }
 
-            fields[i].value = userField.value;
-            workflow.outcome.fields[userField.key] = {name: fields[i].name, value: userField.value};
+          field.value = userField.value;
+          workflow.outcome.fields.push(field);
+        });
+      });
 
-            if (i >= fields.length - 1) {
-              workflow.emit('renderProfile');
-            }
-          });
-        })(i);
-      }
+      var user = workflow.outcome.record;
+      user.extra = workflow.outcome.fields;
+      req.hooks.emit('userUpdate', user);
+      workflow.emit('renderProfile');
     });
   });
 
@@ -253,21 +218,18 @@ exports.updatePassword = function (req, res, next) {
   workflow.on('patchFields', function () {
     workflow.outcome.fields = [];
     req.app.db.models.Field.getAll(function(err, fields) {
-      for (var i = 0; i < fields.length; i++) {
-        (function(i) {
-          req.app.db.models.UserMeta.findOne({user: req.user.id, key: fields[i]._id}, function (err, userField) {
-            if (err) {
-              return workflow.emit('exception', err);
-            }
+      fields.forEach(function(field, index, array) {
+        req.app.db.models.UserMeta.findOne({user: req.user.id, key: field._id}, function (err, userField) {
+          if (err) {
+            return workflow.emit('exception', err);
+          }
 
-            fields[i].value = userField.value;
-            workflow.outcome.fields[userField.key] = {name: fields[i].name, value: userField.value};
-            if (i >= fields.length - 1) {
-              workflow.emit('renderProfile');
-            }
-          });
-        })(i);
-      }
+          field.value = userField.value;
+          workflow.outcome.fields[userField.key] = {name: field.name, value: userField.value};
+        });
+      });
+
+      workflow.emit('renderProfile');
     });
   });
 

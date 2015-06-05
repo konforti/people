@@ -12,16 +12,16 @@ exports = module.exports = function(req, res, next) {
       return console.log('No Rules');
     }
 
-    function checkConditions(conditions) {
+    function checkConditions(conditions, user) {
       var result = 0;
       conditions.forEach(function(condition, index, array) {
         if (condition.operator === 'is') {
-          if (condition.match.indexOf(condition.condition) > -1) {
+          if (condition.match.indexOf(user[condition.condition]) > -1) {
             result ++;
           }
         }
         else if (condition.operator === 'isNot') {
-          if (condition.match.indexOf(condition.condition) === -1) {
+          if (condition.match.indexOf(user[condition.condition]) === -1) {
             result ++;
           }
         }
@@ -36,7 +36,7 @@ exports = module.exports = function(req, res, next) {
       rule.actions.forEach(function(action, index, array) {
         switch (action.action) {
           case 'webhook':
-            require('./webhok')(req, event, user)
+            require('./webhok')(req, event, user);
             break;
 
           case 'addRole':
@@ -53,7 +53,7 @@ exports = module.exports = function(req, res, next) {
 
     rules.forEach(function(rule, index, array) {
       hooks.on(rule.event, function(user) {
-        var result = checkConditions(rules[i].conditions);
+        var result = checkConditions(rule.conditions, user);
 
         if (rule.and_or === 'all' && result === rule.conditions.length
             ||

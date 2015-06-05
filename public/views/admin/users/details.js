@@ -185,15 +185,17 @@
     },
     update: function() {
       var toSave = {};
+      toSave.fields = {};
       this.$el.find('.form-role input').each(function(i, el) {
-        var key = el.name;
-        var val = el.value;
-        toSave[key] = val;
+        if (el.name === "email" || el.name === "username") {
+          toSave[el.name] = el.value;
+        }
+        else {
+          toSave.fields[el.name] = el.value;
+        }
       });
       this.$el.find('.form-role select').each(function(i, el) {
-        var key = el.name;
-        var val = el.value;
-        toSave[key] = val;
+        toSave[el.name] = el.value;
       });
       this.model.save(toSave);
     }
