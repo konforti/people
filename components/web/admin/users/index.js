@@ -82,6 +82,17 @@ exports.read = function (req, res, next) {
     });
   };
 
+  var getFields = function (callback) {
+    req.app.db.models.Field.find({}, 'name').sort('name').exec(function (err, fields) {
+      if (err) {
+        return callback(err, null);
+      }
+
+      outcome.fields = fields;
+      return callback(null, 'done');
+    });
+  };
+
   var getRoles = function (callback) {
     req.app.db.models.Role.find({}, 'name').sort('name').exec(function (err, roles) {
       if (err) {
@@ -109,6 +120,17 @@ exports.read = function (req, res, next) {
       return next(err);
     }
 
+    outcome.fields.forEach(function(field, index, array) {
+      field.value = '';
+      for(var key in outcome.record.fields) {
+        if (outcome.record.fields.hasOwnProperty(key)) {
+          if (field._id === key) {
+            field.value = outcome.record.fields[key];
+          }
+        }
+      }
+    });
+
     if (req.xhr) {
       res.send(outcome.record);
     }
@@ -118,12 +140,13 @@ exports.read = function (req, res, next) {
           record: escape(JSON.stringify(outcome.record)),
           roles: outcome.roles,
           statuses: outcome.statuses,
+          fields: outcome.fields
         }
       });
     }
   };
 
-  require('async').parallel([getRoles, getRecord, getStatusOptions], asyncFinally);
+  require('async').parallel([getFields, getRoles, getRecord, getStatusOptions], asyncFinally);
 };
 
 exports.create = function (req, res, next) {

@@ -6,7 +6,7 @@ exports = module.exports = function(app, mongoose) {
     password: String,
     email: { type: String, unique: true },
     roles: [{ type: String, ref: 'Role' }],
-    fields: { type: String, ref: 'Field' },
+    fields:{ type: mongoose.Schema.Types.Mixed, ref: 'Field' },
     status: {
       id: { type: String, ref: 'Status' },
       name: { type: String, default: '' }
