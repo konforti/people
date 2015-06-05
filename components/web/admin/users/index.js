@@ -386,6 +386,7 @@ exports.password = function (req, res, next) {
           return workflow.emit('exception', err);
         }
 
+        req.hooks.emit('userPasswordChange', user);
         workflow.outcome.user = user;
         workflow.outcome.newPassword = '';
         workflow.outcome.confirm = '';

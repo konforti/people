@@ -197,6 +197,7 @@ exports.verify = function (req, res, next) {
         return next(err);
       }
 
+      req.hooks.emit('userVerify', account);
       return res.redirect(req.user.defaultReturnUrl());
     });
   });

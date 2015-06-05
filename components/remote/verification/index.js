@@ -84,6 +84,9 @@ exports.verify = function (req, res, next) {
 
     var fieldsToSet = {isVerified: 'yes', verificationToken: ''};
     req.app.db.models.User.findByIdAndUpdate(req.user.id, fieldsToSet, function (err, user) {
+
+      req.hooks.emit('userVerify', user);
+
       var settings = req.app.getSettings();
       return res.redirect(settings.defaultReturnUrl + '?verified=true');
     });
