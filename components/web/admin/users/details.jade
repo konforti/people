@@ -66,10 +66,10 @@ block body
                 option(value='off') Off
             span.help-block <%- errfor.mode %>
 
-        - for (var key in data.fields)
+        - for (var key in data.record.fields)
             div.form-role(class!='<%- errfor.fields ? "has-error" : "" %>')
-                label #{data.fields[key].name}:
-                input.form-control(type='text', name='#{key}', value!='#{data.fields[key].value}')
+                label #{data.record.fields[key].name}:
+                input.form-control(type='text', name='#{key}', value!='#{data.record.fields[key].value}')
                 span.help-block <%- errfor.fields %>
         div.form-role
             button.btn.btn-primary.btn-update(type='button') Update

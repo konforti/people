@@ -104,27 +104,6 @@ exports.read = function (req, res, next) {
     });
   };
 
-  var getUserFields = function (callback) {
-    req.app.db.models.UserMeta.find({user: req.params.id}).sort('name').exec(function (err, fields) {
-      if (err) {
-        return callback(err, null);
-      }
-
-      req.app.db.models.Field.getAll(function(err, list) {
-        outcome.fields = {};
-        for (var i = 0; i < list.length; i++) {
-          outcome.fields[list[i]._id] = {name: list[i].name, value: ''};
-          for (var j = 0; j < fields.length; j++) {
-            if (fields[j].key === list[i]._id) {
-              outcome.fields[list[i]._id].value = typeof fields[j] !== 'undefined' ? fields[j].value : '';
-            }
-          }
-        }
-        return callback(null, 'done');
-      });
-    });
-  };
-
   var asyncFinally = function (err, results) {
     if (err) {
       return next(err);
@@ -139,13 +118,12 @@ exports.read = function (req, res, next) {
           record: escape(JSON.stringify(outcome.record)),
           roles: outcome.roles,
           statuses: outcome.statuses,
-          fields: outcome.fields
         }
       });
     }
   };
 
-  require('async').parallel([getRoles, getRecord, getStatusOptions, getUserFields], asyncFinally);
+  require('async').parallel([getRoles, getRecord, getStatusOptions], asyncFinally);
 };
 
 exports.create = function (req, res, next) {
@@ -495,12 +473,6 @@ exports.delete = function (req, res, next) {
       if (err) {
         return workflow.emit('exception', err);
       }
-
-      req.app.db.models.UserMeta.remove({user: user._id}, function(err) {
-        if (err) {
-          return workflow.emit('exception', err);
-        }
-      });
 
       workflow.emit('response');
     });

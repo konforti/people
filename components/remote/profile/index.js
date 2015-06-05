@@ -88,6 +88,8 @@ exports.updateProfile = function (req, res, next) {
               return workflow.emit('exception', err);
             }
 
+            req.hooks.emit('userUpdate', user);
+
             workflow.outcome.record = user;
             if (newEmail) {
               workflow.emit('sendVerificationEmail', token);
@@ -112,36 +114,8 @@ exports.updateProfile = function (req, res, next) {
       onError: function (err) {
         console.log('Error Sending Welcome Email: ' + err);
         workflow.emit('exception', err);
-        workflow.emit('patchFields');
+        workflow.emit('renderProfile');
       }
-    });
-  });
-
-  workflow.on('patchFields', function () {
-    workflow.outcome.fields = {};
-    req.app.db.models.Field.getAll(function(err, fields) {
-      fields.forEach(function(field, index, array) {
-        var extraFieldsToSet = {};
-        extraFieldsToSet.key = field._id;
-        extraFieldsToSet.value = req.body[fields._id];
-
-        req.app.db.models.UserMeta.findOneAndUpdate({
-          user: req.params.id,
-          key: field._id
-        }, extraFieldsToSet, {upsert: true}, function (err, userField) {
-          if (err) {
-            return workflow.emit('exception', err);
-          }
-
-          field.value = userField.value;
-          workflow.outcome.fields.push(field);
-        });
-      });
-
-      var user = workflow.outcome.record;
-      user.extra = workflow.outcome.fields;
-      req.hooks.emit('userUpdate', user);
-      workflow.emit('renderProfile');
     });
   });
 
@@ -152,11 +126,9 @@ exports.updateProfile = function (req, res, next) {
         data: {
           csrfToken: csrfToken,
           record: workflow.outcome.record,
-          fields: workflow.outcome.fields
         }
       }, function (err, html) {
         delete workflow.outcome.record;
-        delete workflow.outcome.fields;
         workflow.outcome.html = html;
         workflow.emit('response');
       }
@@ -209,27 +181,10 @@ exports.updatePassword = function (req, res, next) {
           return workflow.emit('exception', err);
         }
 
+        req.hooks.emit('userPasswordChange', user);
         workflow.outcome.record = user;
-        workflow.emit('patchFields');
+        workflow.emit('renderProfile');
       });
-    });
-  });
-
-  workflow.on('patchFields', function () {
-    workflow.outcome.fields = [];
-    req.app.db.models.Field.getAll(function(err, fields) {
-      fields.forEach(function(field, index, array) {
-        req.app.db.models.UserMeta.findOne({user: req.user.id, key: field._id}, function (err, userField) {
-          if (err) {
-            return workflow.emit('exception', err);
-          }
-
-          field.value = userField.value;
-          workflow.outcome.fields[userField.key] = {name: field.name, value: userField.value};
-        });
-      });
-
-      workflow.emit('renderProfile');
     });
   });
 
@@ -239,12 +194,10 @@ exports.updatePassword = function (req, res, next) {
     req.app.render('../remote/profile/index', {
         data: {
           csrfToken: csrfToken,
-          record: workflow.outcome.record,
-          fields: workflow.outcome.fields
+          record: workflow.outcome.record
         }
       }, function (err, html) {
         delete workflow.outcome.record;
-        delete workflow.outcome.fields;
         workflow.outcome.html = html;
         workflow.emit('response');
       }

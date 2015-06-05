@@ -106,7 +106,7 @@ exports.readCurrent = function (req, res, next) {
         return callback(err);
       }
 
-      res.send({record: record);
+      res.send({record: record});
     });
   });
 };

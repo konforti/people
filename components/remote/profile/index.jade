@@ -13,10 +13,10 @@ form#ppl-profile-form
             span.ppl-verify-email Verify
         span.help-block
 
-    - for (var key in data.fields)
+    - for (var key in data.record.fields)
         div.form-role
-            label #{data.fields[key].name}:
-            input.form-control(type='text', name='#{key}', value!='#{data.fields[key].value}')
+            label #{data.record.fields[key].name}:
+            input.form-control(type='text', name='#{key}', value!='#{data.record.fields[key].value}')
             span.help-block
     div.form-role
         button#ppl-update-profile-btn.btn.btn-primary.btn-update(type='button') Update profile
