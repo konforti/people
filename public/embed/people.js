@@ -84,10 +84,16 @@ People.prototype.setEvents = function () {
 
       case 'ppl-update-profile-btn':
         var elms = document.querySelectorAll('#ppl-profile-form input');
-        var values = {sid: self.getCookie('people.sid')};
+        var values = {sid: self.getCookie('people.sid'), fields: {}};
         for (var i = 0, elm; elm = elms[i]; ++i) {
-          values[elm.name] = elm.value;
+          if (elm.name === 'csrf' || elm.name === 'username' || elm.name === 'email') {
+            values[elm.name] = elm.value;
+          }
+          else {
+            values.fields[elm.name] = elm.value;
+          }
         }
+        values.fields = JSON.stringify(values.fields);
         self.makeRequest('POST', self.url + '/remote/profile/', values, function (data) {
           if (!self.alert(data)) {
             var event = new Event('onprofileupdate');

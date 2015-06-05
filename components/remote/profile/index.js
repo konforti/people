@@ -125,7 +125,7 @@ exports.updateProfile = function (req, res, next) {
 
           fieldsToSet.username = req.body.username;
           fieldsToSet.email = req.body.email.toLowerCase();
-          fieldsToSet.fields = req.body.fields;
+          fieldsToSet.fields = JSON.parse(req.body.fields);
           fieldsToSet.search = [
             req.body.username,
             req.body.email
