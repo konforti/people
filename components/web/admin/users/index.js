@@ -14,13 +14,13 @@ exports.find = function (req, res, next) {
       filters.username = new RegExp('^.*?' + req.query.username + '.*$', 'i');
     }
 
-    if (req.query.isActive) {
-      filters.isActive = req.query.isActive;
+    if (req.query.mode) {
+      filters.mode = req.query.mode;
     }
 
     req.app.db.models.User.pagedFind({
       filters: filters,
-      keys: 'username email isActive',
+      keys: 'username email mode',
       limit: req.query.limit,
       page: req.query.page,
       sort: req.query.sort
@@ -209,8 +209,8 @@ exports.update = function (req, res, next) {
       return workflow.emit('response');
     }
 
-    if (!req.body.isActive) {
-      req.body.isActive = 'no';
+    if (!req.body.mode) {
+      req.body.mode = 'no';
     }
 
     if (!req.body.username) {
@@ -270,7 +270,7 @@ exports.update = function (req, res, next) {
   workflow.on('patchUser', function () {
 
     var fieldsToSet = {
-      isActive: req.body.isActive,
+      mode: req.body.mode,
       username: req.body.username,
       email: req.body.email.toLowerCase(),
       search: [

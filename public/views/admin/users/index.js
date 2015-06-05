@@ -11,7 +11,7 @@
       _id: undefined,
       username: '',
       email: '',
-      isActive: ''
+      mode: ''
     },
     url: function() {
       return '/admin/users/'+ (this.isNew() ? '' : this.id +'/');
@@ -34,7 +34,7 @@
   app.Filter = Backbone.Model.extend({
     defaults: {
       username: '',
-      isActive: '',
+      mode: '',
       sort: '',
       limit: ''
     }

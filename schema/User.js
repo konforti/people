@@ -12,7 +12,7 @@ exports = module.exports = function(app, mongoose) {
     },
     statusLog: [mongoose.modelSchemas.StatusLog],
     notes: [mongoose.modelSchemas.Note],
-    isActive: String,
+    mode: String,
     isVerified: { type: String, default: '' },
     verificationToken: { type: String, default: '' },
     timeCreated: { type: Date, default: Date.now },

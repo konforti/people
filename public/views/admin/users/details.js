@@ -30,7 +30,7 @@
       success: false,
       errors: [],
       errfor: {},
-      isActive: '',
+      mode: '',
       username: '',
       email: ''
     },
@@ -169,7 +169,7 @@
     syncUp: function() {
       this.model.set({
         _id: app.mainView.model.id,
-        isActive: app.mainView.model.get('isActive'),
+        mode: app.mainView.model.get('mode'),
         username: app.mainView.model.get('username'),
         email: app.mainView.model.get('email')
       });

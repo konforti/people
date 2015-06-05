@@ -111,7 +111,7 @@ exports.signup = function (req, res, next) {
           }
 
           var fieldsToSet = {
-            isActive: 'yes',
+            mode: 'yes',
             isVerified: 'no',
             verificationToken: hash,
             username: req.body.username,

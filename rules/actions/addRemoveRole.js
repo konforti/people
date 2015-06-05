@@ -1,5 +1,9 @@
 exports = module.exports = function(req, op, action, user) {
-  require('async').series([
+  require('async').waterfall([
+    /**
+     * verify
+     * @param callback
+     */
     function(callback) {
       if (!action.value) {
         console.log('There is no value.');
@@ -18,6 +22,11 @@ exports = module.exports = function(req, op, action, user) {
 
       callback(null);
     },
+
+    /**
+     * Set roles
+     * @param callback
+     */
     function(callback) {
       var roles = user.roles;
 
@@ -26,6 +35,8 @@ exports = module.exports = function(req, op, action, user) {
         if (index > -1) {
           roles.splice(index, 1);
         }
+
+        callback(null, roles);
       }
 
       else if (op === 'add') {
@@ -40,13 +51,20 @@ exports = module.exports = function(req, op, action, user) {
             }
           });
 
+          callback(null, roles);
         });
-
       }
+    },
 
+    /**
+     * Patch roles
+     * @param callback
+     */
+    function(roles, callback) {
       var fieldsToSet = {
         roles: roles
       };
+
       req.app.db.models.User.findByIdAndUpdate(user.id, fieldsToSet, function (err, updatedUser) {
         if (err) {
           return console.log(err);
@@ -62,6 +80,6 @@ exports = module.exports = function(req, op, action, user) {
       });
     }
   ], function (err, result) {
-    return result;
+    return {user: result};
   });
-}
+};

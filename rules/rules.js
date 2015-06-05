@@ -36,8 +36,7 @@ exports = module.exports = function(req, res, next) {
       rule.actions.forEach(function(action, index, array) {
         switch (action.action) {
           case 'webhook':
-            var payload = {event: rule.event, user: user};
-            hooks.webhook(payload);
+            require('./webhok')(req, event, user)
             break;
 
           case 'addRole':

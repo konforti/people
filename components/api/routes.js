@@ -58,7 +58,7 @@ exports = module.exports = function (app) {
   app.get('/api/v1/persons/:id/', require('./persons').read);
   // Update a User extra fields.
   app.put('/api/v1/persons/:id/fields/', require('./persons').updateFields);
-  // Update a User (isActive).
+  // Update a User (mode).
   app.put('/api/v1/persons/:id/', require('./persons').update);
   // Assign role to a user.
   app.post('/api/v1/persons/:id/roles/', require('./persons').createRoles);

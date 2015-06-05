@@ -59,12 +59,12 @@ block body
             label Email:
             input.form-control(type='text', name='email', value!='<%= email %>')
             span.help-block <%- errfor.email %>
-        div.form-role(class!='<%- errfor.isActive ? "has-error" : "" %>')
-            label Is Active:
-            select.form-control(name='isActive')
-                option(value='yes') yes
-                option(value='no') no
-            span.help-block <%- errfor.isActive %>
+        div.form-role(class!='<%- errfor.mode ? "has-error" : "" %>')
+            label Mode:
+            select.form-control(name='mode')
+                option(value='on') On
+                option(value='off') Off
+            span.help-block <%- errfor.mode %>
 
         - for (var key in data.fields)
             div.form-role(class!='<%- errfor.fields ? "has-error" : "" %>')

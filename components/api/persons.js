@@ -22,13 +22,13 @@ exports.find = function (req, res, next) {
       filters.username = new RegExp('^.*?' + req.query.username + '.*$', 'i');
     }
 
-    if (req.query.isActive) {
-      filters.isActive = req.query.isActive;
+    if (req.query.mode) {
+      filters.mode = req.query.mode;
     }
 
     req.app.db.models.User.pagedFind({
       filters: filters,
-      keys: 'username email isActive',
+      keys: 'username email mode',
       limit: req.query.limit,
       page: req.query.page,
       sort: req.query.sort
@@ -207,7 +207,7 @@ exports.update = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function () {
-    // if (req.body.isActive) {}
+    // if (req.body.mode) {}
 
     workflow.emit('patchUser');
   });
@@ -215,8 +215,8 @@ exports.update = function (req, res, next) {
   workflow.on('patchUser', function () {
     var fieldsToSet = {};
 
-    if (req.body.isActive) {
-      fieldsToSet.isActive = req.body.isActive;
+    if (req.body.mode) {
+      fieldsToSet.mode = req.body.mode;
 
       req.app.db.models.User.findByIdAndUpdate(req.params.id, fieldsToSet, function (err, user) {
         if (err) {
@@ -242,7 +242,7 @@ exports.updateFields = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function () {
-    // if (req.body.isActive) {}
+    // if (req.body.mode) {}
 
     workflow.emit('patchUser');
   });

@@ -290,7 +290,7 @@ var signupSocial = exports.signupSocial = function (req, res, next) {
 
   workflow.on('createUser', function () {
     var fieldsToSet = {
-      isActive: 'yes',
+      mode: 'yes',
       isVerified: 'yes',
       username: workflow.username,
       email: workflow.email.toLowerCase(),

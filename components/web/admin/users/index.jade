@@ -32,11 +32,11 @@ block body
                     label Username Search
                     input.form-control(name='username', type='text')
                 div.col-sm-2
-                    label Is Active
-                    select.form-control(name='isActive')
-                        option(value='') either
-                        option(value='yes') yes
-                        option(value='no') no
+                    label Mode
+                    select.form-control(name='mode')
+                        option(value='') Either
+                        option(value='on') On
+                        option(value='off') Off
                 div.col-sm-2
                     label Sort By
                     select.form-control(name='sort')
@@ -70,7 +70,7 @@ block body
             input.btn.btn-default.btn-sm.btn-details(type='button', value='Edit')
         td <%= username %>
         td <%= email %>
-        td <%= isActive %>
+        td <%= mode %>
         td <%= _id %>
 
     script(type='text/template', id='tmpl-results-empty-row')
