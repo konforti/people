@@ -169,6 +169,7 @@ exports.signupTwitter = function (req, res, next) {
         res.render('signup/social', {email: ''});
       }
       else {
+        var settings = req.app.getSettings();
         res.render('signup/index', {
           oauthMessage: '',
           oauthTwitter: !!settings.twitterKey,
@@ -198,6 +199,7 @@ exports.signupGitHub = function (req, res, next) {
         res.render('signup/social', {email: info.profile.emails && info.profile.emails[0].value || ''});
       }
       else {
+        var settings = req.app.getSettings();
         res.render('signup/index', {
           oauthMessage: '',
           oauthTwitter: !!settings.twitterKey,
@@ -226,6 +228,7 @@ exports.signupFacebook = function (req, res, next) {
         res.render('signup/social', {email: info.profile.emails && info.profile.emails[0].value || ''});
       }
       else {
+        var settings = req.app.getSettings();
         res.render('signup/index', {
           oauthMessage: '',
           oauthTwitter: !!settings.twitterKey,
@@ -254,6 +257,7 @@ exports.signupGoogle = function (req, res, next) {
         res.render('signup/social', {email: info.profile.emails && info.profile.emails[0].value || ''});
       }
       else {
+        var settings = req.app.getSettings();
         res.render('signup/index', {
           oauthMessage: '',
           oauthTwitter: !!settings.twitterKey,
@@ -286,6 +290,7 @@ exports.signupTumblr = function (req, res, next) {
         res.render('signup/social', {email: info.profile.emails && info.profile.emails[0].value || ''});
       }
       else {
+        var settings = req.app.getSettings();
         res.render('signup/index', {
           oauthMessage: '',
           oauthTwitter: !!settings.twitterKey,

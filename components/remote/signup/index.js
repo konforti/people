@@ -17,9 +17,9 @@ exports.info = function (req, res) {
     var socials = ['twitter', 'facebook', 'github', 'google', 'tumblr'];
     var actives = [];
     var settings = req.app.getSettings();
-    for (var name in socials) {
-      actives.push(settings[name + 'Key']);
-    }
+    socials.forEach(function(social, index, array) {
+      actives.push(settings[social + 'Key']);
+    });
 
     workflow.outcome.info = {
       socials: actives

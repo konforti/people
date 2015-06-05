@@ -7,7 +7,7 @@ var getHash = function(req, token) {
     .createHmac('sha256', req.app.config.cryptoKey)
     .update(token)
     .digest('base64');
-}
+};
 
 exports.forgot = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);

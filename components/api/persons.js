@@ -73,10 +73,9 @@ exports.find = function (req, res, next) {
  * @param next
  */
 exports.read = function (req, res, next) {
-  var outcome = {};
   req.app.db.models.User.findById(req.params.id).populate('roles', 'name').exec(function (err, record) {
     if (err) {
-      return callback(err);
+      return next(err);
     }
     res.send({record: record});
   });
@@ -94,16 +93,16 @@ exports.readCurrent = function (req, res, next) {
 
   collection.find({_id: sid}).toArray(function (err, record) {
     if (err) {
-      return callback(err, null);
+      return next(err, null);
     }
 
     if (!record || !record[0]) {
-      return callback('No Record', null);
+      return next('No Record', null);
     }
     var session = JSON.parse(record[0].session);
     req.app.db.models.User.findById(session.passport.user).populate('roles', 'name').exec(function (err, record) {
       if (err) {
-        return callback(err);
+        return next(err);
       }
 
       res.send({record: record});

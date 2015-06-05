@@ -12,7 +12,7 @@ exports.readProfile = function (req, res, next) {
 
   req.app.db.models.User.findById(req.user.id).exec(function (err, record) {
     if (err) {
-      return callback(err);
+      return next(err);
     }
 
     var csrfToken = crypto.pseudoRandomBytes(16).toString('hex');

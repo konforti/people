@@ -129,11 +129,13 @@ exports.read = function (req, res, next) {
 
   var getFields = function (callback) {
     for (var i in outcome.fields) {
-      for (var j in outcome.fields[i]) {
-        // Set field value to default value.
-
-        outcome.fields[i][j].value = outcome.record[j];
-
+      if (outcome.fields.hasOwnProperty(i)) {
+        for (var j in outcome.fields[i]) {
+          // Set field value to default value.
+          if (outcome.fields[i].hasOwnProperty(j)) {
+            outcome.fields[i][j].value = outcome.record[j];
+          }
+        }
       }
     }
 
@@ -191,7 +193,9 @@ exports.update = function (req, res, next) {
 
   workflow.on('patchSettings', function () {
     for (var i in settings) {
-      settings[i] = req.body[i];
+      if (settings.hasOwnProperty(i)) {
+        settings[i] = req.body[i];
+      }
     }
 
     fs.writeFile(process.env.PWD + '/settings.json', JSON.stringify(settings, null, '\t'), function (err) {
