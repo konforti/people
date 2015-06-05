@@ -11,7 +11,7 @@ exports = module.exports = function(app, mongoose) {
   });
 
   RuleSchema.statics.getAll = function(done) {
-    this.find({}, '_id').sort('name').exec(function (err, rules) {
+    this.find().sort('name').exec(function (err, rules) {
       return done(err, rules);
     });
   };

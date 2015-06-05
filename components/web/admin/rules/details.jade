@@ -43,16 +43,16 @@ block body
                 div.form-role(class!='<%- errfor.event ? "has-error" : "" %>')
                     label Event:
                     select.form-control(name='event')
-                        option(value='userCreated') User Created
-                        option(value='userUpdated') User Updated
-                        option(value='userDeleted') User Deleted
-                        option(value='userLoggedIn') User Logged In
-                        option(value='userLoggedOut') User Logged Out
-                        option(value='userGotRole') User Got Role
-                        option(value='userLostRole') User Lost Role
-                        option(value='userStatusChanged') User Status Changed
-                        option(value='userPasswordChanged') User Password Changed
-                        option(value='userVerified') User Verified
+                        option(value='userCreate') User Create
+                        option(value='userUpdate') User Update
+                        option(value='userDelete') User Delete
+                        option(value='userLogin') User Login
+                        option(value='userLogout') User Logout
+                        option(value='userGetRole') User Get Role
+                        option(value='userLoseRole') User Lose Role
+                        option(value='userStatusChanged') User Status Change
+                        option(value='userPasswordChanged') User Password Change
+                        option(value='userVerify') User Verify
                     span.help-block <%- errfor.On %>
 
         fieldset
@@ -91,10 +91,8 @@ block body
 
             div.form-role
                 select.form-control(name='operator')
-                    option(value='is') IS
-                    option(value='isNot') IS NOT
-                    option(value='IsIn') IS IN
-                    option(value='IsNotIn') IS NOT IN
+                    option(value='is') IS / IS IN
+                    option(value='isNot') IS NOT / IS NOT IN
 
             div.form-role
                 input.form-control(type='text', name='match', value!='<%= name %>')
@@ -103,17 +101,21 @@ block body
                 i.fa.fa-trash-o.fa-inverce
 
     script(type='text/template', id='tmpl-actions')
-        div.form-role
-            label Do:
-            select.form-control(name='action')
-                option(value='nothing') Nothing
-                option(value='webhook') Webhook
-                option(value='addRole') Add Role
-                option(value='removeRole') Remove Role
-                option(value='activate') Activate
-                option(value='inactivate') Inactivate
-                option(value='setStatus') Set Status
-                option(value='addNote') Add Note
+        div.action
+            div.form-role
+                label Do:
+                select.form-control(name='action')
+                    option(value='nothing') Nothing
+                    option(value='webhook') Webhook
+                    option(value='addRole') Add Role
+                    option(value='removeRole') Remove Role
+                    option(value='activate') Activate
+                    option(value='inactivate') Inactivate
+                    option(value='setStatus') Set Status
+                    option(value='addNote') Add Note
+
+            div.form-role
+                input.form-control(type='text', name='value', value!='<%= name %>')
 
     script(type='text/template', id='tmpl-delete')
         legend Danger Zone

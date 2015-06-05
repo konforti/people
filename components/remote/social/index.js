@@ -306,7 +306,7 @@ var signupSocial = exports.signupSocial = function (req, res, next) {
         return workflow.emit('exception', err);
       }
 
-      req.hooks.emit('afterUserCreated', user);
+      req.hooks.emit('userCreate', user);
       workflow.user = user;
       workflow.emit('sendWelcomeEmail');
     });
@@ -377,7 +377,7 @@ var loginSocial = function (req, res, workflow) {
     };
     delete req.session.socialProfile;
 
-    req.hooks.emit('afterUserLogin', workflow.outcome.user);
+    req.hooks.emit('userLogin', workflow.outcome.user);
 
     if (!req.body.email) {
       res.render('../remote/social/success', {data: JSON.stringify(workflow.outcome)});

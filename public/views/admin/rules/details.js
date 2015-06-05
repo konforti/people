@@ -98,16 +98,20 @@
       }
 
       $('#conditions').html(this.templateConditions( this.model.attributes.conditions ));
-      for (var key in this.model.attributes.conditions) {
-        if (this.model.attributes.conditions.hasOwnProperty(key)) {
-          $('#conditions').find('[name="'+ key +'"]').val(this.model.attributes.conditions[key]);
+      for (var i = 0; i < this.model.attributes.conditions.length; i++) {
+        for (var key in this.model.attributes.conditions[i]) {
+          if (this.model.attributes.conditions[i].hasOwnProperty(key)) {
+            $('#conditions').find('[name="'+ key +'"]').val(this.model.attributes.conditions[i][key]);
+          }
         }
       }
 
       $('#actions').html(this.templateActions( this.model.attributes.actions ));
-      for (var key in this.model.attributes.actions) {
-        if (this.model.attributes.actions.hasOwnProperty(key)) {
-          this.$el.find('[name="'+ key +'"]').val(this.model.attributes[key]);
+      for (var i = 0; i < this.model.attributes.actions.length; i++) {
+        for (var key in this.model.attributes.actions[i]) {
+          if (this.model.attributes.actions[i].hasOwnProperty(key)) {
+            $('#actions').find('[name="'+ key +'"]').val(this.model.attributes.actions[i][key]);
+          }
         }
       }
     },
@@ -117,7 +121,7 @@
         var condition = {
           condition: $(el).find('[name="condition"]').val(),
           operator: $(el).find('[name="operator"]').val(),
-          match: $(el).find('[name="match"]').val()
+          match: $(el).find('[name="match"]').val().trim().split(',')
         };
         conditions.push(condition);
       });
@@ -126,14 +130,14 @@
       $('.action').each(function(i, el) {
         var action = {
           action: $(el).find('[name="action"]').val(),
-          value: $(el).find('[name="value"]').val()
+          value: $(el).find('[name="value"]').val().trim().split(',')
         };
         actions.push(action);
       });
 
       this.model.save({
         name: this.$el.find('[name="name"]').val(),
-        events: this.$el.find('[name="event"]').val(),
+        event: this.$el.find('[name="event"]').val(),
         and_or: this.$el.find('[name="and-or"]').val(),
         conditions: conditions,
         actions: actions

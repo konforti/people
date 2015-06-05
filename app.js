@@ -119,7 +119,7 @@ app.use(function(req, res, next) {
 
 // Rules middleware.
 app.use(function(req, res, next) {
-  require('./rules')(req, res, next);
+  require('./rules/rules')(req, res, next);
   next();
 });
 
