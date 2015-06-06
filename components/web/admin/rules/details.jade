@@ -33,16 +33,17 @@ block body
                 | Changes have been saved.
             | <% } %>
 
-        div.form-role(class!='<%- errfor.name ? "has-error" : "" %>')
-            label Name:
-            input.form-control(type='text', name='name', value!='<%= name %>')
-            span.help-block <%- errfor.name %>
+        fieldset
+            div.event
+                legend Name
+                div.form-role(class!='<%- errfor.name ? "has-error" : "" %>')
+                    input.form-control(type='text', name='name', value!='<%= name %>')
+                    span.help-block <%- errfor.name %>
 
         fieldset
             div.event
                 legend Event
                 div.form-role(class!='<%- errfor.event ? "has-error" : "" %>')
-                    label Event:
                     select.form-control(name='event')
                         option(value='userCreate') User Create
                         option(value='userUpdate') User Update
@@ -64,8 +65,8 @@ block body
                         option(value='any') ANY
                     span.help-block <%- errfor.and_or %>
 
-                span Conditions:
-                button.btn.btn-success.btn-addCondition(type='button') + Add
+                button.btn.btn-success.btn-addCondition(type='button') Add
+                hr
 
                 div#conditions
 
@@ -73,15 +74,18 @@ block body
             div
                 legend Actions
 
+                button.btn.btn-success.btn-addAction(type='button') Add
+                hr
+
                 div#actions
 
         div.form-role
             button.btn.btn-primary.btn-update.btn-rule-update(type='button') Update
 
     script(type='text/template', id='tmpl-conditions')
+        | <% _.each(conditions, function(condition) { %>
         div.condition
             div.form-role
-                label IF User's:
                 select.form-control(name='condition')
                     option(value='email') Email
                     option(value='name') Name
@@ -99,24 +103,30 @@ block body
 
             button.btn.btn-danger.btn-delete(type='button')
                 i.fa.fa-trash-o.fa-inverce
+            hr
+        | <% }); %>
 
     script(type='text/template', id='tmpl-actions')
-        div.action
-            div.form-role
-                label Do:
-                select.form-control(name='action')
-                    option(value='nothing') Nothing
-                    option(value='webhook') Webhook
-                    option(value='addRole') Add Role
-                    option(value='removeRole') Remove Role
-                    option(value='activate') Activate
-                    option(value='inactivate') Inactivate
-                    //option(value='setStatus') Set Status
-                    //option(value='addNote') Add Note
-                    //option(value='sendMail') Send mail
+            | <% _.each(actions, function(action) { %>
+            div.action
+                div.form-role
+                    select.form-control(name='action')
+                        option(value='nothing') Do Nothing
+                        option(value='webhook') Send Webhook
+                        option(value='addRole') Add Role
+                        option(value='removeRole') Remove Role
+                        option(value='activate') Set Activate
+                        //option(value='setStatus') Set Status
+                        //option(value='addNote') Add Note
+                        //option(value='sendMail') Send mail
 
-            div.form-role
-                input.form-control(type='text', name='value', value!='<%= name %>')
+                div.form-role
+                    input.form-control(type='text', name='value', value!='<%= name %>')
+
+                button.btn.btn-danger.btn-delete(type='button')
+                    i.fa.fa-trash-o.fa-inverce
+                hr
+            | <% }); %>
 
     script(type='text/template', id='tmpl-delete')
         legend Danger Zone

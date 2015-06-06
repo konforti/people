@@ -1,14 +1,14 @@
 /* global app:true */
 
-(function() {
+(function () {
   'use strict';
 
   app = app || {};
 
   app.Rule = Backbone.Model.extend({
     idAttribute: '_id',
-    url: function() {
-      return '/admin/rules/'+ this.id +'/';
+    url: function () {
+      return '/admin/rules/' + this.id + '/';
     }
   });
 
@@ -19,8 +19,8 @@
       errors: [],
       errfor: {}
     },
-    url: function() {
-      return '/admin/rules/'+ app.mainView.model.id +'/';
+    url: function () {
+      return '/admin/rules/' + app.mainView.model.id + '/';
     }
   });
 
@@ -36,10 +36,10 @@
       conditions: [],
       actions: []
     },
-    url: function() {
-      return '/admin/rules/'+ app.mainView.model.id +'/';
+    url: function () {
+      return '/admin/rules/' + app.mainView.model.id + '/';
     },
-    parse: function(response) {
+    parse: function (response) {
       if (response.rule) {
         app.mainView.model.set(response.rule);
         delete response.rule;
@@ -51,36 +51,36 @@
 
   app.HeaderView = Backbone.View.extend({
     el: '#header',
-    template: _.template( $('#tmpl-header').html() ),
-    initialize: function() {
+    template: _.template($('#tmpl-header').html()),
+    initialize: function () {
       this.model = app.mainView.model;
       this.listenTo(this.model, 'change', this.render);
       this.render();
     },
-    render: function() {
-      this.$el.html(this.template( this.model.attributes ));
+    render: function () {
+      this.$el.html(this.template(this.model.attributes));
     }
   });
 
   app.DetailsView = Backbone.View.extend({
     el: '#details',
-    template: _.template( $('#tmpl-details').html() ),
-    templateConditions: _.template( $('#tmpl-conditions').html() ),
-    templateActions: _.template( $('#tmpl-actions').html() ),
+    template: _.template($('#tmpl-details').html()),
+    templateConditions: _.template($('#tmpl-conditions').html()),
+    templateActions: _.template($('#tmpl-actions').html()),
     events: {
       'click .btn-update': 'update',
       'click .btn-addCondition': 'addCondition',
       'click .btn-addAction': 'addAction',
       'click .btn-delete': 'deleteItem'
     },
-    initialize: function() {
+    initialize: function () {
       this.model = new app.Details();
       this.syncUp();
       this.listenTo(app.mainView.model, 'change', this.syncUp);
       this.listenTo(this.model, 'sync', this.render);
       this.render();
     },
-    syncUp: function() {
+    syncUp: function () {
       this.model.set({
         name: app.mainView.model.get('name'),
         event: app.mainView.model.get('event'),
@@ -89,35 +89,33 @@
         actions: app.mainView.model.get('actions')
       });
     },
-    render: function() {
-      this.$el.html(this.template( this.model.attributes ));
+    render: function () {
+      var _this = this;
+
+      this.$el.html(this.template(this.model.attributes));
       for (var key in this.model.attributes) {
         if (this.model.attributes.hasOwnProperty(key)) {
-          this.$el.find('[name="'+ key +'"]').val(this.model.attributes[key]);
+          this.$el.find('[name="' + key + '"]').val(this.model.attributes[key]);
         }
       }
 
-      $('#conditions').html(this.templateConditions( this.model.attributes.conditions ));
-      for (var i = 0; i < this.model.attributes.conditions.length; i++) {
-        for (var key in this.model.attributes.conditions[i]) {
-          if (this.model.attributes.conditions[i].hasOwnProperty(key)) {
-            $('#conditions').find('[name="'+ key +'"]').val(this.model.attributes.conditions[i][key]);
-          }
+      $('#conditions').html(this.templateConditions(this.model.attributes));
+      $('#conditions').find('.condition').each(function (i, el) {
+        for (var key in _this.model.attributes.conditions[i]) {
+          $(el).find('[name="' + key + '"]').val(_this.model.attributes.conditions[i][key]);
         }
-      }
+      });
 
-      $('#actions').html(this.templateActions( this.model.attributes.actions ));
-      for (var i = 0; i < this.model.attributes.actions.length; i++) {
-        for (var key in this.model.attributes.actions[i]) {
-          if (this.model.attributes.actions[i].hasOwnProperty(key)) {
-            $('#actions').find('[name="'+ key +'"]').val(this.model.attributes.actions[i][key]);
-          }
+      $('#actions').html(this.templateActions(this.model.attributes));
+      $('#actions').find('.action').each(function (i, el) {
+        for (var key in _this.model.attributes.actions[i]) {
+          $(el).find('[name="' + key + '"]').val(_this.model.attributes.actions[i][key]);
         }
-      }
+      });
     },
-    update: function() {
+    update: function () {
       var conditions = [];
-      $('.condition').each(function(i, el) {
+      $('.condition').each(function (i, el) {
         var condition = {
           condition: $(el).find('[name="condition"]').val(),
           operator: $(el).find('[name="operator"]').val(),
@@ -127,7 +125,7 @@
       });
 
       var actions = [];
-      $('.action').each(function(i, el) {
+      $('.action').each(function (i, el) {
         var action = {
           action: $(el).find('[name="action"]').val(),
           value: $(el).find('[name="value"]').val().trim().split(',')
@@ -143,32 +141,35 @@
         actions: actions
       });
     },
-    addCondition: function() {
-      $('#conditions').append(this.templateConditions( this.model.attributes.conditions ));
+    addCondition: function () {
+      $('#conditions').append(this.templateConditions({conditions: [null]}));
     },
-    deleteItem: function(e) {
+    addAction: function () {
+      $('#actions').append(this.templateActions({actions: [null]}));
+    },
+    deleteItem: function (e) {
       $(e.currentTarget).parent().remove();
     }
   });
 
   app.DeleteView = Backbone.View.extend({
     el: '#delete',
-    template: _.template( $('#tmpl-delete').html() ),
+    template: _.template($('#tmpl-delete').html()),
     events: {
       'click .btn-delete': 'delete'
     },
-    initialize: function() {
-      this.model = new app.Delete({ _id: app.mainView.model.id });
+    initialize: function () {
+      this.model = new app.Delete({_id: app.mainView.model.id});
       this.listenTo(this.model, 'sync', this.render);
       this.render();
     },
-    render: function() {
-      this.$el.html(this.template( this.model.attributes ));
+    render: function () {
+      this.$el.html(this.template(this.model.attributes));
     },
-    delete: function() {
+    delete: function () {
       if (confirm('Are you sure?')) {
         this.model.destroy({
-          success: function(model, response) {
+          success: function (model, response) {
             if (response.success) {
               location.href = '/admin/rules/';
             }
@@ -183,9 +184,9 @@
 
   app.MainView = Backbone.View.extend({
     el: '.page .container',
-    initialize: function() {
+    initialize: function () {
       app.mainView = this;
-      this.model = new app.Rule( JSON.parse( unescape($('#data-record').html()) ) );
+      this.model = new app.Rule(JSON.parse(unescape($('#data-record').html())));
 
       app.headerView = new app.HeaderView();
       app.detailsView = new app.DetailsView();
@@ -193,7 +194,7 @@
     }
   });
 
-  $(document).ready(function() {
+  $(document).ready(function () {
     app.mainView = new app.MainView();
   });
 }());
