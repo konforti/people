@@ -46,6 +46,14 @@ exports = module.exports = function(req, res, next) {
           case 'removeRole':
             require('./addRemoveRole')(req, 'remove', action, user);
             break;
+
+          case 'active':
+            require('./modeOnOff')(req, 'on', action, user);
+            break;
+
+          case 'inActive':
+            require('./modeOnOff')(req, 'off', action, user);
+            break;
         }
       });
 
