@@ -2,6 +2,7 @@ extends ./../../layouts/admin
 
 block head
     title Rules / Details
+    link(rel='stylesheet', href='/views/admin/rules/details.min.css?#{cacheBreaker}')
 
 block feet
     script(src='/views/admin/rules/details.min.js?#{cacheBreaker}')
@@ -75,7 +76,7 @@ block body
                 div#actions
 
         div.form-role
-            button.btn.btn-primary.btn-update(type='button') Update
+            button.btn.btn-primary.btn-update.btn-rule-update(type='button') Update
 
     script(type='text/template', id='tmpl-conditions')
         div.condition
