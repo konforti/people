@@ -102,14 +102,18 @@
       $('#conditions').html(this.templateConditions(this.model.attributes));
       $('#conditions').find('.condition').each(function (i, el) {
         for (var key in _this.model.attributes.conditions[i]) {
-          $(el).find('[name="' + key + '"]').val(_this.model.attributes.conditions[i][key]);
+          if (_this.model.attributes.conditions[i].hasOwnProperty(key)) {
+            $(el).find('[name="' + key + '"]').val(_this.model.attributes.conditions[i][key]);
+          }
         }
       });
 
       $('#actions').html(this.templateActions(this.model.attributes));
       $('#actions').find('.action').each(function (i, el) {
         for (var key in _this.model.attributes.actions[i]) {
-          $(el).find('[name="' + key + '"]').val(_this.model.attributes.actions[i][key]);
+          if (_this.model.attributes.actions[i].hasOwnProperty(key)) {
+            $(el).find('[name="' + key + '"]').val(_this.model.attributes.actions[i][key]);
+          }
         }
       });
     },

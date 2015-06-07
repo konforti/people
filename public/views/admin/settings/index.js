@@ -77,7 +77,9 @@
     },
     syncUp: function() {
       for (var key in app.mainView.model.attributes) {
-        this.model.set(key, app.mainView.model.get(key));
+        if (app.mainView.model.attributes.hasOwnProperty(key)) {
+          this.model.set(key, app.mainView.model.get(key));
+        }
       }
 
       this.modelReset.set('secretKey', app.mainView.model.get('secretKey'));

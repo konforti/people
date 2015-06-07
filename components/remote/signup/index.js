@@ -17,8 +17,11 @@ exports.info = function (req, res) {
     var socials = ['twitter', 'facebook', 'github', 'google', 'tumblr'];
     var actives = [];
     var settings = req.app.getSettings();
+
     socials.forEach(function(social, index, array) {
-      actives.push(settings[social + 'Key']);
+      if (settings[social + 'Key'].length > 0) {
+        actives.push(social);
+      }
     });
 
     workflow.outcome.info = {
@@ -27,6 +30,8 @@ exports.info = function (req, res) {
 
     workflow.emit('response');
   });
+
+  workflow.emit('validate');
 };
 
 /**
