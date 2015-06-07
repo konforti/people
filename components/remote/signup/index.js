@@ -259,7 +259,7 @@ exports.login = function (req, res, next) {
   });
 
   workflow.on('attemptLogin', function () {
-    req._passport.instance.authenticate('local', function (err, user, info) {console.log(user);
+    req._passport.instance.authenticate('local', function (err, user, info) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -295,7 +295,7 @@ exports.login = function (req, res, next) {
           workflow.emit('response');
         });
       }
-    })(req, res);
+    });
   });
 
   workflow.emit('validate');

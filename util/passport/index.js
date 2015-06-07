@@ -10,7 +10,7 @@ exports = module.exports = function(app, passport) {
 
   passport.use(new LocalStrategy(
     function(username, password, done) {
-      var conditions = { mode: 'yes' };
+      var conditions = { mode: 'on' };
       if (username.indexOf('@') === -1) {
         conditions.username = username;
       }
