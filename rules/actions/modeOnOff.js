@@ -1,4 +1,4 @@
-exports = module.exports = function(req, op, action, user) {
+exports = module.exports = function(req, op, action, user) {console.log(op);
   require('async').series([
     /**
      * verify
