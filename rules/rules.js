@@ -12,7 +12,7 @@ exports = module.exports = function(req, res, next) {
       return console.log('No Rules');
     }
 
-    function checkConditions(conditions, user) {
+    function checkConditions(conditions, user, next) {
       var result = 0;
       conditions.forEach(function(condition, index, array) {
         if (condition.operator === 'is') {
@@ -26,7 +26,7 @@ exports = module.exports = function(req, res, next) {
           }
         }
 
-        return result;
+        next(result);
       });
     }
 
@@ -36,23 +36,23 @@ exports = module.exports = function(req, res, next) {
       rule.actions.forEach(function(action, index, array) {
         switch (action.action) {
           case 'webhook':
-            require('./webhok')(req, event, user);
+            require('./actions/webhook')(req, event, user);
             break;
 
           case 'addRole':
-            require('./addRemoveRole')(req, 'add', action, user);
+            require('./actions/addRemoveRole')(req, 'add', action, user);
             break;
 
           case 'removeRole':
-            require('./addRemoveRole')(req, 'remove', action, user);
+            require('./actions/addRemoveRole')(req, 'remove', action, user);
             break;
 
           case 'active':
-            require('./modeOnOff')(req, 'on', action, user);
+            require('./actions/modeOnOff')(req, 'on', action, user);
             break;
 
           case 'inActive':
-            require('./modeOnOff')(req, 'off', action, user);
+            require('./actions/modeOnOff')(req, 'off', action, user);
             break;
         }
       });
@@ -61,15 +61,14 @@ exports = module.exports = function(req, res, next) {
 
     rules.forEach(function(rule, index, array) {
       hooks.on(rule.event, function(user) {
-        var result = checkConditions(rule.conditions, user);
-
-        if (rule.and_or === 'all' && result === rule.conditions.length
+        checkConditions(rule.conditions, user, function(result) {
+          if (rule.and_or === 'all' && result === rule.conditions.length
             ||
             rule.and_or === 'any' && result > 0)
-        {
-          doAction(rule, user);
-        }
-
+          {
+            doAction(rule, user);
+          }
+        });
       });
     });
   });

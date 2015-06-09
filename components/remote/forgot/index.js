@@ -3,8 +3,9 @@
 var crypto = require('crypto');
 
 var getHash = function(req, token) {
+  var settings = req.app.getSettings();
   return crypto
-    .createHmac('sha256', req.app.config.cryptoKey)
+    .createHmac('sha256', settings.cryptoKey)
     .update(token)
     .digest('base64');
 };

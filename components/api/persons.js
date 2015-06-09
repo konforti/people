@@ -88,8 +88,9 @@ exports.read = function (req, res, next) {
  * @param next
  */
 exports.readCurrent = function (req, res, next) {
+  var settings = req.app.getSettings();
   var collection = req.app.db.collection('sessions');
-  var sid = signature.unsign(req.params.sid, req.app.config.cryptoKey);
+  var sid = signature.unsign(req.params.sid, settings.cryptoKey);
 
   collection.find({_id: sid}).toArray(function (err, record) {
     if (err) {

@@ -364,7 +364,8 @@ var loginSocial = function (req, res, workflow) {
       workflow.user.avatar = 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g';
     }
 
-    var sid = signature.sign(req.sessionID, req.app.config.cryptoKey);
+    var settings = req.app.getSettings();
+    var sid = signature.sign(req.sessionID, settings.cryptoKey);
 
     var settings = req.app.getSettings();
     workflow.outcome.success = !workflow.hasErrors();

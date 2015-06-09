@@ -87,7 +87,8 @@ exports.updateProfile = function (req, res, next) {
       workflow.outcome.errfor.form = 'invalid csrf token';
     }
 
-    if (req.sessionID !== signature.unsign(req.body.sid, req.app.config.cryptoKey)) {
+    var settings = req.app.getSettings();
+    if (req.sessionID !== signature.unsign(req.body.sid, settings.cryptoKey)) {
       workflow.outcome.errfor.session = 'invalid session';
     }
 
@@ -230,7 +231,8 @@ exports.updatePassword = function (req, res, next) {
       workflow.outcome.errfor.password = 'password not match';
     }
 
-    if (req.sessionID !== signature.unsign(req.body.sid, req.app.config.cryptoKey)) {
+    var settings = req.app.getSettings();
+    if (req.sessionID !== signature.unsign(req.body.sid, settings.cryptoKey)) {
       workflow.outcome.errfor.session = 'invalid session';
     }
 

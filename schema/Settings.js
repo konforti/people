@@ -26,7 +26,6 @@ exports = module.exports = function(app, mongoose) {
 
   settingsSchema.statics.setParam = function(key, value, done) {
     this.findOneAndUpdate({_id: key}, {value: value}, {upsert: true}, function (err, param) {
-      console.log(param);
       return done(err, param.value);
     });
   };

@@ -187,7 +187,13 @@ People.prototype.setEvents = function () {
  * @returns {boolean}
  */
 People.prototype.makeRequest = function (method, url, data, next) {
-  var throb = document.createElement('img');
+  var throb = document.getElementById('throb');
+  if (throb) {
+    throb.parentNode.removeChild(throb);
+  }
+
+  throb  = document.createElement('img');
+  throb.id = 'throb';
   throb.src = this.url + '/media/ajax-pulse.gif';
   throb.style.position = 'absolute';
   document.body.appendChild(throb);

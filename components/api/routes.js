@@ -15,7 +15,8 @@ function requireAuthentication(req, res, next) {
     var encoded = req.headers.authorization.split(' ')[1];
     var decoded = new Buffer(encoded, 'base64').toString('utf8');
 
-    if (decoded.split(':')[0] !== req.app.config.secretKey) {
+    var settings = req.app.getSettings();
+    if (decoded.split(':')[0] !== settings.secretKey) {
       return res.json({error: 'Wrong Key'});
     }
   }

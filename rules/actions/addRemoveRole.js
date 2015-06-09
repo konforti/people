@@ -5,7 +5,7 @@ exports = module.exports = function(req, op, action, user) {
      * @param callback
      */
     function(callback) {
-      if (!action.value) {
+      if (!action.value || action.value.length < 1) {
         console.log('There is no value.');
         return;
       }
@@ -31,23 +31,25 @@ exports = module.exports = function(req, op, action, user) {
       var roles = user.roles;
 
       if (op === 'remove') {
-        var index = roles.indexOf(action.value);
-        if (index > -1) {
-          roles.splice(index, 1);
-        }
+        roles.forEach(function(role, i, arr) {
+          var index = action.value.indexOf(role);
+          if (index > -1) {
+            roles.splice(index, 1);
+          }
+        });
 
         callback(null, roles);
       }
 
       else if (op === 'add') {
-        req.app.db.models.Role.find().exec(function (err, oldRoles) {
+        req.app.db.models.Role.find().exec(function (err, allRoles) {
           if (err) {
             return console.log(err);
           }
 
-          roles.forEach(function(role, index, array) {
-            if (oldRoles.indexOf(role) > -1) {
-              roles.push(role);
+          allRoles.forEach(function(roleItem, i, arr) {
+            if (action.value.indexOf(roleItem._id) > -1) {
+              roles.push(action.value);
             }
           });
 

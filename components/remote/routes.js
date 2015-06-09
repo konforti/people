@@ -7,13 +7,13 @@
  * @param next
  * @returns {*}
  */
-function unsaveUninitialized(req, res, next) {
-  if (Object.keys(req.session.passport).length === 0) {
-    delete req.session.passport;
-  }
-
-  return next();
-}
+//function unsaveUninitialized(req, res, next) {
+//  if (Object.keys(req.session.passport).length === 0) {
+//    delete req.session.passport;
+//  }
+//
+//  return next();
+//}
 
 /**
  *
@@ -22,7 +22,7 @@ function unsaveUninitialized(req, res, next) {
 exports = module.exports = function (app, passport) {
 
   // Prevent empty sessions store.
-  app.all('/remote*', unsaveUninitialized);
+  //app.all('/remote*', unsaveUninitialized);
 
   // Remote info.
   app.get('/remote/info/', require('./signup/index').info);

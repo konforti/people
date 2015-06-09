@@ -4,7 +4,8 @@ var signature = require('cookie-signature');
 
 exports.getUserBySid = function(req, res, next) {
   var collection = req.app.db.collection('sessions');
-  var sid = signature.unsign(req.body.sid, req.app.config.cryptoKey);
+  var settings = req.app.getSettings();
+  var sid = signature.unsign(req.body.sid, settings.cryptoKey);
 
   collection.find({_id: sid}).toArray(function (err, record) {
     if (err) {

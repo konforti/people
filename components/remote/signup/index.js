@@ -17,12 +17,9 @@ exports.info = function (req, res) {
     var socials = ['twitter', 'facebook', 'github', 'google', 'tumblr'];
     var actives = [];
     var settings = req.app.getSettings();
-
-    socials.forEach(function(social, index, array) {
-      if (settings[social + 'Key'].length > 0) {
-        actives.push(social);
-      }
-    });
+    for (var name in socials) {
+      actives.push(settings[name + 'Key']);
+    }
 
     workflow.outcome.info = {
       socials: actives
@@ -116,7 +113,7 @@ exports.signup = function (req, res, next) {
           }
 
           var fieldsToSet = {
-            mode: 'yes',
+            mode: 'on',
             isVerified: 'no',
             verificationToken: hash,
             username: req.body.username,
@@ -168,13 +165,14 @@ exports.signup = function (req, res, next) {
         return workflow.emit('response');
       }
       else {
-        req.app.utility.auth.getUserBySid(req, res, function(err, user) {
+        req.login(user, function (err) {
           if (err) {
             return workflow.emit('exception', err);
           }
 
+          var settings = req.app.getSettings();
           var gravatarHash = crypto.createHash('md5').update(req.email).digest('hex');
-          var sid = signature.sign(req.sessionID, req.app.config.cryptoKey);
+          var sid = signature.sign(req.sessionID, settings.cryptoKey);
 
           workflow.outcome.sid = sid;
           workflow.outcome.user = {
@@ -276,13 +274,14 @@ exports.login = function (req, res, next) {
         });
       }
       else {
-        req.app.utility.auth.getUserBySid(req, res, function(err, user) {
+        req.login(user, function (err) {
           if (err) {
             return workflow.emit('exception', err);
           }
 
+          var settings = req.app.getSettings();
           var gravatarHash = crypto.createHash('md5').update(user.email).digest('hex');
-          var sid = signature.sign(req.sessionID, req.app.config.cryptoKey);
+          var sid = signature.sign(req.sessionID, settings.cryptoKey);
 
           workflow.outcome.sid = sid;
           workflow.outcome.user = {
@@ -291,11 +290,11 @@ exports.login = function (req, res, next) {
             avatar: 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g'
           };
 
-          req.hooks.emit('userLogin', workflow.outcome.user);
+          req.hooks.emit('userLogin', user);
           workflow.emit('response');
         });
       }
-    });
+    })(req, res);
   });
 
   workflow.emit('validate');

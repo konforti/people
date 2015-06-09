@@ -139,7 +139,7 @@ app.utility = {};
 app.utility.sendmail = require('./util/sendmail');
 app.utility.slugify = require('./util/slugify');
 app.utility.workflow = require('./util/workflow');
-app.utility.auth = require('./util/auth');
+//app.utility.auth = require('./util/auth');
 
 // Listen up.
 app.server.listen(app.config.port, app.config.ip, function(){
