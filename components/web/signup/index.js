@@ -83,7 +83,7 @@ exports.signup = function (req, res) {
       }
 
       var fieldsToSet = {
-        mode: 'yes',
+        mode: 'on',
         username: req.body.username,
         email: req.body.email.toLowerCase(),
         password: hash,
@@ -361,7 +361,7 @@ exports.signupSocial = function (req, res) {
 
   workflow.on('createUser', function () {
     var fieldsToSet = {
-      mode: 'yes',
+      mode: 'on',
       isVerified: 'yes',
       username: workflow.username,
       email: req.body.email.toLowerCase(),
