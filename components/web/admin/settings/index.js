@@ -3,7 +3,11 @@ var fs = require('fs');
 var crypto = require('crypto');
 
 var generateKey = function(type, settings) {
-  settings.secretKey = type + '_' + crypto.randomBytes(15).toString('hex').toUpperCase();
+  var param = 'secretKey';
+  if (type == 'pk') {
+    param = 'publicKey'
+  }
+  settings[param] = type + '_' + crypto.randomBytes(15).toString('hex').toUpperCase();
   fs.writeFileSync(process.env.PWD + '/settings.json', JSON.stringify(settings, null, '\t'));
 
   return settings;

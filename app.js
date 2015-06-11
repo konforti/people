@@ -27,7 +27,13 @@ app.server = http.createServer(app);
 
 // Settings.
 app.getSettings = function() {
-  return JSON.parse(fs.readFileSync('./settings.json', {encoding: 'utf8'}));
+  try {
+    return JSON.parse(fs.readFileSync('./settings.json', {encoding: 'utf8'}));
+  }
+  catch(e) {
+    return JSON.parse(fs.readFileSync('./defaults.json', {encoding: 'utf8'}));
+  }
+
 };
 app.setSettings = function(settings) {
   fs.writeFileSync('./settings.json', JSON.stringify(settings, null, '\t'));
