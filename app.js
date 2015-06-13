@@ -25,26 +25,26 @@ app.config = config;
 // Setup the web server.
 app.server = http.createServer(app);
 
+app.setSettings = function(settings) {
+  fs.writeFileSync('./settings.json', JSON.stringify(settings, null, '\t'));
+};
+
 // Settings.
 app.getSettings = function() {
   try {
     return JSON.parse(fs.readFileSync('./settings.json', {encoding: 'utf8'}));
   }
   catch(e) {
-    return JSON.parse(fs.readFileSync('./defaults.json', {encoding: 'utf8'}));
+    var defaults =  JSON.parse(fs.readFileSync('./defaults.json', {encoding: 'utf8'}));
+    defaults.cryptoKey = crypto.randomBytes(6).toString('hex');
+    app.setSettings(defaults);
+    return JSON.parse(fs.readFileSync('./settings.json', {encoding: 'utf8'}));
   }
-
-};
-app.setSettings = function(settings) {
-  fs.writeFileSync('./settings.json', JSON.stringify(settings, null, '\t'));
 };
 
 // Set cryptoKey if there is none.
 var settings = app.getSettings();
-if (!settings.cryptoKey) {
-  settings.cryptoKey = crypto.randomBytes(6).toString('hex');
-  app.setSettings(settings);
-}
+
 // Setup mongoose.
 app.db = mongoose.createConnection(config.mongodb.uri);
 app.db.on('error', console.error.bind(console, 'mongoose connection error: '));
@@ -148,6 +148,6 @@ app.utility.workflow = require('./util/workflow');
 //app.utility.auth = require('./util/auth');
 
 // Listen up.
-app.server.listen(app.config.port, app.config.ip, function(){
+app.server.listen(app.config.port, app.config.ip, function() {
   //and... we're live
 });
