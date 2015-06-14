@@ -171,7 +171,8 @@
         _id: app.mainView.model.id,
         mode: app.mainView.model.get('mode'),
         username: app.mainView.model.get('username'),
-        email: app.mainView.model.get('email')
+        email: app.mainView.model.get('email'),
+        fields: app.mainView.model.get('fields')
       });
     },
     render: function() {
@@ -180,6 +181,11 @@
       for (var key in this.model.attributes) {
         if (this.model.attributes.hasOwnProperty(key)) {
           this.$el.find('[name="'+ key +'"]').val(this.model.attributes[key]);
+        }
+      }
+      for (var key in this.model.attributes.fields) {
+        if (this.model.attributes.fields.hasOwnProperty(key)) {
+          this.$el.find('[name="'+ key +'"]').val(this.model.attributes.fields[key]);
         }
       }
     },

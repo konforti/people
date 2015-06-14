@@ -30,6 +30,7 @@ function ensureAdmin(req, res, next) {
   res.redirect('/');
 }
 
+
 /**
  * Web router.
  * @type {Function}
@@ -152,39 +153,36 @@ exports = module.exports = function (app, passport) {
 
   // Account.
   app.all('/account*', ensureAuthenticated);
-  //app.all('/account*', ensureAccount);
   app.get('/account/', require('./account/index').init);
+  app.put('/account/', require('./account/index').update);
+  app.post('/account/', require('./account/index').update);
+  app.put('/account/password/', require('./account/index').password);
+  app.delete('/account/', require('./account/index').delete);
+
+  // Account > Settings > Social.
+  app.get('/account/twitter/', passport.authenticate('twitter', {callbackURL: '/account/twitter/callback/'}));
+  app.get('/account/twitter/callback/', require('./account/index').connectTwitter);
+  app.get('/account/twitter/disconnect/', require('./account/index').disconnectTwitter);
+  app.get('/account/github/', passport.authenticate('github', {callbackURL: '/account/github/callback/'}));
+  app.get('/account/github/callback/', require('./account/index').connectGitHub);
+  app.get('/account/github/disconnect/', require('./account/index').disconnectGitHub);
+  app.get('/account/facebook/', passport.authenticate('facebook', {callbackURL: '/account/facebook/callback/'}));
+  app.get('/account/facebook/callback/', require('./account/index').connectFacebook);
+  app.get('/account/facebook/disconnect/', require('./account/index').disconnectFacebook);
+  app.get('/account/google/', passport.authenticate('google', {
+    callbackURL: '/account/google/callback/',
+    scope: ['profile email']
+  }));
+  app.get('/account/google/callback/', require('./account/index').connectGoogle);
+  app.get('/account/google/disconnect/', require('./account/index').disconnectGoogle);
+  app.get('/account/tumblr/', passport.authenticate('tumblr', {callbackURL: '/account/tumblr/callback/'}));
+  app.get('/account/tumblr/callback/', require('./account/index').connectTumblr);
+  app.get('/account/tumblr/disconnect/', require('./account/index').disconnectTumblr);
 
   // Account > Verification.
   app.get('/account/verification/', require('./account/verification/index').init);
   app.post('/account/verification/', require('./account/verification/index').resendVerification);
   app.get('/account/verification/:token/', require('./account/verification/index').verify);
-
-  // Account > Settings.
-  app.get('/account/settings/', require('./account/settings/index').init);
-  app.put('/account/settings/', require('./account/settings/index').update);
-  app.put('/account/settings/identity/', require('./account/settings/index').identity);
-  app.put('/account/settings/password/', require('./account/settings/index').password);
-
-  // Account > Settings > Social.
-  app.get('/account/settings/twitter/', passport.authenticate('twitter', {callbackURL: '/account/settings/twitter/callback/'}));
-  app.get('/account/settings/twitter/callback/', require('./account/settings/index').connectTwitter);
-  app.get('/account/settings/twitter/disconnect/', require('./account/settings/index').disconnectTwitter);
-  app.get('/account/settings/github/', passport.authenticate('github', {callbackURL: '/account/settings/github/callback/'}));
-  app.get('/account/settings/github/callback/', require('./account/settings/index').connectGitHub);
-  app.get('/account/settings/github/disconnect/', require('./account/settings/index').disconnectGitHub);
-  app.get('/account/settings/facebook/', passport.authenticate('facebook', {callbackURL: '/account/settings/facebook/callback/'}));
-  app.get('/account/settings/facebook/callback/', require('./account/settings/index').connectFacebook);
-  app.get('/account/settings/facebook/disconnect/', require('./account/settings/index').disconnectFacebook);
-  app.get('/account/settings/google/', passport.authenticate('google', {
-    callbackURL: '/account/settings/google/callback/',
-    scope: ['profile email']
-  }));
-  app.get('/account/settings/google/callback/', require('./account/settings/index').connectGoogle);
-  app.get('/account/settings/google/disconnect/', require('./account/settings/index').disconnectGoogle);
-  app.get('/account/settings/tumblr/', passport.authenticate('tumblr', {callbackURL: '/account/settings/tumblr/callback/'}));
-  app.get('/account/settings/tumblr/callback/', require('./account/settings/index').connectTumblr);
-  app.get('/account/settings/tumblr/disconnect/', require('./account/settings/index').disconnectTumblr);
 
   // Route not found.
   app.all('*', require('./http/index').http404);

@@ -285,15 +285,9 @@ exports.update = function (req, res, next) {
         return workflow.emit('exception', err);
       }
 
-      user.populate('fields', 'name', function (err, user) {
-        if (err) {
-          return workflow.emit('exception', err);
-        }
-
-        req.hooks.emit('userUpdate', user);
-        workflow.outcome.user = user;
-        workflow.emit('response');
-      });
+      req.hooks.emit('userUpdate', user);
+      workflow.outcome.user = user;
+      workflow.emit('response');
     });
   });
 
