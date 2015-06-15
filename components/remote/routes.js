@@ -75,4 +75,21 @@ exports = module.exports = function (app, passport) {
   app.post('/remote/verification/', require('./verification/index').verification);
   app.get('/remote/verification/:token/', require('./verification/index').verify);
 
+  // Social Connect.
+  app.get('/remote/connect/twitter/', passport.authenticate('twitter', {callbackURL: '/remote/connect/twitter/callback/'}));
+  app.get('/remote/connect/twitter/callback/', require('./profile/index').connectTwitter);
+  app.get('/remote/connect/github/', passport.authenticate('github', {callbackURL: '/remote/connect/github/callback/'}));
+  app.get('/remote/connect/github/callback/', require('./profile/index').connectGitHub);
+  app.get('/remote/connect/facebook/', passport.authenticate('facebook', {callbackURL: '/remote/connect/facebook/callback/'}));
+  app.get('/remote/connect/facebook/callback/', require('./profile/index').connectFacebook);
+  app.get('/remote/connect/google/', passport.authenticate('google', {callbackURL: '/remote/connect/google/callback/', scope: ['profile email']}));
+  app.get('/remote/connect/google/callback/', require('./profile/index').connectGoogle);
+  app.get('/remote/connect/tumblr/', passport.authenticate('tumblr', {callbackURL: '/remote/connect/tumblr/callback/'}));
+  app.get('/remote/connect/tumblr/callback/', require('./profile/index').connectTumblr);
+
+  app.get('/remote/disconnect/twitter/', require('./profile/index').disconnectTwitter);
+  app.get('/remote/disconnect/github/', require('./profile/index').disconnectGitHub);
+  app.get('/remote/disconnect/facebook/', require('./profile/index').disconnectFacebook);
+  app.get('/remote/disconnect/google/', require('./profile/index').disconnectGoogle);
+  app.get('/remote/disconnect/tumblr/', require('./profile/index').disconnectTumblr);
 };

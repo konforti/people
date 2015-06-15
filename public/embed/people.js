@@ -1,6 +1,16 @@
 'use strict';
 
 /**
+ * Array.prototype.[method name] allows you to define/overwrite an objects method
+ * needle is the item you are searching for
+ * this is a special variable that refers to "this" instance of an Array.
+ * returns true if needle is in the array, and false otherwise
+ */
+Array.prototype.contains = function ( needle ) {
+  return array.indexOf(needle) > -1;
+};
+
+/**
  * Constructor.
  * @param options
  */
@@ -125,55 +135,80 @@ People.prototype.setEvents = function () {
     }
 
     // Elements Class
-    switch (e.target.className) {
-      case 'ppl-social-login':
-        var name = e.target.id.replace('ppl-login-', '');
-        var url = self.url + '/remote/signup/' + name + '/',
-          width = 1000,
-          height = 650,
-          top = (window.outerHeight - height) / 2,
-          left = (window.outerWidth - width) / 2;
-        window.open(url, '', 'width=' + width + ',height=' + height + ',scrollbars=0,top=' + top + ',left=' + left);
+    var classes = e.target.classList;
+    if (classes.contains('ppl-social-login')) {
+      var name = e.target.id.replace('ppl-login-', '');
+      var url = self.url + '/remote/signup/' + name + '/',
+        width = 1000,
+        height = 650,
+        top = (window.outerHeight - height) / 2,
+        left = (window.outerWidth - width) / 2;
+      window.open(url, '', 'width=' + width + ',height=' + height + ',scrollbars=0,top=' + top + ',left=' + left);
 
-        window.addEventListener('message', function(e) {
-          self.receiveMessage(e, self)
-        }, false);
-        break;
-
-      case 'ppl-to-login':
-        self.loginBlock();
-        break;
-
-      case 'ppl-to-register':
-        self.loginBlock({form: 'register'});
-        break;
-
-      case 'ppl-to-forgot':
-        self.loginBlock({form: 'forgot'});
-        break;
-
-      case 'ppl-to-logout':
-        self.logout();
-        break;
-
-      case 'ppl-verify-email':
-        self.makeRequest('POST', self.url + '/remote/verification/', {}, function (data) {
-          var message = 'A verification mail sent to your email address.';
-          if (!self.alert(data, message)) {
-            // Wait.
-          }
+      window.addEventListener('message', function(ev) {
+        self.receiveMessage(ev, self, function() {
+          this.login(ev.data);
         });
-        break;
+      }, false);
+    }
+    else if (classes.contains('ppl-to-login')) {
+      self.loginBlock();
+    }
+    else if (classes.contains('ppl-to-register')) {
+      self.loginBlock({form: 'register'});
+    }
+    else if (classes.contains('ppl-to-forgot')) {
+      self.loginBlock({form: 'forgot'});
+    }
+    else if (classes.contains('ppl-to-logout')) {
+      self.logout();
+    }
+    else if (classes.contains('ppl-verify-email')) {
+      self.makeRequest('POST', self.url + '/remote/verification/', {}, function (data) {
+        var message = 'A verification mail sent to your email address.';
+        if (!self.alert(data, message)) {
+          // Wait.
+        }
+      });
+    }
+    else if (classes.contains('ppl-close-btn')) {
+      var parent = e.target.parentNode;
+      if (parent) parent.outerHTML = '';
+    }
+    else if (classes.contains('ppl-change-password')) {
+      var el = document.getElementById('ppl-new-password');
+      if (el) el.classList.toggle('hidden');
+    }
+    else if (classes.contains('ppl-connect-btn')) {
+      var url = e.target.getAttribute('data-href');
 
-      case 'ppl-close-btn':
-        var parent = e.target.parentNode;
-        if (parent) parent.outerHTML = '';
-        break;
+      var url = self.url + url,
+        width = 1000,
+        height = 650,
+        top = (window.outerHeight - height) / 2,
+        left = (window.outerWidth - width) / 2;
+      window.open(url, '', 'width=' + width + ',height=' + height + ',scrollbars=0,top=' + top + ',left=' + left);
 
-      case 'ppl-change-password':
-        var el = document.getElementById('ppl-new-password');
-        if (el) el.classList.toggle('hidden');
-        break;
+      window.addEventListener('message', function (ev) {
+        self.receiveMessage(ev, self, function() {
+          e.target.classList.remove('ppl-connect-btn');
+          e.target.classList.add('ppl-disconnect-btn');
+          e.target.setAttribute('data-href', e.target.getAttribute('data-href').replace('/connect/', '/disconnect/'));
+          e.target.innerHTML = e.target.innerHTML.replace('Connect', 'Disconnect');
+        });
+      }, false);
+    }
+    else if (classes.contains('ppl-disconnect-btn')) {
+      var url = e.target.getAttribute('data-href');
+
+      self.makeRequest('GET', self.url + url, {}, function (data) {
+        if (!self.alert(data, 'Disconnect successfully')) {
+          e.target.classList.remove('ppl-disconnect-btn');
+          e.target.classList.add('ppl-connect-btn');
+          e.target.setAttribute('data-href', e.target.getAttribute('data-href').replace('/disconnect/', '/connect/'));
+          e.target.innerHTML = e.target.innerHTML.replace('Disconnect', 'Connect');
+        }
+      });
     }
   });
 };
@@ -228,7 +263,11 @@ People.prototype.makeRequest = function (method, url, data, next) {
   httpRequest.open(method, url + query, true);
   httpRequest.onreadystatechange = function () {
     if (httpRequest.readyState === 4 && httpRequest.status === 200) {
-      throb.parentNode.removeChild(throb);
+      var throb = document.getElementById('throb');
+      if (throb) {
+        throb.parentNode.removeChild(throb);
+      }
+
       next(httpRequest);
     }
   };
@@ -427,7 +466,7 @@ People.prototype.loginForm = function (socials) {
   if (socials && socials.length > 1) {
     loginHTML += '<div>Or login with: </div>';
     for (var i = 0, name; name = socials[i]; ++i) {
-      loginHTML += '<a class="ppl-social-login" id="ppl-login-' + name + '" href="javascript:void(0)">' + name.charAt(0).toUpperCase() + name.slice(1) + '</a> ';
+      loginHTML += '<a class="ppl-social-login icon-' + name + '" id="ppl-login-' + name + '" href="javascript:void(0)">' + name.charAt(0).toUpperCase() + name.slice(1) + '</a> ';
     }
   }
 
@@ -585,11 +624,13 @@ People.prototype.userProfileRemove = function () {
  * Receive message from popup.
  * @param event
  */
-People.prototype.receiveMessage = function (event, self) {
+People.prototype.receiveMessage = function (event, self, next) {
   //window.removeEventListener('message', receiveMessage, false);
   if (event.origin !== self.url) {
     return;
   }
 
-  this.login(event.data);
+  if (next) {
+    return next();
+  }
 };

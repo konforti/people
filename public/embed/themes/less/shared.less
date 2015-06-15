@@ -3,6 +3,10 @@
   display: none;
 }
 
+.btn {
+  cursor: pointer;
+}
+
 .ppl-block {
   font: normal 12px/30px sans-serif;
   display: inline-block;
@@ -89,32 +93,13 @@
   }
 
   .ppl-social-login {
-    background: no-repeat;
     margin: 0 2px;
     border: 1px solid #aaa;
     border-radius: 4px;
-    color: #fff;
     text-decoration: none;
-    width: 90px;
-    height: 30px;
     display: inline-block;
-    text-indent: 30px;
-
-    &#ppl-login-facebook {
-      background: url('images/ppl-socials.png') 0 0;
-    }
-    &#ppl-login-twitter {
-      background: url('images/ppl-socials.png') 0 -30px;
-    }
-    &#ppl-login-github {
-      background: url('images/ppl-socials.png') 0 -60px;
-    }
-    &#ppl-login-google {
-      background: url('images/ppl-socials.png') 0 -90px;
-    }
-    &#ppl-login-tumblr {
-      background: url('images/ppl-socials.png') 0 -120px;
-    }
+    padding: 5px;
+    color: #333;
   }
 }
 
@@ -167,4 +152,70 @@
   #ppl-update-profile-btn {
     margin-top: 30px;
   }
+
+  #ppl-connect {
+    margin-top: 10px;
+
+    .btn {
+      margin: 0 2px;
+      border: 1px solid #aaa;
+      border-radius: 4px;
+      text-decoration: none;
+      display: inline-block;
+      padding: 10px;
+    }
+    .ppl-connect-btn {
+      color: #333;
+    }
+    .ppl-disconnect-btn {
+      background: #d9534f;
+      color: #fff;
+    }
+  }
+}
+
+@font-face {
+  font-family: 'icomoon';
+  src:url('fonts/fonts/icomoon.eot?-w2zyq5');
+  src:url('fonts/fonts/icomoon.eot?#iefix-w2zyq5') format('embedded-opentype'),
+  url('fonts/fonts/icomoon.ttf?-w2zyq5') format('truetype'),
+  url('fonts/fonts/icomoon.woff?-w2zyq5') format('woff'),
+  url('fonts/fonts/icomoon.svg?-w2zyq5#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+  font-family: 'icomoon';
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+[class^="icon-"]:before, [class*=" icon-"]:before {
+  display: inline-block;
+  font-size: 18px;
+  vertical-align: -15%;
+  margin-right: 10px;
+}
+
+.icon-twitter:before {
+  content: "\f099";
+}
+.icon-facebook:before {
+  content: "\f09a";
+}
+.icon-github:before {
+  content: "\f113";
+}
+.icon-tumblr:before {
+  content: "\f173";
+}
+.icon-google:before {
+  content: "\f1a0";
 }

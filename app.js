@@ -35,7 +35,7 @@ app.getSettings = function() {
     return JSON.parse(fs.readFileSync('./settings.json', {encoding: 'utf8'}));
   }
   catch(e) {
-    var defaults =  JSON.parse(fs.readFileSync('./defaults.json', {encoding: 'utf8'}));
+    var defaults = JSON.parse(fs.readFileSync('./defaults.json', {encoding: 'utf8'}));
     defaults.cryptoKey = crypto.randomBytes(6).toString('hex');
     app.setSettings(defaults);
     return JSON.parse(fs.readFileSync('./settings.json', {encoding: 'utf8'}));
@@ -64,7 +64,11 @@ app.set('view engine', 'jade');
 // Middleware.
 app.use(require('morgan')('dev'));
 app.use(require('compression')());
-app.use(require('serve-static')(path.join(__dirname, 'public')));
+app.use(require('serve-static')(path.join(__dirname, 'public'), {
+  setHeaders: function(res, path) {
+    res.setHeader("Access-Control-Allow-Origin", settings.allowDomain);
+  }
+}));
 app.use(require('method-override')());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

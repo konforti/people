@@ -9,7 +9,6 @@ var signature = require('cookie-signature');
  */
 exports.readProfile = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
-  var outcome = {};
 
   var getRecord = function (callback) {
     req.app.db.models.User.findById(req.user.id).exec(function (err, record) {
@@ -17,20 +16,48 @@ exports.readProfile = function (req, res, next) {
         return next(err);
       }
 
-      outcome.record = record;
-      return callback(null, 'done');
+      workflow.outcome.record = record;
+      callback(null);
     });
   };
 
   var getFields = function (callback) {
     req.app.db.models.Field.find({}, 'name').sort('name').exec(function (err, fields) {
       if (err) {
-        return callback(err, null);
+        callback(err, null);
       }
 
-      outcome.fields = fields;
-      return callback(null, 'done');
+      workflow.outcome.fields = fields;
+      callback(null);
     });
+  };
+
+  var getSocial = function(callback) {
+    var settings = req.app.getSettings();
+    workflow.outcome.social = {
+      twitter: {
+        key: !!settings.twitterKey,
+        active: workflow.outcome.record.twitter ? !!workflow.outcome.record.twitter.id : false
+      },
+      facebook: {
+        key: !!settings.facebookKey,
+        active: workflow.outcome.record.facebook ? !!workflow.outcome.record.facebook.id : false
+      },
+      github: {
+        key: !!settings.githubKey,
+        active: workflow.outcome.record.github ? !!workflow.outcome.record.github.id : false
+      },
+      google: {
+        key: !!settings.googleKey,
+        active: workflow.outcome.record.google ? !!workflow.outcome.record.google.id : false
+      },
+      tumblr: {
+        key: !!settings.tumblrKey,
+        active: workflow.outcome.record.tumblr ? !!workflow.outcome.record.tumblr.id : false
+      }
+    };
+
+    callback(null);
   };
 
   var asyncFinally = function (err, results) {
@@ -39,19 +66,19 @@ exports.readProfile = function (req, res, next) {
     }
 
     // Populate fields values.
-    outcome.fields.forEach(function(field, index, array) {
+    workflow.outcome.fields.forEach(function(field, index, array) {
       field.value = '';
-      for(var key in outcome.record.fields) {
-        if (outcome.record.fields.hasOwnProperty(key)) {
+      for(var key in workflow.outcome.record.fields) {
+        if (workflow.outcome.record.fields.hasOwnProperty(key)) {
           if (field._id === key) {
-            field.value = outcome.record.fields[key];
+            field.value = workflow.outcome.record.fields[key];
           }
         }
       }
     });
 
     if (req.xhr) {
-      res.send(outcome.record);
+      res.send(workflow.outcome.record);
     }
     else {
       var csrfToken = crypto.pseudoRandomBytes(16).toString('hex');
@@ -59,8 +86,9 @@ exports.readProfile = function (req, res, next) {
       req.app.render('../remote/profile/index', {
         data: {
           csrfToken: csrfToken,
-          record: outcome.record,
-          fields: outcome.fields
+          record: workflow.outcome.record,
+          fields: workflow.outcome.fields,
+          social: workflow.outcome.social
         }
       }, function (err, html) {
         workflow.outcome.html = html;
@@ -69,7 +97,7 @@ exports.readProfile = function (req, res, next) {
     }
   };
 
-  require('async').parallel([getFields, getRecord], asyncFinally);
+  require('async').series([getFields, getRecord, getSocial], asyncFinally);
 };
 
 /**
@@ -175,8 +203,37 @@ exports.updateProfile = function (req, res, next) {
       }
 
       workflow.outcome.fields = fields;
-      workflow.emit('renderProfile');
+      workflow.emit('getSocial');
     });
+  });
+
+  workflow.on('getSocial', function () {
+    var settings = req.app.getSettings();
+    var social = {
+      twitter: {
+        key: !!settings.twitterKey,
+        active: workflow.outcome.record.twitter ? !!workflow.outcome.record.twitter.id : false
+      },
+      facebook: {
+        key: !!settings.facebookKey,
+        active: workflow.outcome.record.facebook ? !!workflow.outcome.record.facebook.id : false
+      },
+      github: {
+        key: !!settings.githubKey,
+        active: workflow.outcome.record.github ? !!workflow.outcome.record.github.id : false
+      },
+      google: {
+        key: !!settings.googleKey,
+        active: workflow.outcome.record.google ? !!workflow.outcome.record.google.id : false
+      },
+      tumblr: {
+        key: !!settings.tumblrKey,
+        active: workflow.outcome.record.tumblr ? !!workflow.outcome.record.tumblr.id : false
+      }
+    };
+
+    workflow.outcome.social = social;
+    workflow.emit('renderProfile');
   });
 
   workflow.on('renderProfile', function () {
@@ -199,7 +256,8 @@ exports.updateProfile = function (req, res, next) {
         data: {
           csrfToken: csrfToken,
           record: workflow.outcome.record,
-          fields: workflow.outcome.fields
+          fields: workflow.outcome.fields,
+          social: workflow.outcome.social
         }
       }, function (err, html) {
         delete workflow.outcome.record;
@@ -305,3 +363,211 @@ exports.updatePassword = function (req, res, next) {
 
   workflow.emit('validate');
 };
+
+exports.connectTwitter = function (req, res, next) {
+  var outcome = {};
+  req._passport.instance.authenticate('twitter', function (err, user, info) {
+    if (!info || !info.profile) {
+      return res.send('Authentication problem.');
+    }
+
+    req.app.db.models.User.findOne({'twitter.id': info.profile.id, _id: {$ne: req.user.id}}, function (err, user) {
+      if (err) {
+        return next(err);
+      }
+
+      if (user) {
+        res.send('Another user has already connected with that Twitter account.');
+      }
+      else {
+        req.app.db.models.User.findByIdAndUpdate(req.user.id, {'twitter.id': info.profile.id}, function (err, user) {
+          if (err) {
+            return next(err);
+          }
+          var settings = req.app.getSettings();
+          outcome.allowDomain = settings.allowDomain;
+          res.render('../remote/profile/connect', {data: JSON.stringify(outcome)});
+        });
+      }
+    });
+  })(req, res, next);
+};
+
+exports.connectGitHub = function (req, res, next) {
+  var outcome = {};
+  req._passport.instance.authenticate('github', function (err, user, info) {
+    if (!info || !info.profile) {
+      return res.send('Authentication problem.');
+    }
+
+    req.app.db.models.User.findOne({'github.id': info.profile.id, _id: {$ne: req.user.id}}, function (err, user) {
+      if (err) {
+        return next(err);
+      }
+
+      if (user) {
+        res.send('Another user has already connected with that GitHub account.');
+      }
+      else {
+        req.app.db.models.User.findByIdAndUpdate(req.user.id, {'github.id': info.profile.id}, function (err, user) {
+          if (err) {
+            return next(err);
+          }
+          var settings = req.app.getSettings();
+          outcome.allowDomain = settings.allowDomain;
+          res.render('../remote/profile/connect', {data: JSON.stringify(outcome)});
+        });
+      }
+    });
+  })(req, res, next);
+};
+
+exports.connectFacebook = function (req, res, next) {
+  var outcome = {};
+  req._passport.instance.authenticate('facebook', {callbackURL: '/account/facebook/callback/'}, function (err, user, info) {
+    if (!info || !info.profile) {
+      return res.send('Authentication problem.');
+    }
+
+    req.app.db.models.User.findOne({'facebook.id': info.profile.id, _id: {$ne: req.user.id}}, function (err, user) {
+      if (err) {
+        return next(err);
+      }
+
+      if (user) {
+        res.send('Another user has already connected with that Facebook account.');
+      }
+      else {
+        req.app.db.models.User.findByIdAndUpdate(req.user.id, {'facebook.id': info.profile.id}, function (err, user) {
+          if (err) {
+            return next(err);
+          }
+
+          var settings = req.app.getSettings();
+          outcome.allowDomain = settings.allowDomain;
+          res.render('../remote/profile/connect', {data: JSON.stringify(outcome)});
+        });
+      }
+    });
+  })(req, res, next);
+};
+
+exports.connectGoogle = function (req, res, next) {
+  var outcome = {};
+  req._passport.instance.authenticate('google', {callbackURL: '/account/google/callback/'}, function (err, user, info) {
+    if (!info || !info.profile) {
+      return res.send('Authentication problem.');
+    }
+
+    req.app.db.models.User.findOne({'google.id': info.profile.id, _id: {$ne: req.user.id}}, function (err, user) {
+      if (err) {
+        return next(err);
+      }
+
+      if (user) {
+        res.send('Another user has already connected with that Google account.');
+      }
+      else {
+        req.app.db.models.User.findByIdAndUpdate(req.user.id, {'google.id': info.profile.id}, function (err, user) {
+          if (err) {
+            return next(err);
+          }
+
+          var settings = req.app.getSettings();
+          outcome.allowDomain = settings.allowDomain;
+          res.render('../remote/profile/connect', {data: JSON.stringify(outcome)});
+        });
+      }
+    });
+  })(req, res, next);
+};
+
+exports.connectTumblr = function (req, res, next) {
+  var outcome = {};
+  req._passport.instance.authenticate('tumblr', {callbackURL: '/account/tumblr/callback/'}, function (err, user, info) {
+    if (!info || !info.profile) {
+      return res.send('Authentication problem.');
+    }
+
+    if (!info.profile.hasOwnProperty('id')) {
+      info.profile.id = info.profile.username;
+    }
+
+    req.app.db.models.User.findOne({'tumblr.id': info.profile.id, _id: {$ne: req.user.id}}, function (err, user) {
+      if (err) {
+        return next(err);
+      }
+
+      if (user) {
+        res.send('Another user has already connected with that Tumblr account.');
+      }
+      else {
+        req.app.db.models.User.findByIdAndUpdate(req.user.id, {'tumblr.id': info.profile.id}, function (err, user) {
+          if (err) {
+            return next(err);
+          }
+
+          var settings = req.app.getSettings();
+          outcome.allowDomain = settings.allowDomain;
+          res.render('../remote/profile/connect', {data: JSON.stringify(outcome)});
+        });
+      }
+    });
+  })(req, res, next);
+};
+
+exports.disconnectTwitter = function (req, res, next) {
+  var workflow = req.app.utility.workflow(req, res);
+  req.app.db.models.User.findByIdAndUpdate(req.user.id, {twitter: {id: undefined}}, function (err, user) {
+    if (err) {
+      return workflow.emit('exception', err);
+    }
+
+    workflow.emit('response');
+  });
+};
+
+exports.disconnectGitHub = function (req, res, next) {
+  var workflow = req.app.utility.workflow(req, res);
+  req.app.db.models.User.findByIdAndUpdate(req.user.id, {github: {id: undefined}}, function (err, user) {
+    if (err) {
+      return workflow.emit('exception', err);
+    }
+
+    workflow.emit('response');
+  });
+};
+
+exports.disconnectFacebook = function (req, res, next) {
+  var workflow = req.app.utility.workflow(req, res);
+  req.app.db.models.User.findByIdAndUpdate(req.user.id, {facebook: {id: undefined}}, function (err, user) {
+    if (err) {
+      return workflow.emit('exception', err);
+    }
+
+    workflow.emit('response');
+  });
+};
+
+exports.disconnectGoogle = function (req, res, next) {
+  var workflow = req.app.utility.workflow(req, res);
+  req.app.db.models.User.findByIdAndUpdate(req.user.id, {google: {id: undefined}}, function (err, user) {
+    if (err) {
+      return workflow.emit('exception', err);
+    }
+
+    workflow.emit('response');
+  });
+};
+
+exports.disconnectTumblr = function (req, res, next) {
+  var workflow = req.app.utility.workflow(req, res);
+  req.app.db.models.User.findByIdAndUpdate(req.user.id, {tumblr: {id: undefined}}, function (err, user) {
+    if (err) {
+      return workflow.emit('exception', err);
+    }
+
+    workflow.emit('response');
+  });
+};
+

@@ -23,11 +23,6 @@ block body
                 fieldset
                     div#social
                         legend Social Connections
-                        if oauthMessage
-                            div.alerts
-                                div.alert.alert-info.alert-dismissable
-                                    button.close(type='button', data-dismiss='alert') &times;
-                                    | #{oauthMessage}
                         if oauthTwitter
                             if oauthTwitterActive
                                 a.btn.btn-block.btn-danger(href='/account/twitter/disconnect/')

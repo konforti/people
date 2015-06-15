@@ -344,7 +344,6 @@ exports.update = function (req, res, next) {
       req.hooks.emit('userUpdate', user);
       workflow.outcome.user = user;
       workflow.emit('response');
-      console.log(user);
     });
   });
 
