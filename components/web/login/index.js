@@ -9,20 +9,24 @@ var getReturnUrl = function (req) {
   return returnUrl;
 };
 
+var getSocials = function(req) {
+  var settings = req.app.getSettings();
+  var ret = [];
+  req.app.config.socials.forEach(function(social, index, arr) {
+    if (!!settings[social + 'Key']) {
+      ret.push(social)
+    }
+  });
+
+  return ret;
+};
+
 exports.init = function (req, res) {
   if (req.isAuthenticated()) {
     res.redirect(getReturnUrl(req));
   }
   else {
-    var settings = req.app.getSettings();
-    res.render('login/index', {
-      oauthMessage: '',
-      oauthTwitter: !!settings.twitterKey,
-      oauthGitHub: !!settings.githubKey,
-      oauthFacebook: !!settings.facebookKey,
-      oauthGoogle: !!settings.googleKey,
-      oauthTumblr: !!settings.tumblrKey
-    });
+    res.render('login/index', {socials: getSocials(req)});
   }
 };
 
@@ -130,15 +134,7 @@ exports.loginTwitter = function (req, res, next) {
       }
 
       if (!user) {
-        var settings = req.app.getSettings();
-        res.render('login/index', {
-          oauthMessage: '',
-          oauthTwitter: !!settings.twitterKey,
-          oauthGitHub: !!settings.githubKey,
-          oauthFacebook: !!settings.facebookKey,
-          oauthGoogle: !!settings.googleKey,
-          oauthTumblr: !!settings.tumblrKey
-        });
+        res.render('login/index', {socials: getSocials(req)});
       }
       else {
         req.login(user, function (err) {
@@ -165,15 +161,7 @@ exports.loginGitHub = function (req, res, next) {
       }
 
       if (!user) {
-        var settings = req.app.getSettings();
-        res.render('login/index', {
-          oauthMessage: '',
-          oauthTwitter: !!settings.twitterKey,
-          oauthGitHub: !!settings.githubKey,
-          oauthFacebook: !!settings.facebookKey,
-          oauthGoogle: !!settings.googleKey,
-          oauthTumblr: !!settings.tumblrKey
-        });
+        res.render('login/index', {socials: getSocials(req)});
       }
       else {
         req.login(user, function (err) {
@@ -200,15 +188,7 @@ exports.loginFacebook = function (req, res, next) {
       }
 
       if (!user) {
-        var settings = req.app.getSettings();
-        res.render('login/index', {
-          oauthMessage: '',
-          oauthTwitter: !!settings.twitterKey,
-          oauthGitHub: !!settings.githubKey,
-          oauthFacebook: !!settings.facebookKey,
-          oauthGoogle: !!settings.googleKey,
-          oauthTumblr: !!settings.tumblrKey
-        });
+        res.render('login/index', {socials: getSocials(req)});
       }
       else {
         req.login(user, function (err) {
@@ -235,15 +215,7 @@ exports.loginGoogle = function (req, res, next) {
       }
 
       if (!user) {
-        var settings = req.app.getSettings();
-        res.render('login/index', {
-          oauthMessage: '',
-          oauthTwitter: !!settings.twitterKey,
-          oauthGitHub: !!settings.githubKey,
-          oauthFacebook: !!settings.facebookKey,
-          oauthGoogle: !!settings.googleKey,
-          oauthTumblr: !!settings.tumblrKey
-        });
+        res.render('login/index', {socials: getSocials(req)});
       }
       else {
         req.login(user, function (err) {
@@ -274,15 +246,7 @@ exports.loginTumblr = function (req, res, next) {
       }
 
       if (!user) {
-        var settings = req.app.getSettings();
-        res.render('login/index', {
-          oauthMessage: '',
-          oauthTwitter: !!settings.twitterKey,
-          oauthGitHub: !!settings.githubKey,
-          oauthFacebook: !!settings.facebookKey,
-          oauthGoogle: !!settings.googleKey,
-          oauthTumblr: !!settings.tumblrKey
-        });
+        res.render('login/index', {socials: getSocials(req)});
       }
       else {
         req.login(user, function (err) {
