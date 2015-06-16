@@ -52,6 +52,7 @@ exports = module.exports = function (app, passport) {
   app.get('/register/facebook/', passport.authenticate('facebook', {callbackURL: '/register/facebook/callback/', scope: ['email']}));
   app.get('/register/google/', passport.authenticate('google', {callbackURL: '/register/google/callback/', scope: ['profile email']}));
   app.get('/register/tumblr/', passport.authenticate('tumblr', {callbackURL: '/register/tumblr/callback/'}));
+
   app.get('/register/:social/callback/', require('./register/index').registerOauth);
 
   // Login/out.
@@ -70,6 +71,7 @@ exports = module.exports = function (app, passport) {
   app.get('/login/facebook/', passport.authenticate('facebook', {callbackURL: '/login/facebook/callback/'}));
   app.get('/login/google/', passport.authenticate('google', {callbackURL: '/login/google/callback/', scope: ['profile email']}));
   app.get('/login/tumblr/', passport.authenticate('tumblr', {callbackURL: '/login/tumblr/callback/', scope: ['profile email']}));
+
   app.get('/login/:social/callback/', require('./login/index').loginOauth);
 
   // Admin.
@@ -142,6 +144,7 @@ exports = module.exports = function (app, passport) {
   app.get('/account/facebook/', passport.authenticate('facebook', {callbackURL: '/account/facebook/callback/'}));
   app.get('/account/google/', passport.authenticate('google', {callbackURL: '/account/google/callback/', scope: ['profile email']}));
   app.get('/account/tumblr/', passport.authenticate('tumblr', {callbackURL: '/account/tumblr/callback/'}));
+
   app.get('/account/:social/callback/', require('./account/index').connectOauth);
 
   // Account disconnect.

@@ -41,11 +41,13 @@ exports = module.exports = function (app, passport) {
 
   // Social register.
   app.post('/remote/register/social/', require('./social/index').registerSocial);
+
   app.get('/remote/register/twitter/', passport.authenticate('twitter', {callbackURL: '/remote/register/twitter/callback/'}));
   app.get('/remote/register/github/', passport.authenticate('github', {callbackURL: '/remote/register/github/callback/', scope: ['user:email']}));
   app.get('/remote/register/facebook/', passport.authenticate('facebook', {callbackURL: '/remote/register/facebook/callback/', scope: ['email']}));
   app.get('/remote/register/google/', passport.authenticate('google', {callbackURL: '/remote/register/google/callback/', scope: ['profile email']}));
   app.get('/remote/register/tumblr/', passport.authenticate('tumblr', {callbackURL: '/remote/register/tumblr/callback/'}));
+
   app.get('/remote/register/:social/callback/', require('./social/index').registerOauth);
 
   // Profile form.
@@ -63,6 +65,7 @@ exports = module.exports = function (app, passport) {
   app.get('/remote/connect/facebook/', passport.authenticate('facebook', {callbackURL: '/remote/connect/facebook/callback/'}));
   app.get('/remote/connect/google/', passport.authenticate('google', {callbackURL: '/remote/connect/google/callback/', scope: ['profile email']}));
   app.get('/remote/connect/tumblr/', passport.authenticate('tumblr', {callbackURL: '/remote/connect/tumblr/callback/'}));
+
   app.get('/remote/connect/:social/callback/', require('./profile/index').connectOauth);
 
   // Social Disconnect.
