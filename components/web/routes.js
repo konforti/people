@@ -40,32 +40,19 @@ exports = module.exports = function (app, passport) {
   app.get('/', require('./index').init);
   app.get('/about/', require('./about/index').init);
 
-  // Sign up.
-  app.get('/signup/', require('./signup/index').init);
-  app.post('/signup/', require('./signup/index').signup);
+  // Register.
+  app.get('/register/', require('./register/index').init);
+  app.post('/register/', require('./register/index').register);
 
-  // Social sign up.
-  app.post('/signup/social/', require('./signup/index').signupSocial);
-  app.get('/signup/twitter/', passport.authenticate('twitter', {callbackURL: '/signup/twitter/callback/'}));
-  app.get('/signup/twitter/callback/', require('./signup/index').signupTwitter);
-  app.get('/signup/github/', passport.authenticate('github', {
-    callbackURL: '/signup/github/callback/',
-    scope: ['user:email']
-  }));
-  app.get('/signup/github/callback/', require('./signup/index').signupGitHub);
-  app.get('/signup/facebook/', passport.authenticate('facebook', {
-    callbackURL: '/signup/facebook/callback/',
-    scope: ['email']
-  }));
-  app.get('/signup/facebook/callback/', require('./signup/index').signupFacebook);
+  // Social register.
+  app.post('/register/social/', require('./register/index').registerSocial);
 
-  app.get('/signup/google/', passport.authenticate('google', {
-    callbackURL: '/signup/google/callback/',
-    scope: ['profile email']
-  }));
-  app.get('/signup/google/callback/', require('./signup/index').signupGoogle);
-  app.get('/signup/tumblr/', passport.authenticate('tumblr', {callbackURL: '/signup/tumblr/callback/'}));
-  app.get('/signup/tumblr/callback/', require('./signup/index').signupTumblr);
+  app.get('/register/twitter/', passport.authenticate('twitter', {callbackURL: '/register/twitter/callback/'}));
+  app.get('/register/github/', passport.authenticate('github', {callbackURL: '/register/github/callback/', scope: ['user:email']}));
+  app.get('/register/facebook/', passport.authenticate('facebook', {callbackURL: '/register/facebook/callback/', scope: ['email']}));
+  app.get('/register/google/', passport.authenticate('google', {callbackURL: '/register/google/callback/', scope: ['profile email']}));
+  app.get('/register/tumblr/', passport.authenticate('tumblr', {callbackURL: '/register/tumblr/callback/'}));
+  app.get('/register/:social/callback/', require('./register/index').registerOauth);
 
   // Login/out.
   app.get('/login/', require('./login/index').init);
@@ -79,21 +66,11 @@ exports = module.exports = function (app, passport) {
 
   // Social login.
   app.get('/login/twitter/', passport.authenticate('twitter', {callbackURL: '/login/twitter/callback/'}));
-  app.get('/login/twitter/callback/', require('./login/index').loginTwitter);
   app.get('/login/github/', passport.authenticate('github', {callbackURL: '/login/github/callback/'}));
-  app.get('/login/github/callback/', require('./login/index').loginGitHub);
   app.get('/login/facebook/', passport.authenticate('facebook', {callbackURL: '/login/facebook/callback/'}));
-  app.get('/login/facebook/callback/', require('./login/index').loginFacebook);
-  app.get('/login/google/', passport.authenticate('google', {
-    callbackURL: '/login/google/callback/',
-    scope: ['profile email']
-  }));
-  app.get('/login/google/callback/', require('./login/index').loginGoogle);
-  app.get('/login/tumblr/', passport.authenticate('tumblr', {
-    callbackURL: '/login/tumblr/callback/',
-    scope: ['profile email']
-  }));
-  app.get('/login/tumblr/callback/', require('./login/index').loginTumblr);
+  app.get('/login/google/', passport.authenticate('google', {callbackURL: '/login/google/callback/', scope: ['profile email']}));
+  app.get('/login/tumblr/', passport.authenticate('tumblr', {callbackURL: '/login/tumblr/callback/', scope: ['profile email']}));
+  app.get('/login/:social/callback/', require('./login/index').loginOauth);
 
   // Admin.
   app.all('/admin*', ensureAuthenticated);
@@ -159,25 +136,16 @@ exports = module.exports = function (app, passport) {
   app.put('/account/password/', require('./account/index').password);
   app.delete('/account/', require('./account/index').delete);
 
-  // Account > Settings > Social.
+  // Account connect.
   app.get('/account/twitter/', passport.authenticate('twitter', {callbackURL: '/account/twitter/callback/'}));
-  app.get('/account/twitter/callback/', require('./account/index').connectTwitter);
-  app.get('/account/twitter/disconnect/', require('./account/index').disconnectTwitter);
   app.get('/account/github/', passport.authenticate('github', {callbackURL: '/account/github/callback/'}));
-  app.get('/account/github/callback/', require('./account/index').connectGitHub);
-  app.get('/account/github/disconnect/', require('./account/index').disconnectGitHub);
   app.get('/account/facebook/', passport.authenticate('facebook', {callbackURL: '/account/facebook/callback/'}));
-  app.get('/account/facebook/callback/', require('./account/index').connectFacebook);
-  app.get('/account/facebook/disconnect/', require('./account/index').disconnectFacebook);
-  app.get('/account/google/', passport.authenticate('google', {
-    callbackURL: '/account/google/callback/',
-    scope: ['profile email']
-  }));
-  app.get('/account/google/callback/', require('./account/index').connectGoogle);
-  app.get('/account/google/disconnect/', require('./account/index').disconnectGoogle);
+  app.get('/account/google/', passport.authenticate('google', {callbackURL: '/account/google/callback/', scope: ['profile email']}));
   app.get('/account/tumblr/', passport.authenticate('tumblr', {callbackURL: '/account/tumblr/callback/'}));
-  app.get('/account/tumblr/callback/', require('./account/index').connectTumblr);
-  app.get('/account/tumblr/disconnect/', require('./account/index').disconnectTumblr);
+  app.get('/account/:social/callback/', require('./account/index').connectOauth);
+
+  // Account disconnect.
+  app.get('/account/:social/disconnect/', require('./account/index').disconnectOauth);
 
   // Account > Verification.
   app.get('/account/verification/', require('./account/verification/index').init);

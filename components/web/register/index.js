@@ -5,7 +5,7 @@ var getSocials = function(req) {
   var ret = [];
   req.app.config.socials.forEach(function(social, index, arr) {
     if (!!settings[social + 'Key']) {
-      ret.push(social)
+      ret.push(social);
     }
   });
 
@@ -17,11 +17,11 @@ exports.init = function (req, res) {
     res.redirect(req.user.defaultReturnUrl());
   }
   else {
-    res.render('signup/index', {socials: getSocials(req)});
+    res.render('register/index', {socials: getSocials(req)});
   }
 };
 
-exports.signup = function (req, res) {
+exports.register = function (req, res) {
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function () {
@@ -113,8 +113,8 @@ exports.signup = function (req, res) {
       from: settings.smtpFromName + ' <' + settings.smtpFromAddress + '>',
       to: req.body.email,
       subject: 'Your ' + settings.projectName + ' Account',
-      textPath: 'signup/email-text',
-      htmlPath: 'signup/email-html',
+      textPath: 'register/email-text',
+      htmlPath: 'register/email-html',
       locals: {
         username: req.body.username,
         email: req.body.email,
@@ -157,118 +157,41 @@ exports.signup = function (req, res) {
   workflow.emit('validate');
 };
 
-exports.signupTwitter = function (req, res, next) {
-  req._passport.instance.authenticate('twitter', function (err, user, info) {
+exports.registerOauth = function (req, res, next) {
+  var social = req.params.social;
+  req._passport.instance.authenticate(social, {callbackURL: '/register/' + social + '/callback/'}, function (err, user, info) {
     if (!info || !info.profile) {
-      return res.redirect('/signup/');
+      return res.redirect('/register/');
     }
 
-    req.app.db.models.User.findOne({'twitter.id': info.profile.id}, function (err, user) {
-      if (err) {
-        return next(err);
-      }
-
-      if (!user) {
-        req.session.socialProfile = info.profile;
-        res.render('signup/social', {email: ''});
-      }
-      else {
-        res.render('signup/index', {socials: getSocials(req)});
-      }
-    });
-  })(req, res, next);
-};
-
-exports.signupGitHub = function (req, res, next) {
-  req._passport.instance.authenticate('github', function (err, user, info) {
-    if (!info || !info.profile) {
-      return res.redirect('/signup/');
-    }
-
-    req.app.db.models.User.findOne({'github.id': info.profile.id}, function (err, user) {
-      if (err) {
-        return next(err);
-      }
-
-      if (!user) {
-        req.session.socialProfile = info.profile;
-        res.render('signup/social', {email: info.profile.emails && info.profile.emails[0].value || ''});
-      }
-      else {
-        res.render('signup/index', {socials: getSocials(req)});
-      }
-    });
-  })(req, res, next);
-};
-
-exports.signupFacebook = function (req, res, next) {
-  req._passport.instance.authenticate('facebook', {callbackURL: '/signup/facebook/callback/'}, function (err, user, info) {
-    if (!info || !info.profile) {
-      return res.redirect('/signup/');
-    }
-
-    req.app.db.models.User.findOne({'facebook.id': info.profile.id}, function (err, user) {
-      if (err) {
-        return next(err);
-      }
-      if (!user) {
-        req.session.socialProfile = info.profile;
-        res.render('signup/social', {email: info.profile.emails && info.profile.emails[0].value || ''});
-      }
-      else {
-        res.render('signup/index', {socials: getSocials(req)});
-      }
-    });
-  })(req, res, next);
-};
-
-exports.signupGoogle = function (req, res, next) {
-  req._passport.instance.authenticate('google', {callbackURL: '/signup/google/callback/'}, function (err, user, info) {
-    if (!info || !info.profile) {
-      return res.redirect('/signup/');
-    }
-
-    req.app.db.models.User.findOne({'google.id': info.profile.id}, function (err, user) {
-      if (err) {
-        return next(err);
-      }
-      if (!user) {
-        req.session.socialProfile = info.profile;
-        res.render('signup/social', {email: info.profile.emails && info.profile.emails[0].value || ''});
-      }
-      else {
-        res.render('signup/index', {socials: getSocials(req)});
-      }
-    });
-  })(req, res, next);
-};
-
-exports.signupTumblr = function (req, res, next) {
-  req._passport.instance.authenticate('tumblr', {callbackURL: '/signup/tumblr/callback/'}, function (err, user, info) {
-    if (!info || !info.profile) {
-      return res.redirect('/signup/');
-    }
-
-    if (!info.profile.hasOwnProperty('id')) {
+    if (social === 'tumblr' && !info.profile.hasOwnProperty('id')) {
       info.profile.id = info.profile.username;
     }
 
-    req.app.db.models.User.findOne({'tumblr.id': info.profile.id}, function (err, user) {
+    var cond = {};
+    cond[social + ".id"] = info.profile.id;
+    req.app.db.models.User.findOne(cond, function (err, user) {
       if (err) {
         return next(err);
       }
+
       if (!user) {
         req.session.socialProfile = info.profile;
-        res.render('signup/social', {email: info.profile.emails && info.profile.emails[0].value || ''});
+        if (!info.profile.emails || !info.profile.emails[0].value) {
+          res.render('register/social', {email: ''});
+        }
+        else {
+          res.render('register/social', {email: info.profile.emails && info.profile.emails[0].value || ''});
+        }
       }
       else {
-        res.render('signup/index', {socials: getSocials(req)});
+        res.render('register/index', {socials: getSocials(req)});
       }
     });
   })(req, res, next);
 };
 
-exports.signupSocial = function (req, res) {
+exports.registerSocial = function (req, res) {
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function () {
@@ -352,8 +275,8 @@ exports.signupSocial = function (req, res) {
       from: settings.smtpFromName + ' <' + settings.projectName + '>',
       to: req.body.email,
       subject: 'Your ' + settings.projectName + ' Account',
-      textPath: 'signup/email-text',
-      htmlPath: 'signup/email-html',
+      textPath: 'register/email-text',
+      htmlPath: 'register/email-html',
       locals: {
         username: workflow.user.username,
         email: req.body.email,

@@ -37,7 +37,7 @@ exports.info = function (req, res) {
  * @param req
  * @param res
  */
-exports.signup = function (req, res, next) {
+exports.register = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function () {

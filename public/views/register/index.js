@@ -5,8 +5,8 @@
 
   app = app || {};
 
-  app.Signup = Backbone.Model.extend({
-    url: '/signup/',
+  app.Register = Backbone.Model.extend({
+    url: '/register/',
     defaults: {
       errors: [],
       errfor: {},
@@ -16,16 +16,16 @@
     }
   });
 
-  app.SignupView = Backbone.View.extend({
-    el: '#signup',
-    template: _.template( $('#tmpl-signup').html() ),
+  app.RegisterView = Backbone.View.extend({
+    el: '#register',
+    template: _.template( $('#tmpl-register').html() ),
     events: {
       'submit form': 'preventSubmit',
-      'keypress [name="password"]': 'signupOnEnter',
-      'click .btn-signup': 'signup'
+      'keypress [name="password"]': 'registerOnEnter',
+      'click .btn-register': 'register'
     },
     initialize: function() {
-      this.model = new app.Signup();
+      this.model = new app.Register();
       this.listenTo(this.model, 'sync', this.render);
       this.render();
     },
@@ -36,14 +36,14 @@
     preventSubmit: function(event) {
       event.preventDefault();
     },
-    signupOnEnter: function(event) {
+    registerOnEnter: function(event) {
       if (event.keyCode !== 13) { return; }
       if ($(event.target).attr('name') !== 'password') { return; }
       event.preventDefault();
-      this.signup();
+      this.register();
     },
-    signup: function() {
-      this.$el.find('.btn-signup').attr('disabled', true);
+    register: function() {
+      this.$el.find('.btn-register').attr('disabled', true);
 
       this.model.save({
         username: this.$el.find('[name="username"]').val(),
@@ -63,6 +63,6 @@
   });
 
   $(document).ready(function() {
-    app.signupView = new app.SignupView();
+    app.registerView = new app.RegisterView();
   });
 }());

@@ -58,7 +58,7 @@ People.prototype.setEvents = function () {
         break;
 
       case 'ppl-register-btn':
-        self.makeRequest('POST', self.url + '/remote/signup/', {
+        self.makeRequest('POST', self.url + '/remote/register/', {
           username: document.getElementById('register-name').value,
           email: document.getElementById('ppl-register-email').value,
           password: document.getElementById('ppl-register-pass').value
@@ -138,7 +138,7 @@ People.prototype.setEvents = function () {
     var classes = e.target.classList;
     if (classes.contains('ppl-social-login')) {
       var name = e.target.id.replace('ppl-login-', '');
-      var url = self.url + '/remote/signup/' + name + '/',
+      var url = self.url + '/remote/register/' + name + '/',
         width = 1000,
         height = 650,
         top = (window.outerHeight - height) / 2,

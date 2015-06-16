@@ -1,29 +1,29 @@
 extends ../layouts/default
 
 block head
-    title Sign Up
+    title Register
 
 block neck
-    link(rel='stylesheet', href='/views/signup/index.min.css?#{cacheBreaker}')
+    link(rel='stylesheet', href='/views/register/index.min.css?#{cacheBreaker}')
 
 block feet
-    script(src='/views/signup/index.min.js?#{cacheBreaker}')
+    script(src='/views/register/index.min.js?#{cacheBreaker}')
 
 block body
     div.row
         div.col-sm-6
             div.page-header
-                h1 Sign Up
-            div#signup
+                h1 Register
+            div#register
             if socials.length > 0
                 hr
-                p Or sign up using...
+                p Or register using...
                 for social in socials
-                    a.btn.btn-info(href='/signup/#{social}/')
+                    a.btn.btn-info(href='/register/#{social}/')
                         i.fa.fa-lg(class="fa-#{social}")
                         |  #{social.charAt(0).toUpperCase() + social.slice(1)}
 
-    script(type='text/template', id='tmpl-signup')
+    script(type='text/template', id='tmpl-register')
         form
             div.alerts
                 | <% _.each(errors, function(err) { %>
@@ -44,7 +44,7 @@ block body
                 input.form-control(type='password', name='password', value!='<%= password %>')
                 span.help-block <%- errfor.password %>
             div.form-role
-                button.btn.btn-primary.btn-signup(type='button') Create My Account
+                button.btn.btn-primary.btn-register(type='button') Create My Account
             | Already a member?&nbsp;
             a(href='/login/')
                 | Login

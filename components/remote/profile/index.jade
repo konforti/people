@@ -37,7 +37,7 @@ form#ppl-new-password.hidden
         button#ppl-update-password-btn.btn.btn-primary.btn-password(type='button') Update Password
 
 div#ppl-connect
-    for social, i in data.social
+    for social, i in data.socials
         if social.key
             if social.active
                 a.ppl-disconnect-btn.btn(data-href='/remote/disconnect/#{i}/')

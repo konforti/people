@@ -10,11 +10,11 @@ block body
     div.row
         div.col-sm-6
             div.page-header
-                h1 Sign In
+                h1 Login
             div#login
             if socials.length > 0
                 hr
-                p Or sign up using...
+                p Or login using...
                 for social in socials
                     a.btn.btn-info(href='/login/#{social}/')
                         i.fa.fa-lg(class="fa-#{social}")
@@ -37,9 +37,9 @@ block body
                 input.form-control(type='password', name='password', value!='<%= password %>')
                 span.help-block <%- errfor.password %>
             div.form-actions
-                button.btn.btn-primary.btn-login(type='button') Sign In
+                button.btn.btn-primary.btn-login(type='button') Login
                 | &nbsp;
                 a.btn.btn-link(href='/login/forgot/') Forgot your password?
             | New here?&nbsp;
-            a(href='/signup/')
-                | Sign up
+            a(href='/register/')
+                | Register

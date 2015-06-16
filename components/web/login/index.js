@@ -14,7 +14,7 @@ var getSocials = function(req) {
   var ret = [];
   req.app.config.socials.forEach(function(social, index, arr) {
     if (!!settings[social + 'Key']) {
-      ret.push(social)
+      ret.push(social);
     }
   });
 
@@ -122,125 +122,20 @@ exports.login = function (req, res) {
   workflow.emit('validate');
 };
 
-exports.loginTwitter = function (req, res, next) {
-  req._passport.instance.authenticate('twitter', function (err, user, info) {
+exports.loginOauth = function (req, res, next) {
+  var social = req.params.social;
+  req._passport.instance.authenticate(social, {callbackURL: '/login/' + social + '/callback/'}, function (err, user, info) {
     if (!info || !info.profile) {
       return res.redirect('/login/');
     }
 
-    req.app.db.models.User.findOne({'twitter.id': info.profile.id}, function (err, user) {
-      if (err) {
-        return next(err);
-      }
-
-      if (!user) {
-        res.render('login/index', {socials: getSocials(req)});
-      }
-      else {
-        req.login(user, function (err) {
-          if (err) {
-            return next(err);
-          }
-
-          res.redirect(getReturnUrl(req));
-        });
-      }
-    });
-  })(req, res, next);
-};
-
-exports.loginGitHub = function (req, res, next) {
-  req._passport.instance.authenticate('github', function (err, user, info) {
-    if (!info || !info.profile) {
-      return res.redirect('/login/');
-    }
-
-    req.app.db.models.User.findOne({'github.id': info.profile.id}, function (err, user) {
-      if (err) {
-        return next(err);
-      }
-
-      if (!user) {
-        res.render('login/index', {socials: getSocials(req)});
-      }
-      else {
-        req.login(user, function (err) {
-          if (err) {
-            return next(err);
-          }
-
-          res.redirect(getReturnUrl(req));
-        });
-      }
-    });
-  })(req, res, next);
-};
-
-exports.loginFacebook = function (req, res, next) {
-  req._passport.instance.authenticate('facebook', {callbackURL: '/login/facebook/callback/'}, function (err, user, info) {
-    if (!info || !info.profile) {
-      return res.redirect('/login/');
-    }
-
-    req.app.db.models.User.findOne({'facebook.id': info.profile.id}, function (err, user) {
-      if (err) {
-        return next(err);
-      }
-
-      if (!user) {
-        res.render('login/index', {socials: getSocials(req)});
-      }
-      else {
-        req.login(user, function (err) {
-          if (err) {
-            return next(err);
-          }
-
-          res.redirect(getReturnUrl(req));
-        });
-      }
-    });
-  })(req, res, next);
-};
-
-exports.loginGoogle = function (req, res, next) {
-  req._passport.instance.authenticate('google', {callbackURL: '/login/google/callback/'}, function (err, user, info) {
-    if (!info || !info.profile) {
-      return res.redirect('/login/');
-    }
-
-    req.app.db.models.User.findOne({'google.id': info.profile.id}, function (err, user) {
-      if (err) {
-        return next(err);
-      }
-
-      if (!user) {
-        res.render('login/index', {socials: getSocials(req)});
-      }
-      else {
-        req.login(user, function (err) {
-          if (err) {
-            return next(err);
-          }
-
-          res.redirect(getReturnUrl(req));
-        });
-      }
-    });
-  })(req, res, next);
-};
-
-exports.loginTumblr = function (req, res, next) {
-  req._passport.instance.authenticate('tumblr', {callbackURL: '/login/tumblr/callback/'}, function (err, user, info) {
-    if (!info || !info.profile) {
-      return res.redirect('/login/');
-    }
-
-    if (!info.profile.hasOwnProperty('id')) {
+    if (social === 'tumblr' && !info.profile.hasOwnProperty('id')) {
       info.profile.id = info.profile.username;
     }
 
-    req.app.db.models.User.findOne({'tumblr.id': info.profile.id}, function (err, user) {
+    var cond = {};
+    cond[social + ".id"] = info.profile.id;
+    req.app.db.models.User.findOne(cond, function (err, user) {
       if (err) {
         return next(err);
       }

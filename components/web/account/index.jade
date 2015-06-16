@@ -19,7 +19,7 @@ block body
             fieldset
                 div#delete
         div.col-sm-3
-            for social, i in data.social
+            for social, i in data.socials
                 if social.key
                     if social.active
                         a.btn.btn-block.btn-danger(href='/account/#{i}/disconnect/')

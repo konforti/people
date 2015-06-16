@@ -194,15 +194,14 @@ exports.updateProfile = function (req, res, next) {
 
   workflow.on('getSocial', function () {
     var settings = req.app.getSettings();
-    workflow.outcome.social = {};
+    workflow.outcome.socials = {};
     req.app.config.socials.forEach(function(social, index, arr) {
-      workflow.outcome.social[social] = {
+      workflow.outcome.socials[social] = {
         key: !!settings[social + 'Key'],
         active: workflow.outcome.record[social] ? !!workflow.outcome.record[social].id : false
       };
     });
 
-    workflow.outcome.social = social;
     workflow.emit('renderProfile');
   });
 
@@ -227,7 +226,7 @@ exports.updateProfile = function (req, res, next) {
           csrfToken: csrfToken,
           record: workflow.outcome.record,
           fields: workflow.outcome.fields,
-          social: workflow.outcome.social
+          socials: workflow.outcome.socials
         }
       }, function (err, html) {
         delete workflow.outcome.record;
@@ -334,149 +333,36 @@ exports.updatePassword = function (req, res, next) {
   workflow.emit('validate');
 };
 
-exports.connectTwitter = function (req, res, next) {
+exports.connectOauth = function (req, res, next) {
+  var social = req.params.social;
   var outcome = {};
-  req._passport.instance.authenticate('twitter', function (err, user, info) {
+  req._passport.instance.authenticate('social',  {callbackURL: '/remote/connect/' + social + '/callback/'}, function (err, user, info) {
     if (!info || !info.profile) {
       return res.send('Authentication problem.');
     }
 
-    req.app.db.models.User.findOne({'twitter.id': info.profile.id, _id: {$ne: req.user.id}}, function (err, user) {
-      if (err) {
-        return next(err);
-      }
-
-      if (user) {
-        res.send('Another user has already connected with that Twitter account.');
-      }
-      else {
-        req.app.db.models.User.findByIdAndUpdate(req.user.id, {'twitter.id': info.profile.id}, function (err, user) {
-          if (err) {
-            return next(err);
-          }
-          var settings = req.app.getSettings();
-          outcome.allowDomain = settings.allowDomain;
-          res.render('../remote/profile/connect', {data: JSON.stringify(outcome)});
-        });
-      }
-    });
-  })(req, res, next);
-};
-
-exports.connectGitHub = function (req, res, next) {
-  var outcome = {};
-  req._passport.instance.authenticate('github', function (err, user, info) {
-    if (!info || !info.profile) {
-      return res.send('Authentication problem.');
-    }
-
-    req.app.db.models.User.findOne({'github.id': info.profile.id, _id: {$ne: req.user.id}}, function (err, user) {
-      if (err) {
-        return next(err);
-      }
-
-      if (user) {
-        res.send('Another user has already connected with that GitHub account.');
-      }
-      else {
-        req.app.db.models.User.findByIdAndUpdate(req.user.id, {'github.id': info.profile.id}, function (err, user) {
-          if (err) {
-            return next(err);
-          }
-          var settings = req.app.getSettings();
-          outcome.allowDomain = settings.allowDomain;
-          res.render('../remote/profile/connect', {data: JSON.stringify(outcome)});
-        });
-      }
-    });
-  })(req, res, next);
-};
-
-exports.connectFacebook = function (req, res, next) {
-  var outcome = {};
-  req._passport.instance.authenticate('facebook', {callbackURL: '/account/facebook/callback/'}, function (err, user, info) {
-    if (!info || !info.profile) {
-      return res.send('Authentication problem.');
-    }
-
-    req.app.db.models.User.findOne({'facebook.id': info.profile.id, _id: {$ne: req.user.id}}, function (err, user) {
-      if (err) {
-        return next(err);
-      }
-
-      if (user) {
-        res.send('Another user has already connected with that Facebook account.');
-      }
-      else {
-        req.app.db.models.User.findByIdAndUpdate(req.user.id, {'facebook.id': info.profile.id}, function (err, user) {
-          if (err) {
-            return next(err);
-          }
-
-          var settings = req.app.getSettings();
-          outcome.allowDomain = settings.allowDomain;
-          res.render('../remote/profile/connect', {data: JSON.stringify(outcome)});
-        });
-      }
-    });
-  })(req, res, next);
-};
-
-exports.connectGoogle = function (req, res, next) {
-  var outcome = {};
-  req._passport.instance.authenticate('google', {callbackURL: '/account/google/callback/'}, function (err, user, info) {
-    if (!info || !info.profile) {
-      return res.send('Authentication problem.');
-    }
-
-    req.app.db.models.User.findOne({'google.id': info.profile.id, _id: {$ne: req.user.id}}, function (err, user) {
-      if (err) {
-        return next(err);
-      }
-
-      if (user) {
-        res.send('Another user has already connected with that Google account.');
-      }
-      else {
-        req.app.db.models.User.findByIdAndUpdate(req.user.id, {'google.id': info.profile.id}, function (err, user) {
-          if (err) {
-            return next(err);
-          }
-
-          var settings = req.app.getSettings();
-          outcome.allowDomain = settings.allowDomain;
-          res.render('../remote/profile/connect', {data: JSON.stringify(outcome)});
-        });
-      }
-    });
-  })(req, res, next);
-};
-
-exports.connectTumblr = function (req, res, next) {
-  var outcome = {};
-  req._passport.instance.authenticate('tumblr', {callbackURL: '/account/tumblr/callback/'}, function (err, user, info) {
-    if (!info || !info.profile) {
-      return res.send('Authentication problem.');
-    }
-
-    if (!info.profile.hasOwnProperty('id')) {
+    if (social === 'tumblr' && !info.profile.hasOwnProperty('id')) {
       info.profile.id = info.profile.username;
     }
 
-    req.app.db.models.User.findOne({'tumblr.id': info.profile.id, _id: {$ne: req.user.id}}, function (err, user) {
+    var cond = {};
+    cond[social + ".id"] = info.profile.id;
+    cond._id = {$ne: req.user.id};
+    req.app.db.models.User.findOne(cond, function (err, user) {
       if (err) {
         return next(err);
       }
 
       if (user) {
-        res.send('Another user has already connected with that Tumblr account.');
+        res.send('Another user has already connected with that account.');
       }
       else {
-        req.app.db.models.User.findByIdAndUpdate(req.user.id, {'tumblr.id': info.profile.id}, function (err, user) {
+        var cond = {};
+        cond[social + ".id"] = info.profile.id;
+        req.app.db.models.User.findByIdAndUpdate(req.user.id, cond, function (err, user) {
           if (err) {
             return next(err);
           }
-
           var settings = req.app.getSettings();
           outcome.allowDomain = settings.allowDomain;
           res.render('../remote/profile/connect', {data: JSON.stringify(outcome)});
@@ -486,53 +372,12 @@ exports.connectTumblr = function (req, res, next) {
   })(req, res, next);
 };
 
-exports.disconnectTwitter = function (req, res, next) {
+exports.disconnectOauth = function (req, res, next) {
+  var social = req.params.social;
   var workflow = req.app.utility.workflow(req, res);
-  req.app.db.models.User.findByIdAndUpdate(req.user.id, {twitter: {id: undefined}}, function (err, user) {
-    if (err) {
-      return workflow.emit('exception', err);
-    }
-
-    workflow.emit('response');
-  });
-};
-
-exports.disconnectGitHub = function (req, res, next) {
-  var workflow = req.app.utility.workflow(req, res);
-  req.app.db.models.User.findByIdAndUpdate(req.user.id, {github: {id: undefined}}, function (err, user) {
-    if (err) {
-      return workflow.emit('exception', err);
-    }
-
-    workflow.emit('response');
-  });
-};
-
-exports.disconnectFacebook = function (req, res, next) {
-  var workflow = req.app.utility.workflow(req, res);
-  req.app.db.models.User.findByIdAndUpdate(req.user.id, {facebook: {id: undefined}}, function (err, user) {
-    if (err) {
-      return workflow.emit('exception', err);
-    }
-
-    workflow.emit('response');
-  });
-};
-
-exports.disconnectGoogle = function (req, res, next) {
-  var workflow = req.app.utility.workflow(req, res);
-  req.app.db.models.User.findByIdAndUpdate(req.user.id, {google: {id: undefined}}, function (err, user) {
-    if (err) {
-      return workflow.emit('exception', err);
-    }
-
-    workflow.emit('response');
-  });
-};
-
-exports.disconnectTumblr = function (req, res, next) {
-  var workflow = req.app.utility.workflow(req, res);
-  req.app.db.models.User.findByIdAndUpdate(req.user.id, {tumblr: {id: undefined}}, function (err, user) {
+  var cond = {};
+  cond[social] = {id: undefined};
+  req.app.db.models.User.findByIdAndUpdate(req.user.id, cond, function (err, user) {
     if (err) {
       return workflow.emit('exception', err);
     }
