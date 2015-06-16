@@ -4,12 +4,12 @@ var renderSettings = function (req, res, next, oauthMessage) {
   var outcome = {};
 
   var getAccount = function (callback) {
-    req.app.db.models.User.findById(req.user.id).exec(function (err, account) {
+    req.app.db.models.User.findById(req.user.id).exec(function (err, record) {
       if (err) {
         callback(err, null);
       }
 
-      outcome.account = account;
+      outcome.record = record;
       return callback(null, 'done');
     });
   };
@@ -25,6 +25,35 @@ var renderSettings = function (req, res, next, oauthMessage) {
     });
   };
 
+  var getSocial = function (callback) {
+    var settings = req.app.getSettings();
+    var social = {
+      twitter: {
+        key: !!settings.twitterKey,
+        active: outcome.record.twitter ? !!outcome.record.twitter.id : false
+      },
+      facebook: {
+        key: !!settings.facebookKey,
+        active: outcome.record.facebook ? !!outcome.record.facebook.id : false
+      },
+      github: {
+        key: !!settings.githubKey,
+        active: outcome.record.github ? !!outcome.record.github.id : false
+      },
+      google: {
+        key: !!settings.googleKey,
+        active: outcome.record.google ? !!outcome.record.google.id : false
+      },
+      tumblr: {
+        key: !!settings.tumblrKey,
+        active: outcome.record.tumblr ? !!outcome.record.tumblr.id : false
+      }
+    };
+
+    outcome.social = social;
+    return callback(null, 'done');
+  };
+
   var asyncFinally = function (err, results) {
     if (err) {
       return next(err);
@@ -32,36 +61,25 @@ var renderSettings = function (req, res, next, oauthMessage) {
 
     outcome.fields.forEach(function(field, index, array) {
       field.value = '';
-      for(var key in outcome.account.fields) {
-        if (outcome.account.fields.hasOwnProperty(key)) {
+      for(var key in outcome.record.fields) {
+        if (outcome.record.fields.hasOwnProperty(key)) {
           if (field._id === key) {
-            field.value = outcome.account.fields[key];
+            field.value = outcome.record.fields[key];
           }
         }
       }
     });
 
-    var settings = req.app.getSettings();
     res.render('account/index', {
       data: {
-        record: escape(JSON.stringify(outcome.account)),
-        fields: outcome.fields
-      },
-      oauthMessage: oauthMessage,
-      oauthTwitter: !!settings.twitterKey,
-      oauthTwitterActive: outcome.account.twitter ? !!outcome.account.twitter.id : false,
-      oauthGitHub: !!settings.githubKey,
-      oauthGitHubActive: outcome.account.github ? !!outcome.account.github.id : false,
-      oauthFacebook: !!settings.facebookKey,
-      oauthFacebookActive: outcome.account.facebook ? !!outcome.account.facebook.id : false,
-      oauthGoogle: !!settings.googleKey,
-      oauthGoogleActive: outcome.account.google ? !!outcome.account.google.id : false,
-      oauthTumblr: !!settings.tumblrKey,
-      oauthTumblrActive: outcome.account.tumblr ? !!outcome.account.tumblr.id : false
+        record: escape(JSON.stringify(outcome.record)),
+        fields: outcome.fields,
+        social: outcome.social
+      }
     });
   };
 
-  require('async').parallel([getAccount, getFields], asyncFinally);
+  require('async').series([getAccount, getFields, getSocial], asyncFinally);
 };
 
 exports.init = function (req, res, next) {
@@ -266,10 +284,6 @@ exports.update = function (req, res, next) {
       return workflow.emit('response');
     }
 
-    if (!req.body.mode) {
-      req.body.mode = 'no';
-    }
-
     if (!req.body.username) {
       workflow.outcome.errfor.username = 'required';
     }
@@ -326,7 +340,6 @@ exports.update = function (req, res, next) {
 
   workflow.on('patchUser', function () {
     var fieldsToSet = {
-      mode: req.body.mode,
       username: req.body.username,
       email: req.body.email.toLowerCase(),
       fields: req.body.fields,

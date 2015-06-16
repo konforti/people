@@ -19,7 +19,18 @@ block body
             fieldset
                 div#delete
         div.col-sm-3
-            if oauthTwitter || oauthGitHub || oauthFacebook || oauthGoogle || oauthTumblr
+            for social, i in data.social
+                if social.key
+                    if social.active
+                        a.btn.btn-block.btn-danger(href='/account/#{i}/disconnect/')
+                            i.fa.fa-twitter.fa-lg(class="fa-#{i}")
+                            |  Disconnect #{i}
+                    else
+                        a.btn.btn-block.btn-default(href='/account/#{i}/')
+                            i.fa.fa-twitter.fa-lg(class="fa-#{i}")
+                            |  Connect #{i}
+
+            //if oauthTwitter || oauthGitHub || oauthFacebook || oauthGoogle || oauthTumblr
                 fieldset
                     div#social
                         legend Social Connections
@@ -72,8 +83,7 @@ block body
     script(type='text/template', id='tmpl-header')
         div.page-header
             h1
-                a(href='/admin/users/') Users
-                |  / <%= username %>
+                | Account Settings | <%= username %>
 
     script(type='text/template', id='tmpl-identity')
         legend Identity
@@ -96,12 +106,6 @@ block body
             label Email:
             input.form-control(type='text', name='email', value!='<%= email %>')
             span.help-block <%- errfor.email %>
-        div.form-role(class!='<%- errfor.mode ? "has-error" : "" %>')
-            label Mode:
-            select.form-control(name='mode')
-                option(value='on') On
-                option(value='off') Off
-            span.help-block <%- errfor.mode %>
 
         for field in data.fields
             div.form-role(class!='<%- errfor.#{field._id} ? "has-error" : "" %>')
