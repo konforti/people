@@ -26,29 +26,13 @@ var renderSettings = function (req, res, next, oauthMessage) {
   };
 
   var getSocial = function (callback) {
+    var actives = [];
     var settings = req.app.getSettings();
-    var social = {
-      twitter: {
-        key: !!settings.twitterKey,
-        active: outcome.record.twitter ? !!outcome.record.twitter.id : false
-      },
-      facebook: {
-        key: !!settings.facebookKey,
-        active: outcome.record.facebook ? !!outcome.record.facebook.id : false
-      },
-      github: {
-        key: !!settings.githubKey,
-        active: outcome.record.github ? !!outcome.record.github.id : false
-      },
-      google: {
-        key: !!settings.googleKey,
-        active: outcome.record.google ? !!outcome.record.google.id : false
-      },
-      tumblr: {
-        key: !!settings.tumblrKey,
-        active: outcome.record.tumblr ? !!outcome.record.tumblr.id : false
+    req.app.config.socials.forEach(function(social, index, arr) {
+      if (settings[social + 'Key']) {
+        actives.push(social);
       }
-    };
+    });
 
     outcome.social = social;
     return callback(null, 'done');
