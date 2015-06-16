@@ -25,10 +25,6 @@ app.config = config;
 // Setup the web server.
 app.server = http.createServer(app);
 
-app.setSettings = function(settings) {
-  fs.writeFileSync('./settings.json', JSON.stringify(settings, null, '\t'));
-};
-
 // Settings.
 app.getSettings = function() {
   try {
@@ -37,13 +33,13 @@ app.getSettings = function() {
   catch(e) {
     var defaults = JSON.parse(fs.readFileSync('./defaults.json', {encoding: 'utf8'}));
     defaults.cryptoKey = crypto.randomBytes(6).toString('hex');
-    app.setSettings(defaults);
+    fs.writeFileSync('./settings.json', JSON.stringify(defaults, null, '\t'));
     return JSON.parse(fs.readFileSync('./settings.json', {encoding: 'utf8'}));
   }
 };
 
 // Set cryptoKey if there is none.
-var settings = app.getSettings();
+app.appSettings = app.getSettings();
 
 // Setup mongoose.
 app.db = mongoose.createConnection(config.mongodb.uri);
@@ -66,17 +62,17 @@ app.use(require('morgan')('dev'));
 app.use(require('compression')());
 app.use(require('serve-static')(path.join(__dirname, 'public'), {
   setHeaders: function(res, path) {
-    res.setHeader("Access-Control-Allow-Origin", settings.allowDomain);
+    res.setHeader("Access-Control-Allow-Origin", app.appSettings.allowDomain);
   }
 }));
 app.use(require('method-override')());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser(settings.cryptoKey));
+app.use(cookieParser(app.appSettings.cryptoKey));
 app.use(session({
   resave: false,
   saveUninitialized: false,
-  secret: settings.cryptoKey,
+  secret: app.appSettings.cryptoKey,
   store: new mongoStore({ url: config.mongodb.uri })
 }));
 app.use(passport.initialize());
@@ -102,18 +98,18 @@ app.use(function(req, res, next) {
 });
 
 // Global locals.
-app.locals.projectName = settings.projectName;
-app.locals.copyrightName = settings.projectName;
+app.locals.projectName = app.appSettings.projectName;
+app.locals.copyrightName = app.appSettings.projectName;
 
 app.locals.copyrightYear = new Date().getFullYear();
 app.locals.cacheBreaker = 'br34k-01';
 
 // CORS middleware.
-app.locals.projectName = settings.projectName;
-app.locals.copyrightName = settings.projectName;
+app.locals.projectName = app.appSettings.projectName;
+app.locals.copyrightName = app.appSettings.projectName;
 
 var allowCrossDomain = function(req, res, next) {
-  res.header('Access-Control-Allow-Origin', settings.allowDomain);
+  res.header('Access-Control-Allow-Origin', app.appSettings.allowDomain);
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
   res.header('Access-Control-Allow-Credentials', 'true');

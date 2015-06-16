@@ -206,7 +206,7 @@ exports.update = function (req, res, next) {
       if (err) {
         return workflow.emit('exception', err);
       }
-
+      req.app.appSettings = settings;
       workflow.outcome.settings = settings;
       return workflow.emit('response');
     });
