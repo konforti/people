@@ -14,10 +14,9 @@ exports.info = function (req, res) {
   });
 
   workflow.on('getInfo', function () {
-    var socials = ['twitter', 'facebook', 'github', 'google', 'tumblr'];
     var actives = [];
     var settings = req.app.getSettings();
-    socials.forEach(function(social, index, arr) {
+    req.app.config.socials.forEach(function(social, index, arr) {
       if (settings[social + 'Key']) {
         actives.push(social);
       }

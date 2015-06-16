@@ -15,38 +15,13 @@ block body
             div.page-header
                 h1 Sign Up
             div#signup
-            if oauthTwitter || oauthGitHub || oauthFacebook || oauthGoogle || oauthTumblr
+            if socials.length > 0
                 hr
                 p Or sign up using...
-                if oauthMessage
-                    div.alerts
-                        div.alert.alert-info.alert-dismissable
-                            button.close(type='button', data-dismiss='alert') &times;
-                            | #{oauthMessage}&nbsp;
-                            b
-                                a(href='/login/') Login Here
-                div.btn-role.btn-role-justified
-                    if oauthTwitter
-                        a.btn.btn-info(href='/signup/twitter/')
-                            i.fa.fa-twitter.fa-lg
-                            |  Twitter
-                    if oauthGitHub
-                        a.btn.btn-info(href='/signup/github/')
-                            i.fa.fa-github.fa-lg
-                            |  GitHub
-                    if oauthFacebook
-                        a.btn.btn-info(href='/signup/facebook/')
-                            i.fa.fa-facebook-square.fa-lg
-                            |  Facebook
-                    if oauthGoogle
-                        a.btn.btn-info(href='/signup/google/')
-                            i.fa.fa-google-plus-square.fa-lg
-                            |  Google
-                    if oauthTumblr
-                        a.btn.btn-info(href='/signup/tumblr/')
-                            i.fa.fa-tumblr-square.fa-lg
-                            |  Tumblr
-
+                for social in socials
+                    a.btn.btn-info(href='/signup/#{social}/')
+                        i.fa.fa-lg(class="fa-#{social}")
+                        |  #{social.charAt(0).toUpperCase() + social.slice(1)}
 
     script(type='text/template', id='tmpl-signup')
         form

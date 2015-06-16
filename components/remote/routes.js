@@ -44,25 +44,12 @@ exports = module.exports = function (app, passport) {
 
   app.get('/remote/signup/twitter/', passport.authenticate('twitter', {callbackURL: '/remote/signup/twitter/callback/'}));
   app.get('/remote/signup/twitter/callback/', require('./social/index').signupTwitter);
-
-  app.get('/remote/signup/github/', passport.authenticate('github', {
-    callbackURL: '/remote/signup/github/callback/',
-    scope: ['user:email']
-  }));
+  app.get('/remote/signup/github/', passport.authenticate('github', {callbackURL: '/remote/signup/github/callback/', scope: ['user:email']}));
   app.get('/remote/signup/github/callback/', require('./social/index').signupGitHub);
-
-  app.get('/remote/signup/facebook/', passport.authenticate('facebook', {
-    callbackURL: '/remote/signup/facebook/callback/',
-    scope: ['email']
-  }));
+  app.get('/remote/signup/facebook/', passport.authenticate('facebook', {callbackURL: '/remote/signup/facebook/callback/', scope: ['email']}));
   app.get('/remote/signup/facebook/callback/', require('./social/index').signupFacebook);
-
-  app.get('/remote/signup/google/', passport.authenticate('google', {
-    callbackURL: '/remote/signup/google/callback/',
-    scope: ['profile email']
-  }));
+  app.get('/remote/signup/google/', passport.authenticate('google', {callbackURL: '/remote/signup/google/callback/', scope: ['profile email']}));
   app.get('/remote/signup/google/callback/', require('./social/index').signupGoogle);
-
   app.get('/remote/signup/tumblr/', passport.authenticate('tumblr', {callbackURL: '/remote/signup/tumblr/callback/'}));
   app.get('/remote/signup/tumblr/callback/', require('./social/index').signupTumblr);
 

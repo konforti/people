@@ -34,28 +34,13 @@ exports.readProfile = function (req, res, next) {
 
   var getSocial = function(callback) {
     var settings = req.app.getSettings();
-    workflow.outcome.social = {
-      twitter: {
-        key: !!settings.twitterKey,
-        active: workflow.outcome.record.twitter ? !!workflow.outcome.record.twitter.id : false
-      },
-      facebook: {
-        key: !!settings.facebookKey,
-        active: workflow.outcome.record.facebook ? !!workflow.outcome.record.facebook.id : false
-      },
-      github: {
-        key: !!settings.githubKey,
-        active: workflow.outcome.record.github ? !!workflow.outcome.record.github.id : false
-      },
-      google: {
-        key: !!settings.googleKey,
-        active: workflow.outcome.record.google ? !!workflow.outcome.record.google.id : false
-      },
-      tumblr: {
-        key: !!settings.tumblrKey,
-        active: workflow.outcome.record.tumblr ? !!workflow.outcome.record.tumblr.id : false
-      }
-    };
+    workflow.outcome.social = {};
+    req.app.config.socials.forEach(function(social, index, arr) {
+      workflow.outcome.social[social] = {
+        key: !!settings[social + 'Key'],
+        active: workflow.outcome.record[social] ? !!workflow.outcome.record[social].id : false
+      };
+    });
 
     callback(null);
   };
@@ -209,28 +194,13 @@ exports.updateProfile = function (req, res, next) {
 
   workflow.on('getSocial', function () {
     var settings = req.app.getSettings();
-    var social = {
-      twitter: {
-        key: !!settings.twitterKey,
-        active: workflow.outcome.record.twitter ? !!workflow.outcome.record.twitter.id : false
-      },
-      facebook: {
-        key: !!settings.facebookKey,
-        active: workflow.outcome.record.facebook ? !!workflow.outcome.record.facebook.id : false
-      },
-      github: {
-        key: !!settings.githubKey,
-        active: workflow.outcome.record.github ? !!workflow.outcome.record.github.id : false
-      },
-      google: {
-        key: !!settings.googleKey,
-        active: workflow.outcome.record.google ? !!workflow.outcome.record.google.id : false
-      },
-      tumblr: {
-        key: !!settings.tumblrKey,
-        active: workflow.outcome.record.tumblr ? !!workflow.outcome.record.tumblr.id : false
-      }
-    };
+    workflow.outcome.social = {};
+    req.app.config.socials.forEach(function(social, index, arr) {
+      workflow.outcome.social[social] = {
+        key: !!settings[social + 'Key'],
+        active: workflow.outcome.record[social] ? !!workflow.outcome.record[social].id : false
+      };
+    });
 
     workflow.outcome.social = social;
     workflow.emit('renderProfile');

@@ -1,19 +1,23 @@
 'use strict';
 
+var getSocials = function(req) {
+  var settings = req.app.getSettings();
+  var ret = [];
+  req.app.config.socials.forEach(function(social, index, arr) {
+    if (!!settings[social + 'Key']) {
+      ret.push(social)
+    }
+  });
+
+  return ret;
+};
+
 exports.init = function (req, res) {
   if (req.isAuthenticated()) {
     res.redirect(req.user.defaultReturnUrl());
   }
   else {
-    var settings = req.app.getSettings();
-    res.render('signup/index', {
-      oauthMessage: '',
-      oauthTwitter: !!settings.twitterKey,
-      oauthGitHub: !!settings.githubKey,
-      oauthFacebook: !!settings.facebookKey,
-      oauthGoogle: !!settings.googleKey,
-      oauthTumblr: !!settings.tumblrKey
-    });
+    res.render('signup/index', {socials: getSocials(req)});
   }
 };
 
@@ -169,15 +173,7 @@ exports.signupTwitter = function (req, res, next) {
         res.render('signup/social', {email: ''});
       }
       else {
-        var settings = req.app.getSettings();
-        res.render('signup/index', {
-          oauthMessage: '',
-          oauthTwitter: !!settings.twitterKey,
-          oauthGitHub: !!settings.githubKey,
-          oauthFacebook: !!settings.facebookKey,
-          oauthGoogle: !!settings.googleKey,
-          oauthTumblr: !!settings.tumblrKey
-        });
+        res.render('signup/index', {socials: getSocials(req)});
       }
     });
   })(req, res, next);
@@ -199,15 +195,7 @@ exports.signupGitHub = function (req, res, next) {
         res.render('signup/social', {email: info.profile.emails && info.profile.emails[0].value || ''});
       }
       else {
-        var settings = req.app.getSettings();
-        res.render('signup/index', {
-          oauthMessage: '',
-          oauthTwitter: !!settings.twitterKey,
-          oauthGitHub: !!settings.githubKey,
-          oauthFacebook: !!settings.facebookKey,
-          oauthGoogle: !!settings.googleKey,
-          oauthTumblr: !!settings.tumblrKey
-        });
+        res.render('signup/index', {socials: getSocials(req)});
       }
     });
   })(req, res, next);
@@ -228,15 +216,7 @@ exports.signupFacebook = function (req, res, next) {
         res.render('signup/social', {email: info.profile.emails && info.profile.emails[0].value || ''});
       }
       else {
-        var settings = req.app.getSettings();
-        res.render('signup/index', {
-          oauthMessage: '',
-          oauthTwitter: !!settings.twitterKey,
-          oauthGitHub: !!settings.githubKey,
-          oauthFacebook: !!settings.facebookKey,
-          oauthGoogle: !!settings.googleKey,
-          oauthTumblr: !!settings.tumblrKey
-        });
+        res.render('signup/index', {socials: getSocials(req)});
       }
     });
   })(req, res, next);
@@ -257,15 +237,7 @@ exports.signupGoogle = function (req, res, next) {
         res.render('signup/social', {email: info.profile.emails && info.profile.emails[0].value || ''});
       }
       else {
-        var settings = req.app.getSettings();
-        res.render('signup/index', {
-          oauthMessage: '',
-          oauthTwitter: !!settings.twitterKey,
-          oauthGitHub: !!settings.githubKey,
-          oauthFacebook: !!settings.facebookKey,
-          oauthGoogle: !!settings.googleKey,
-          oauthTumblr: !!settings.tumblrKey
-        });
+        res.render('signup/index', {socials: getSocials(req)});
       }
     });
   })(req, res, next);
@@ -290,15 +262,7 @@ exports.signupTumblr = function (req, res, next) {
         res.render('signup/social', {email: info.profile.emails && info.profile.emails[0].value || ''});
       }
       else {
-        var settings = req.app.getSettings();
-        res.render('signup/index', {
-          oauthMessage: '',
-          oauthTwitter: !!settings.twitterKey,
-          oauthGitHub: !!settings.githubKey,
-          oauthFacebook: !!settings.facebookKey,
-          oauthGoogle: !!settings.googleKey,
-          oauthTumblr: !!settings.tumblrKey
-        });
+        res.render('signup/index', {socials: getSocials(req)});
       }
     });
   })(req, res, next);
