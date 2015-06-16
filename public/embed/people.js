@@ -463,10 +463,11 @@ People.prototype.loginForm = function (socials) {
   loginHTML += '<button id="ppl-login-btn" type="button" name="button-login">Login</button> ';
   loginHTML += '<a class="ppl-to-forgot" href="javascript:void(0)">Forgot password</a>';
   loginHTML += '</form>';
-  if (socials && socials.length > 1) {
-    loginHTML += '<div>Or login with: </div>';
+
+  if (socials && socials.length > 0) {
+    loginHTML += '<H4>Or login with: </H4>';
     for (var i = 0, name; name = socials[i]; ++i) {
-      loginHTML += '<a class="ppl-social-login icon-' + name + '" id="ppl-login-' + name + '" href="javascript:void(0)">' + name.charAt(0).toUpperCase() + name.slice(1) + '</a> ';
+      loginHTML += '<a class="ppl-social-login" id="ppl-login-' + name + '" href="javascript:void(0)"><i class="icon-' + name + '"></i>' + name.charAt(0).toUpperCase() + name.slice(1) + '</a> ';
     }
   }
 
@@ -484,14 +485,18 @@ People.prototype.registerForm = function (socials) {
   registerHTML += '<h3>Register</h3>';
   registerHTML += '<form class="ppl-register-form">';
   registerHTML += '<div class="ppl-form-field"><input id="ppl-register-name" type="textfield" placeholder="Name"></div>';
-  registerHTML += '<div class="ppl-form-field"><input id="ppl-register-email" type="text" placeholder="Email"></div>';
+  registerHTML += '<div class="ppl-form-field"><input id="ppl-register-email" type="textfield" placeholder="Email"></div>';
   registerHTML += '<div class="ppl-form-field"><input id="ppl-register-pass" type="password" placeholder="Password"></div>';
   registerHTML += '<button id="ppl-register-btn" type="button" name="button-register">Register</button>';
   registerHTML += '</form>';
-  registerHTML += '<h4>Or Register with: </h4>';
-  for (var i = 0, name; name = socials[i]; ++i) {
-    registerHTML += '<a class="ppl-social-login" id="ppl-login-' + name + '" href="javascript:void(0)">' + name.charAt(0).toUpperCase() + name.slice(1) + '</a>';
+
+  if (socials && socials.length > 0) {
+    registerHTML += '<h4>Or Register with: </h4>';
+    for (var i = 0, name; name = socials[i]; ++i) {
+      registerHTML += '<a class="ppl-social-login" id="ppl-login-' + name + '" href="javascript:void(0)"><i class="icon-' + name + '"></i>' + name.charAt(0).toUpperCase() + name.slice(1) + '</a>';
+    }
   }
+
   registerHTML += '<div>Already a member? <a class="ppl-to-login" href="javascript:void(0)">Login</a></div>';
   return registerHTML;
 };

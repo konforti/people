@@ -40,8 +40,10 @@ div#ppl-connect
     for social, i in data.social
         if social.key
             if social.active
-                a.ppl-disconnect-btn.btn(class="icon-#{i}" data-href='/remote/disconnect/#{i}/')
-                    |  Disconnect #{i}
+                a.ppl-disconnect-btn.btn(data-href='/remote/disconnect/#{i}/')
+                    i(class="icon-#{i}")
+                    |  Disconnect #{i.charAt(0).toUpperCase() + i.slice(1)}
             else
-                a.ppl-connect-btn.btn(class="icon-#{i}" data-href='/remote/connect/#{i}/')
-                    |  Connect #{i}
+                a.ppl-connect-btn.btn(data-href='/remote/connect/#{i}/')
+                    i(class="icon-#{i}")
+                    |  Connect #{i.charAt(0).toUpperCase() + i.slice(1)}

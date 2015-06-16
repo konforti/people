@@ -23,62 +23,12 @@ block body
                 if social.key
                     if social.active
                         a.btn.btn-block.btn-danger(href='/account/#{i}/disconnect/')
-                            i.fa.fa-twitter.fa-lg(class="fa-#{i}")
-                            |  Disconnect #{i}
+                            i.fa.fa-lg(class="fa-#{i}")
+                            |  Disconnect #{i.charAt(0).toUpperCase() + i.slice(1)}
                     else
                         a.btn.btn-block.btn-default(href='/account/#{i}/')
-                            i.fa.fa-twitter.fa-lg(class="fa-#{i}")
-                            |  Connect #{i}
-
-            //if oauthTwitter || oauthGitHub || oauthFacebook || oauthGoogle || oauthTumblr
-                fieldset
-                    div#social
-                        legend Social Connections
-                        if oauthTwitter
-                            if oauthTwitterActive
-                                a.btn.btn-block.btn-danger(href='/account/twitter/disconnect/')
-                                    i.fa.fa-twitter.fa-lg
-                                    |  Disconnect Twitter
-                            else
-                                a.btn.btn-block.btn-default(href='/account/twitter/')
-                                    i.fa.fa-twitter.fa-lg
-                                    |  Connect Twitter
-                        if oauthGitHub
-                            if oauthGitHubActive
-                                a.btn.btn-block.btn-danger(href='/account/github/disconnect/')
-                                    i.fa.fa-github.fa-lg
-                                    |  Disconnect GitHub
-                            else
-                                a.btn.btn-block.btn-default(href='/account/github/')
-                                    i.fa.fa-github.fa-lg
-                                    |  Connect GitHub
-                        if oauthFacebook
-                            if oauthFacebookActive
-                                a.btn.btn-block.btn-danger(href='/account/facebook/disconnect/')
-                                    i.fa.fa-facebook-square.fa-lg
-                                    |  Disconnect Facebook
-                            else
-                                a.btn.btn-block.btn-default(href='/account/facebook/')
-                                    i.fa.fa-facebook-square.fa-lg
-                                    |  Connect Facebook
-                        if oauthGoogle
-                            if oauthGoogleActive
-                                a.btn.btn-block.btn-danger(href='/account/google/disconnect/')
-                                    i.fa.fa-google-plus-square.fa-lg
-                                    |  Disconnect Google
-                            else
-                                a.btn.btn-block.btn-default(href='/account/google/')
-                                    i.fa.fa-google-plus-square.fa-lg
-                                    |  Connect Google
-                        if oauthTumblr
-                            if oauthTumblrActive
-                                a.btn.btn-block.btn-danger(href='/account/tumblr/disconnect/')
-                                    i.fa.fa-tumblr-square.fa-lg
-                                    |  Disconnect Tumblr
-                            else
-                                a.btn.btn-block.btn-default(href='/account/tumblr/')
-                                    i.fa.fa-tumblr-square.fa-lg
-                                    |  Connect Tumblr
+                            i.fa.fa-lg(class="fa-#{i}")
+                            |  Connect #{i.charAt(0).toUpperCase() + i.slice(1)}
 
     script(type='text/template', id='tmpl-header')
         div.page-header
