@@ -34,9 +34,9 @@ exports.readProfile = function (req, res, next) {
 
   var getSocial = function(callback) {
     var settings = req.app.getSettings();
-    workflow.outcome.social = {};
+    workflow.outcome.socials = {};
     req.app.config.socials.forEach(function(social, index, arr) {
-      workflow.outcome.social[social] = {
+      workflow.outcome.socials[social] = {
         key: !!settings[social + 'Key'],
         active: workflow.outcome.record[social] ? !!workflow.outcome.record[social].id : false
       };
@@ -73,7 +73,7 @@ exports.readProfile = function (req, res, next) {
           csrfToken: csrfToken,
           record: workflow.outcome.record,
           fields: workflow.outcome.fields,
-          social: workflow.outcome.social
+          socials: workflow.outcome.socials
         }
       }, function (err, html) {
         workflow.outcome.html = html;

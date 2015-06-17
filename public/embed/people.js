@@ -42,14 +42,11 @@ Array.prototype.contains = function ( needle ) {
  */
 var People = function(options) {
   options = options || {};
-  this.url = options.url || 'http://localhost:3000';
-  this.loginElementID = options.loginElementID || 'ppl-login';
-  this.profileElementID = options.profileElementID || 'ppl-profile';
-  this.userElementID = options.userElementID || 'ppl-user';
+  this.url = options.url || '';
+  this.loginElementID = options.loginElementID || '';
+  this.profileElementID = options.profileElementID || '';
 
-  this.event = new EventEmitter();
-
-  if (localStorage.getItem('people.info') === null) {
+  if (this.getInfo() === null) {
     this.makeRequest('GET', this.url + '/remote/info/', {}, function (data) {
       var data = JSON.parse(data.responseText);
       if (data.success === true) {
@@ -58,12 +55,40 @@ var People = function(options) {
     });
   }
 
-  if (!this.getCookie('people.sid')) {
+  if (!this.isUser()) {
     localStorage.removeItem('people.user');
   }
 
   this.clickEvents();
 };
+
+/**
+ * User data.
+ */
+People.prototype.getUser = function() {
+  return JSON.parse(localStorage.getItem('people.user'));
+};
+
+/**
+ * App Info.
+ */
+People.prototype.getInfo = function() {
+  return JSON.parse(localStorage.getItem('people.info'));
+}
+
+/**
+ * Check if the user is loggedin.
+ * @type {boolean}
+ */
+People.prototype.isUser = function() {
+  return this.getCookie('people.sid').length > 0;
+};
+
+/**
+ * Set ans app event emitter.
+ * @type {EventEmitter}
+ */
+People.prototype.event = new EventEmitter();
 
 /**
  * Register events.
@@ -134,7 +159,7 @@ People.prototype.clickEvents = function () {
         self.makeRequest('POST', self.url + '/remote/profile/', values, function (data) {
           if (!self.errors(data)) {
             self.event.emit('profileupdate', data);
-            self.profileBlock(data.responseText);
+            self.showProfile(data.responseText);
           }
         });
         break;
@@ -148,7 +173,7 @@ People.prototype.clickEvents = function () {
         self.makeRequest('POST', self.url + '/remote/password/', values, function (data) {
           if (!self.errors(data)) {
             self.event.emit('passwordupdate', data);
-            self.profileBlock(data.responseText);
+            self.showProfile(data.responseText);
           }
         });
         break;
@@ -156,6 +181,10 @@ People.prototype.clickEvents = function () {
       case 'ppl-user-avatar':
       case 'ppl-user-name':
         self.showProfile();
+        break;
+
+      case 'ppl-user-logout':
+        self.logout();
         break;
     }
 
@@ -184,9 +213,6 @@ People.prototype.clickEvents = function () {
     }
     else if (classes.contains('ppl-to-forgot')) {
       self.showLogin({form: 'forgot'});
-    }
-    else if (classes.contains('ppl-to-logout')) {
-      self.logout();
     }
     else if (classes.contains('ppl-verify-email')) {
       self.makeRequest('POST', self.url + '/remote/verification/', {}, function (data) {
@@ -423,6 +449,7 @@ People.prototype.login = function (data) {
 
   // Save Shallow user to local storage.
   localStorage.setItem('people.user', JSON.stringify(data.user));
+  this.hideLogin();
   this.event.emit('login', data);
 };
 
@@ -432,24 +459,26 @@ People.prototype.login = function (data) {
 People.prototype.logout = function () {
   this.eraseCookie('people.sid');
   localStorage.removeItem('people.user');
-  this.event.emit('logout', data);
+  this.hideUser();
+  this.hideProfile();
+  this.event.emit('logout');
 };
 
 /**
  * Logged-in user block.
  */
-People.prototype.showUser = function () {
-  if (this.getCookie('people.sid')) {
-    var user = JSON.parse(localStorage.getItem('people.user'));
+People.prototype.showUser = function (elementID) {
+  if (this.isUser()) {
+    var user = this.getUser();
     if (user) {
       var output = '';
-      output += '<div class="ppl-block" id="ppl-user-block">';
-      output += '<div><img id="ppl-user-avatar" src="' + user.avatar + '"></div>';
-      output += '<span id="ppl-user-name">' + user.username + '</span>';
-      output += '<span> | <a class="ppl-to-logout" href="javascript:void(0)">Log Out</a></span>';
+      output += '<div id="ppl-user-block">';
+      output += '<a href="javascript:void(0)"><img id="ppl-user-avatar" src="' + user.avatar + '"></a>';
+      output += '<a id="ppl-user-name" href="javascript:void(0)">' + user.username + '</a> | ';
+      output += '<a id="ppl-user-logout" href="javascript:void(0)">Logout</a>';
       output += '</div>';
 
-      var el = document.getElementById(this.userElementID);
+      var el = document.getElementById(elementID);
       if (el) el.innerHTML = output;
     }
   }
@@ -557,10 +586,18 @@ People.prototype.hideLogin = function () {
  * Display login block.
  * @param options
  */
-People.prototype.showLogin = function (options) {
-  if (!this.getCookie('people.sid')) {
+People.prototype.showLogin = function (options, callback) {
+  if (typeof options === 'function') {
+    callback = options;
+    options = {};
+  }
+  else if (typeof options === 'undefined') {
+    callback = null;
+    options = {};
+  }
+  if (!this.isUser()) {
     var form = options.form || 'login';
-    var info = JSON.parse(localStorage.getItem('people.info'));
+    var info = this.getInfo();
     var socials = info ? info.socials : [];
     var output = '';
     output += '<div class="ppl-block" id="ppl-login-block">';
@@ -569,10 +606,16 @@ People.prototype.showLogin = function (options) {
     switch (form) {
       case 'login':
         output += this.loginForm(socials);
+        this.event.on('login', function(e) {
+          if (callback) callback.call(this, e);
+        });
         break;
 
       case 'register':
         output += this.registerForm(socials);
+        this.event.on('login', function(e) {
+          if (callback) callback.call(this, e);
+        });
         break;
 
       case 'forgot':
@@ -586,44 +629,56 @@ People.prototype.showLogin = function (options) {
     output += '</div>';
 
     var el = document.getElementById(this.loginElementID);
-    if (el) el.innerHTML = output;
+    if (el) {
+      el.innerHTML = output;
+    }
+    else {
+      document.body.innerHTML += output;
+    }
   }
 };
 
 /**
- * Logged-in user profile.
+ * Display Logged-in user profile..
+ * @param profile
  */
-People.prototype.showProfile = function () {
-  var self = this;
-  var el = document.getElementById(this.profileElementID);
-  if (el && this.getCookie('people.sid')) {
+People.prototype.showProfile = function (profile) {
+  var self = this
+  if (!this.isUser()) {
+    return false;
+  }
+
+  if (!profile) {
     this.makeRequest('GET', this.url + '/remote/profile/', {sid: this.getCookie('people.sid')}, function (data) {
-      self.profileBlock(data.responseText);
+      profile = data.responseText;
+      renderProfile();
     });
   }
-};
+  else {
+    renderProfile();
+  }
 
-/**
- * Display profile block.
- * @param data
- */
-People.prototype.profileBlock = function (data) {
-  if (this.getCookie('people.sid')) {
-    var user = JSON.parse(localStorage.getItem('people.user'));
+  function renderProfile() {
+    var user = self.getUser();
     if (user) {
-      data = JSON.parse(data);
+      profile = JSON.parse(profile);
       var output = '';
       output += '<div class="ppl-block" id="ppl-profile-block">';
       output += '<div class="ppl-close-btn">&times</div>';
       output += '<div class="ppl-alerts"></div>';
 
-      if (data && data.html) {
-        output += data.html;
+      if (profile && profile.html) {
+        output += profile.html;
       }
 
       output += '</div>';
-      var el = document.getElementById(this.profileElementID);
-      if (el) el.innerHTML = output;
+      var el = document.getElementById(self.profileElementID);
+      if (el) {
+        el.innerHTML = output;
+      }
+      else {
+        document.body.innerHTML += output;
+      }
     }
   }
 };
