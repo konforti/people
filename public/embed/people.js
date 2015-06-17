@@ -1,7 +1,33 @@
 'use strict';
 
 /**
- * Array.prototype.[method name] allows you to define/overwrite an objects method
+ * EventEmitter.
+ * @constructor
+ */
+var EventEmitter = function() {this._listeners = {}};
+EventEmitter.prototype = {
+  on: function(name, fn) {
+    this._listeners[name] = this._listeners[name] || [];
+    this._listeners[name].push(fn);
+  },
+  remove: function(name, fn) {
+    fn && this._listeners[name] && this._listeners[name].splice(this._listeners[name].indexOf(fn), 1);
+  },
+  emit: function(name) {
+    var fns = this._listeners[name] || [];
+    for (var i = 0; i < fns.length; ++i) {
+      try {
+        fns[i].apply(this, [Array.prototype.slice.call(arguments, 1) || []]);
+      }
+      catch (err) {
+        this.emit('error', err);
+      }
+    }
+  }
+};
+
+/**
+ * Array.prototype.contains
  * needle is the item you are searching for
  * this is a special variable that refers to "this" instance of an Array.
  * returns true if needle is in the array, and false otherwise
@@ -17,9 +43,11 @@ Array.prototype.contains = function ( needle ) {
 var People = function(options) {
   options = options || {};
   this.url = options.url || 'http://localhost:3000';
-  this.loginID = options.loginID || 'ppl-login';
-  this.profileID = options.profileID || 'ppl-profile';
-  this.userBlockID = options.userBlockID || 'ppl-user';
+  this.loginElementID = options.loginElementID || 'ppl-login';
+  this.profileElementID = options.profileElementID || 'ppl-profile';
+  this.userElementID = options.userElementID || 'ppl-user';
+
+  this.event = new EventEmitter();
 
   if (localStorage.getItem('people.info') === null) {
     this.makeRequest('GET', this.url + '/remote/info/', {}, function (data) {
@@ -34,13 +62,13 @@ var People = function(options) {
     localStorage.removeItem('people.user');
   }
 
-  this.setEvents();
+  this.clickEvents();
 };
 
 /**
  * Register events.
  */
-People.prototype.setEvents = function () {
+People.prototype.clickEvents = function () {
   var self = this;
   document.addEventListener('click', function (e) {
 
@@ -51,7 +79,7 @@ People.prototype.setEvents = function () {
           username: document.getElementById('ppl-login-name').value,
           password: document.getElementById('ppl-login-pass').value
         }, function (data) {
-          if (!self.alert(data)) {
+          if (!self.errors(data)) {
             self.login(JSON.parse(data.responseText));
           }
         });
@@ -63,7 +91,7 @@ People.prototype.setEvents = function () {
           email: document.getElementById('ppl-register-email').value,
           password: document.getElementById('ppl-register-pass').value
         }, function (data) {
-          if (!self.alert(data)) {
+          if (!self.errors(data)) {
             self.login(JSON.parse(data.responseText));
           }
         });
@@ -73,8 +101,8 @@ People.prototype.setEvents = function () {
         self.makeRequest('POST', self.url + '/remote/forgot/', {
           email: document.getElementById('ppl-forgot-email').value
         }, function (data) {
-          if (!self.alert(data)) {
-            self.loginBlock({form: 'reset'});
+          if (!self.errors(data)) {
+            self.showLogin({form: 'reset'});
           }
         });
         break;
@@ -84,10 +112,9 @@ People.prototype.setEvents = function () {
           token: document.getElementById('ppl-forgot-reset-token').value,
           password: document.getElementById('ppl-forgot-reset-pass').value
         }, function (data) {
-          if (!self.alert(data)) {
-            var event = new Event('onpasswordreset');
-            document.dispatchEvent(event);
-            self.loginBlock();
+          if (!self.errors(data)) {
+            self.event.emit('passwordreset', data);
+            self.showLogin();
           }
         });
         break;
@@ -105,9 +132,8 @@ People.prototype.setEvents = function () {
         }
         values.fields = JSON.stringify(values.fields);
         self.makeRequest('POST', self.url + '/remote/profile/', values, function (data) {
-          if (!self.alert(data)) {
-            var event = new Event('onprofileupdate');
-            document.dispatchEvent(event);
+          if (!self.errors(data)) {
+            self.event.emit('profileupdate', data);
             self.profileBlock(data.responseText);
           }
         });
@@ -120,9 +146,8 @@ People.prototype.setEvents = function () {
           values[elm.name] = elm.value;
         }
         self.makeRequest('POST', self.url + '/remote/password/', values, function (data) {
-          if (!self.alert(data)) {
-            var event = new Event('onpasswordupdate');
-            document.dispatchEvent(event);
+          if (!self.errors(data)) {
+            self.event.emit('passwordupdate', data);
             self.profileBlock(data.responseText);
           }
         });
@@ -130,7 +155,7 @@ People.prototype.setEvents = function () {
 
       case 'ppl-user-avatar':
       case 'ppl-user-name':
-        self.userProfile();
+        self.showProfile();
         break;
     }
 
@@ -152,13 +177,13 @@ People.prototype.setEvents = function () {
       }, false);
     }
     else if (classes.contains('ppl-to-login')) {
-      self.loginBlock();
+      self.showLogin();
     }
     else if (classes.contains('ppl-to-register')) {
-      self.loginBlock({form: 'register'});
+      self.showLogin({form: 'register'});
     }
     else if (classes.contains('ppl-to-forgot')) {
-      self.loginBlock({form: 'forgot'});
+      self.showLogin({form: 'forgot'});
     }
     else if (classes.contains('ppl-to-logout')) {
       self.logout();
@@ -166,7 +191,7 @@ People.prototype.setEvents = function () {
     else if (classes.contains('ppl-verify-email')) {
       self.makeRequest('POST', self.url + '/remote/verification/', {}, function (data) {
         var message = 'A verification mail sent to your email address.';
-        if (!self.alert(data, message)) {
+        if (!self.errors(data, message)) {
           // Wait.
         }
       });
@@ -202,7 +227,7 @@ People.prototype.setEvents = function () {
       var url = e.target.getAttribute('data-href');
 
       self.makeRequest('GET', self.url + url, {}, function (data) {
-        if (!self.alert(data, 'Disconnect successfully')) {
+        if (!self.errors(data, 'Disconnect successfully')) {
           e.target.classList.remove('ppl-disconnect-btn');
           e.target.classList.add('ppl-connect-btn');
           e.target.setAttribute('data-href', e.target.getAttribute('data-href').replace('/disconnect/', '/connect/'));
@@ -344,8 +369,8 @@ People.prototype.oncookieset = function (name, callback) {
  * @param data
  * @returns {boolean}
  */
-People.prototype.alert = function(data, info) {
-  info = info || '';
+People.prototype.errors = function(data, messege) {
+  messege = messege || '';
   data = JSON.parse(data.responseText);
 
   function ele() {
@@ -362,7 +387,7 @@ People.prototype.alert = function(data, info) {
     var el = ele();
     if (el) {
       el.classList.add('ppl-info');
-      el.innerHTML += '<p>' + info + '</p>'
+      el.innerHTML += '<p>' + messege + '</p>'
     }
 
     return false;
@@ -398,14 +423,7 @@ People.prototype.login = function (data) {
 
   // Save Shallow user to local storage.
   localStorage.setItem('people.user', JSON.stringify(data.user));
-
-  var event = new Event('onlogin');
-  document.dispatchEvent(event);
-
-  // Show the logged-in user block.
-  this.userBlock();
-  this.userProfile();
-  this.loginBlockRemove();
+  this.event.emit('login', data);
 };
 
 /**
@@ -414,31 +432,25 @@ People.prototype.login = function (data) {
 People.prototype.logout = function () {
   this.eraseCookie('people.sid');
   localStorage.removeItem('people.user');
-
-  var event = new Event('onlogout');
-  document.dispatchEvent(event);
-
-  this.loginBlock();
-  this.userBlockRemove();
-  this.userProfileRemove();
+  this.event.emit('logout', data);
 };
 
 /**
  * Logged-in user block.
  */
-People.prototype.userBlock = function () {
+People.prototype.showUser = function () {
   if (this.getCookie('people.sid')) {
     var user = JSON.parse(localStorage.getItem('people.user'));
     if (user) {
-      var userBlock = '';
-      userBlock += '<div class="ppl-block" id="ppl-user-block">';
-      userBlock += '<div><img id="ppl-user-avatar" src="' + user.avatar + '"></div>';
-      userBlock += '<span id="ppl-user-name">' + user.username + '</span>';
-      userBlock += '<span> | <a class="ppl-to-logout" href="javascript:void(0)">Log Out</a></span>';
-      userBlock += '</div>';
+      var output = '';
+      output += '<div class="ppl-block" id="ppl-user-block">';
+      output += '<div><img id="ppl-user-avatar" src="' + user.avatar + '"></div>';
+      output += '<span id="ppl-user-name">' + user.username + '</span>';
+      output += '<span> | <a class="ppl-to-logout" href="javascript:void(0)">Log Out</a></span>';
+      output += '</div>';
 
-      var el = document.getElementById(this.userBlockID);
-      if (el) el.innerHTML = userBlock;
+      var el = document.getElementById(this.userElementID);
+      if (el) el.innerHTML = output;
     }
   }
 };
@@ -446,7 +458,7 @@ People.prototype.userBlock = function () {
 /**
  * Remove user block.
  */
-People.prototype.userBlockRemove = function () {
+People.prototype.hideUser = function () {
   var el = document.getElementById('ppl-user-block');
   if (el) el.outerHTML = '';
 };
@@ -455,24 +467,24 @@ People.prototype.userBlockRemove = function () {
  * login/register block.
  */
 People.prototype.loginForm = function (socials) {
-  var loginHTML = '';
-  loginHTML += '<h3>Login</h3>';
-  loginHTML += '<form class="ppl-login-form">';
-  loginHTML += '<div class="ppl-form-field"><input id="ppl-login-name" type="textfield" placeholder="Name"></div>';
-  loginHTML += '<div class="ppl-form-field"><input id="ppl-login-pass" type="password" placeholder="Password"></div>';
-  loginHTML += '<button id="ppl-login-btn" type="button" name="button-login">Login</button> ';
-  loginHTML += '<a class="ppl-to-forgot" href="javascript:void(0)">Forgot password</a>';
-  loginHTML += '</form>';
+  var output = '';
+  output += '<h3>Login</h3>';
+  output += '<form class="ppl-login-form">';
+  output += '<div class="ppl-form-field"><input id="ppl-login-name" type="textfield" placeholder="Name"></div>';
+  output += '<div class="ppl-form-field"><input id="ppl-login-pass" type="password" placeholder="Password"></div>';
+  output += '<button id="ppl-login-btn" type="button" name="button-login">Login</button> ';
+  output += '<a class="ppl-to-forgot" href="javascript:void(0)">Forgot password</a>';
+  output += '</form>';
 
   if (socials && socials.length > 0) {
-    loginHTML += '<H4>Or login with: </H4>';
+    output += '<H4>Or login with: </H4>';
     for (var i = 0, name; name = socials[i]; ++i) {
-      loginHTML += '<a class="ppl-social-login" id="ppl-login-' + name + '" href="javascript:void(0)"><i class="icon-' + name + '"></i>' + name.charAt(0).toUpperCase() + name.slice(1) + '</a> ';
+      output += '<a class="ppl-social-login" id="ppl-login-' + name + '" href="javascript:void(0)"><i class="icon-' + name + '"></i>' + name.charAt(0).toUpperCase() + name.slice(1) + '</a> ';
     }
   }
 
-  loginHTML += '<div>New here? <a class="ppl-to-register" href="javascript:void(0)">Register</a></div>';
-  return loginHTML;
+  output += '<div>New here? <a class="ppl-to-register" href="javascript:void(0)">Register</a></div>';
+  return output;
 };
 
 /**
@@ -481,24 +493,24 @@ People.prototype.loginForm = function (socials) {
  * @returns {string}
  */
 People.prototype.registerForm = function (socials) {
-  var registerHTML = '';
-  registerHTML += '<h3>Register</h3>';
-  registerHTML += '<form class="ppl-register-form">';
-  registerHTML += '<div class="ppl-form-field"><input id="ppl-register-name" type="textfield" placeholder="Name"></div>';
-  registerHTML += '<div class="ppl-form-field"><input id="ppl-register-email" type="textfield" placeholder="Email"></div>';
-  registerHTML += '<div class="ppl-form-field"><input id="ppl-register-pass" type="password" placeholder="Password"></div>';
-  registerHTML += '<button id="ppl-register-btn" type="button" name="button-register">Register</button>';
-  registerHTML += '</form>';
+  var output = '';
+  output += '<h3>Register</h3>';
+  output += '<form class="ppl-register-form">';
+  output += '<div class="ppl-form-field"><input id="ppl-register-name" type="textfield" placeholder="Name"></div>';
+  output += '<div class="ppl-form-field"><input id="ppl-register-email" type="textfield" placeholder="Email"></div>';
+  output += '<div class="ppl-form-field"><input id="ppl-register-pass" type="password" placeholder="Password"></div>';
+  output += '<button id="ppl-register-btn" type="button" name="button-register">Register</button>';
+  output += '</form>';
 
   if (socials && socials.length > 0) {
-    registerHTML += '<h4>Or Register with: </h4>';
+    output += '<h4>Or Register with: </h4>';
     for (var i = 0, name; name = socials[i]; ++i) {
-      registerHTML += '<a class="ppl-social-login" id="ppl-login-' + name + '" href="javascript:void(0)"><i class="icon-' + name + '"></i>' + name.charAt(0).toUpperCase() + name.slice(1) + '</a>';
+      output += '<a class="ppl-social-login" id="ppl-login-' + name + '" href="javascript:void(0)"><i class="icon-' + name + '"></i>' + name.charAt(0).toUpperCase() + name.slice(1) + '</a>';
     }
   }
 
-  registerHTML += '<div>Already a member? <a class="ppl-to-login" href="javascript:void(0)">Login</a></div>';
-  return registerHTML;
+  output += '<div>Already a member? <a class="ppl-to-login" href="javascript:void(0)">Login</a></div>';
+  return output;
 };
 
 /**
@@ -506,15 +518,15 @@ People.prototype.registerForm = function (socials) {
  * @returns {string}
  */
 People.prototype.forgotForm = function () {
-  var forgotHTML = '';
-  forgotHTML += '<h3>Forgot Password</h3>'
-  forgotHTML += '<form class="ppl-forgot-form">';
-  forgotHTML += '<div class="ppl-form-field"><input id="ppl-forgot-email" type="email" placeholder="Email"></div>';
-  forgotHTML += '<button id="ppl-forgot-btn" type="button" name="button-forgot">Send to my mail</button>';
-  forgotHTML += '</form>';
-  forgotHTML += '<a class="ppl-to-login" href="javascript:void(0)">Back to login</a>';
+  var output = '';
+  output += '<h3>Forgot Password</h3>'
+  output += '<form class="ppl-forgot-form">';
+  output += '<div class="ppl-form-field"><input id="ppl-forgot-email" type="email" placeholder="Email"></div>';
+  output += '<button id="ppl-forgot-btn" type="button" name="button-forgot">Send to my mail</button>';
+  output += '</form>';
+  output += '<a class="ppl-to-login" href="javascript:void(0)">Back to login</a>';
 
-  return forgotHTML;
+  return output;
 };
 
 /**
@@ -522,21 +534,21 @@ People.prototype.forgotForm = function () {
  * @returns {string}
  */
 People.prototype.forgotResetForm = function () {
-  var forgotResetHTML = '';
-  forgotResetHTML += '<h3>Reset password</h3>';
-  forgotResetHTML += '<form class="ppl-forgot-reset-form">';
-  forgotResetHTML += '<div class="ppl-form-field"><textarea id="ppl-forgot-reset-token" placeholder="Verification Token"></textarea></div>';
-  forgotResetHTML += '<div class="ppl-form-field"><input id="ppl-forgot-reset-pass" type="password" placeholder="New Password"></div>';
-  forgotResetHTML += '<button id="ppl-forgot-reset-btn" type="button" name="button-forgot-reset">Update Password</button>';
-  forgotResetHTML += '</form>';
+  var output = '';
+  output += '<h3>Reset password</h3>';
+  output += '<form class="ppl-forgot-reset-form">';
+  output += '<div class="ppl-form-field"><textarea id="ppl-forgot-reset-token" placeholder="Verification Token"></textarea></div>';
+  output += '<div class="ppl-form-field"><input id="ppl-forgot-reset-pass" type="password" placeholder="New Password"></div>';
+  output += '<button id="ppl-forgot-reset-btn" type="button" name="button-forgot-reset">Update Password</button>';
+  output += '</form>';
 
-  return forgotResetHTML;
+  return output;
 };
 
 /**
  * Remove login block.
  */
-People.prototype.loginBlockRemove = function () {
+People.prototype.hideLogin = function () {
   var el = document.getElementById('ppl-login-block');
   if (el) el.outerHTML = '';
 };
@@ -545,9 +557,8 @@ People.prototype.loginBlockRemove = function () {
  * Display login block.
  * @param options
  */
-People.prototype.loginBlock = function (options) {
+People.prototype.showLogin = function (options) {
   if (!this.getCookie('people.sid')) {
-    options = options || {};
     var form = options.form || 'login';
     var info = JSON.parse(localStorage.getItem('people.info'));
     var socials = info ? info.socials : [];
@@ -574,7 +585,7 @@ People.prototype.loginBlock = function (options) {
     }
     output += '</div>';
 
-    var el = document.getElementById(this.loginID);
+    var el = document.getElementById(this.loginElementID);
     if (el) el.innerHTML = output;
   }
 };
@@ -582,9 +593,9 @@ People.prototype.loginBlock = function (options) {
 /**
  * Logged-in user profile.
  */
-People.prototype.userProfile = function () {
+People.prototype.showProfile = function () {
   var self = this;
-  var el = document.getElementById(this.profileID);
+  var el = document.getElementById(this.profileElementID);
   if (el && this.getCookie('people.sid')) {
     this.makeRequest('GET', this.url + '/remote/profile/', {sid: this.getCookie('people.sid')}, function (data) {
       self.profileBlock(data.responseText);
@@ -611,7 +622,7 @@ People.prototype.profileBlock = function (data) {
       }
 
       output += '</div>';
-      var el = document.getElementById(this.profileID);
+      var el = document.getElementById(this.profileElementID);
       if (el) el.innerHTML = output;
     }
   }
@@ -620,7 +631,7 @@ People.prototype.profileBlock = function (data) {
 /**
  * Remove profile block.
  */
-People.prototype.userProfileRemove = function () {
+People.prototype.hideProfile = function () {
   var el = document.getElementById('ppl-profile-block');
   if (el) el.outerHTML = '';
 };
