@@ -512,7 +512,7 @@ People.prototype.loginForm = function (socials) {
   output += '<form class="ppl-login-form">';
   output += '<div class="ppl-form-field"><input id="ppl-login-name" type="textfield" placeholder="Name"></div>';
   output += '<div class="ppl-form-field"><input id="ppl-login-pass" type="password" placeholder="Password"></div>';
-  output += '<a id="ppl-login-btn" class="submit"  href="javascript:void(0)">Login</a> ';
+  output += '<a id="ppl-login-btn" class="submit" href="javascript:void(0)">Login</a> ';
   output += '</form>';
 
   if (socials && socials.length > 0) {
@@ -541,7 +541,7 @@ People.prototype.registerForm = function (socials) {
   output += '<div class="ppl-form-field"><input id="ppl-register-name" type="textfield" placeholder="Name"></div>';
   output += '<div class="ppl-form-field"><input id="ppl-register-email" type="textfield" placeholder="Email"></div>';
   output += '<div class="ppl-form-field"><input id="ppl-register-pass" type="password" placeholder="Password"></div>';
-  output += '<a id="ppl-register-btn" class="submit"  href="javascript:void(0)">Register</a> ';
+  output += '<a id="ppl-register-btn" class="submit" href="javascript:void(0)">Register</a> ';
   output += '</form>';
 
   if (socials && socials.length > 0) {
@@ -566,7 +566,7 @@ People.prototype.forgotForm = function () {
   output += '<h3>Forgot Password</h3>'
   output += '<form class="ppl-forgot-form">';
   output += '<div class="ppl-form-field"><input id="ppl-forgot-email" type="email" placeholder="Email"></div>';
-  output += '<a id="ppl-forgot-btn" class="submit"  href="javascript:void(0)">Send</a> ';
+  output += '<a id="ppl-forgot-btn" class="submit" href="javascript:void(0)">Send</a> ';
   output += '</form>';
 
   output += '<div class="footer">';
@@ -585,7 +585,7 @@ People.prototype.forgotResetForm = function () {
   output += '<form class="ppl-forgot-reset-form">';
   output += '<div class="ppl-form-field"><textarea id="ppl-forgot-reset-token" placeholder="Verification Token"></textarea></div>';
   output += '<div class="ppl-form-field"><input id="ppl-forgot-reset-pass" type="password" placeholder="New Password"></div>';
-  output += '<button id="ppl-forgot-reset-btn" type="button" name="button-forgot-reset">Update Password</button>';
+  output += '<a id="ppl-forgot-reset-btn" class="submit" href="javascript:void(0)">Update Password</a> ';
   output += '</form>';
 
   return output;

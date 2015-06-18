@@ -21,11 +21,12 @@
     color: #fff;
     text-decoration: none;
     font-size: 16px;
-    padding: 10px;
+    padding: 8px;
     border: 0;
   }
 
-  input {
+  input,
+  textarea {
     box-sizing: border-box;
     font-size: 16px;
   }
@@ -56,17 +57,12 @@
 #ppl-login-block {
   text-align: center;
 
-  .ppl-forgot-form,
-  .ppl-login-form,
-  .ppl-register-form {
+  input,
+  textarea {
+    width: 100%;
+    padding: 10px;
     border: 1px solid #ccc;
-
-    input {
-      width: 100%;
-      padding: 20px;
-      border: 0;
-      border-bottom: 1px solid #ccc;
-    }
+    margin-top: -1px;
   }
 
   .ppl-social-login {
