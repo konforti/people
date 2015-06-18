@@ -90,7 +90,7 @@ module.exports = function(grunt) {
         files: [
           'public/layouts/**/*.less',
           'public/less/**/*.less',
-          'public/embed/**/*.less'
+          'public/embed/**/**/*.less'
         ],
         tasks: ['less:layouts']
       }
@@ -188,7 +188,10 @@ module.exports = function(grunt) {
             'public/less/font-awesome-build.less',
             'public/layouts/core.less'
           ],
-          'public/layouts/admin.min.css': ['public/layouts/admin.less']
+          'public/layouts/admin.min.css': ['public/layouts/admin.less'],
+          'public/embed/themes/people-basic.min.css': ['public/embed/themes/less/people-basic.less'],
+          'public/embed/themes/people-blue.min.css': ['public/embed/themes/less/people-blue.less'],
+          'public/embed/themes/people-cards.min.css': ['public/embed/themes/less/people-cards.less']
         }
       },
       views: {

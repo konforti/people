@@ -508,22 +508,24 @@ People.prototype.hideUser = function () {
  */
 People.prototype.loginForm = function (socials) {
   var output = '';
-  output += '<h3>Login</h3>';
+  output += '<h3 class="title">Login</h3>';
   output += '<form class="ppl-login-form">';
   output += '<div class="ppl-form-field"><input id="ppl-login-name" type="textfield" placeholder="Name"></div>';
   output += '<div class="ppl-form-field"><input id="ppl-login-pass" type="password" placeholder="Password"></div>';
-  output += '<button id="ppl-login-btn" type="button" name="button-login">Login</button> ';
-  output += '<a class="ppl-to-forgot" href="javascript:void(0)">Forgot password</a>';
+  output += '<a id="ppl-login-btn" class="submit"  href="javascript:void(0)">Login</a> ';
   output += '</form>';
 
   if (socials && socials.length > 0) {
-    output += '<H4>Or login with: </H4>';
+    output += '<H4 class="or">OR</H4>';
     for (var i = 0, name; name = socials[i]; ++i) {
       output += '<a class="ppl-social-login" id="ppl-login-' + name + '" href="javascript:void(0)"><i class="icon-' + name + '"></i>' + name.charAt(0).toUpperCase() + name.slice(1) + '</a> ';
     }
   }
 
-  output += '<div>New here? <a class="ppl-to-register" href="javascript:void(0)">Register</a></div>';
+  output += '<div class="footer">';
+  output += '<a class="ppl-to-register" href="javascript:void(0)">Register</a>';
+  output += '<a class="ppl-to-forgot" href="javascript:void(0)">Forgot password</a>';
+  output += '</div>'
   return output;
 };
 
@@ -539,17 +541,19 @@ People.prototype.registerForm = function (socials) {
   output += '<div class="ppl-form-field"><input id="ppl-register-name" type="textfield" placeholder="Name"></div>';
   output += '<div class="ppl-form-field"><input id="ppl-register-email" type="textfield" placeholder="Email"></div>';
   output += '<div class="ppl-form-field"><input id="ppl-register-pass" type="password" placeholder="Password"></div>';
-  output += '<button id="ppl-register-btn" type="button" name="button-register">Register</button>';
+  output += '<a id="ppl-register-btn" class="submit"  href="javascript:void(0)">Register</a> ';
   output += '</form>';
 
   if (socials && socials.length > 0) {
-    output += '<h4>Or Register with: </h4>';
+    output += '<H4 class="or">OR</H4>';
     for (var i = 0, name; name = socials[i]; ++i) {
       output += '<a class="ppl-social-login" id="ppl-login-' + name + '" href="javascript:void(0)"><i class="icon-' + name + '"></i>' + name.charAt(0).toUpperCase() + name.slice(1) + '</a>';
     }
   }
 
-  output += '<div>Already a member? <a class="ppl-to-login" href="javascript:void(0)">Login</a></div>';
+  output += '<div class="footer">';
+  output += '<a class="ppl-to-login" href="javascript:void(0)">Login</a>';
+  output += '</div>'
   return output;
 };
 
@@ -562,10 +566,12 @@ People.prototype.forgotForm = function () {
   output += '<h3>Forgot Password</h3>'
   output += '<form class="ppl-forgot-form">';
   output += '<div class="ppl-form-field"><input id="ppl-forgot-email" type="email" placeholder="Email"></div>';
-  output += '<button id="ppl-forgot-btn" type="button" name="button-forgot">Send to my mail</button>';
+  output += '<a id="ppl-forgot-btn" class="submit"  href="javascript:void(0)">Send</a> ';
   output += '</form>';
-  output += '<a class="ppl-to-login" href="javascript:void(0)">Back to login</a>';
 
+  output += '<div class="footer">';
+  output += '<a class="ppl-to-login" href="javascript:void(0)">Back to login</a>';
+  output += '</div>'
   return output;
 };
 

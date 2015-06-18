@@ -3,28 +3,31 @@
   display: none;
 }
 
-.btn {
-  cursor: pointer;
-}
-
 .ppl-block {
+  position: absolute;
+  z-index: 999;
+  left: 50%;
+  transform: translate(-50%, 0);
+  top: 50px;
+  background-color: #fff;
   font: normal 12px/30px sans-serif;
   display: inline-block;
   padding: 20px 40px;
+  font-size: 14px;
 
-  button {
+  .submit {
     background: #2090ff;
-    color: #ffffff;
-    padding: 5px 10px;
-    border: 1px solid rgba(0,0,0,.3);
-    border-radius: 3px;
+    display: block;
+    color: #fff;
+    text-decoration: none;
+    font-size: 16px;
+    padding: 10px;
+    border: 0;
   }
 
   input {
-    padding: 5px;
-    border: 1px solid rgba(0,0,0,.3);
-    border-radius: 2px;
-    font-size: 1.2em;
+    box-sizing: border-box;
+    font-size: 16px;
   }
 
   .ppl-close-btn {
@@ -38,11 +41,134 @@
   a {
     color: #999;
   }
+
+  .title {
+    font-weight: normal;
+    font-size: 28px;
+  }
+  .or {
+    font-weight: normal;
+    font-size: 16px;
+  }
+}
+
+/** Login **/
+#ppl-login-block {
+  text-align: center;
+
+  .ppl-forgot-form,
+  .ppl-login-form,
+  .ppl-register-form {
+    border: 1px solid #ccc;
+
+    input {
+      width: 100%;
+      padding: 20px;
+      border: 0;
+      border-bottom: 1px solid #ccc;
+    }
+  }
+
+  .ppl-social-login {
+    margin: 0 2px;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    text-decoration: none;
+    display: inline-block;
+    padding: 0 5px;
+    color: #333;
+  }
+
+  .footer {
+    margin-top: 10px;
+
+    .ppl-to-login,
+    .ppl-to-register {
+      float: left;
+    }
+    .ppl-to-forgot {
+      float: right;
+    }
+  }
+}
+
+/** User Profile **/
+#ppl-profile-block {
+
+  .left {
+    display: inline-block;
+    padding: 0 20px 0 0;
+    border-right: 1px solid #ccc;
+    vertical-align: top;
+    min-height: 220px;
+  }
+
+  .right {
+    display: inline-block;
+    padding: 0 0 0 20px;
+
+  }
+
+  .ppl-change-password {
+    cursor: pointer;
+    display: block;
+    text-align: right;
+  }
+
+  input {
+    padding: 10px;
+    margin-top: -1px;
+  }
+
+  #ppl-profile-form,
+  #ppl-new-password {
+    label {
+      display: inline-block;
+      width: 100px;
+      line-height: 1;
+      vertical-align: middle;
+    }
+
+    .ppl-verify-email {
+      margin-left: 5px;
+      cursor: pointer;
+    }
+  }
+
+  #ppl-update-password-btn,
+  #ppl-update-profile-btn {
+    margin-top: 30px;
+    cursor: pointer;
+  }
+
+  #ppl-connect {
+    margin-top: 10px;
+
+    .ppl-connect-btn,
+    .ppl-disconnect-btn {
+      margin: 0 2px;
+      border: 1px solid #aaa;
+      border-radius: 4px;
+      text-decoration: none;
+      display: inline-block;
+      padding: 5px 10px;
+      cursor: pointer;
+      min-width: 100px;
+      text-align: center;
+    }
+    .ppl-connect-btn {
+      color: #333;
+    }
+    .ppl-disconnect-btn {
+      background: #08B264;
+      color: #fff;
+    }
+  }
 }
 
 /** Alerts **/
 .ppl-alert {
-  padding: 0 15px;
+  padding: 10px 15px;
   margin-bottom: 20px;
   border: 1px solid transparent;
   border-radius: 4px;
@@ -67,112 +193,6 @@
     color: #a94442;
     background-image: linear-gradient(to bottom, #f2dede 0, #e7c3c3 100%);
     border-color: #dca7a7;
-  }
-}
-
-/** Login **/
-#ppl-login-block {
-  position: absolute;
-  z-index: 999;
-  left: ~"calc(50% - 150px)";
-  top: 50px;
-  background-color: #fff;
-
-  .ppl-login-form {
-    input {
-      padding: 5px;
-      border: 1px solid rgba(0,0,0,.3);
-      border-radius: 2px;
-      font-size: 1.2em;
-      width: ~"calc(100% - 10px)";
-    }
-
-    .ppl-to-forgot {
-      font-size: 10px;
-      float: right;
-    }
-  }
-
-  .ppl-social-login {
-    margin: 0 2px;
-    border: 1px solid #aaa;
-    border-radius: 4px;
-    text-decoration: none;
-    display: inline-block;
-    padding: 0 5px;
-    color: #333;
-  }
-}
-
-/** User Block **/
-//#ppl-user-block {
-//  text-align: center;
-//
-//  #ppl-user-avatar {
-//    border-radius: 100px;
-//    cursor: pointer;
-//  }
-//
-//  #ppl-user-name {
-//    cursor: pointer;
-//  }
-//
-//  .ppl-to-logout {
-//    font-size: 10px;
-//    color: #999;
-//  }
-//}
-
-/** User Profile **/
-#ppl-profile-block {
-  position: absolute;
-  z-index: 999;
-  left: ~"calc(50% - 200px)";
-  top: 50px;
-  background-color: #fff;
-
-  .ppl-change-password {
-    cursor: pointer;
-  }
-
-  #ppl-profile-form,
-  #ppl-new-password {
-    label {
-      display: inline-block;
-      width: 100px;
-      line-height: 1;
-      vertical-align: middle;
-    }
-
-    .ppl-verify-email {
-      margin-left: 5px;
-      cursor: pointer;
-    }
-  }
-
-  #ppl-update-password-btn,
-  #ppl-update-profile-btn {
-    margin-top: 30px;
-  }
-
-  #ppl-connect {
-    margin-top: 10px;
-
-    .btn {
-      margin: 0 2px;
-      border: 1px solid #aaa;
-      border-radius: 4px;
-      text-decoration: none;
-      display: inline-block;
-      padding: 5px 10px;
-    }
-    .ppl-connect-btn {
-      color: #333;
-    }
-    .ppl-disconnect-btn {
-      background: #d9534f;
-      color: #fff;
-    }
   }
 }
 

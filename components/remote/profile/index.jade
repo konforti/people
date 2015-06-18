@@ -1,49 +1,52 @@
 div.title
     h2 Profile
-form#ppl-profile-form
-    input.form-control(type='hidden', name='csrf', value!='#{data.csrfToken}')
-    div.form-role
-        label Username:
-        input.form-control(type='text', name='username', value!='#{data.record.username}')
-        span.help-block
-    div.form-role
-        label Email:
-        input.form-control(type='text', name='email', value!='#{data.record.email}')
-        if !data.record.isVerified || data.record.isVerified === 'no'
-            span.ppl-verify-email Verify
-        span.help-block
+div
+    div.left
+        div#ppl-connect
+            for social, i in data.socials
+                if social.key
+                    if social.active
+                        a.ppl-disconnect-btn(data-href='/remote/disconnect/#{i}/')
+                            i(class="icon-#{i}")
+                            | #{i.charAt(0).toUpperCase() + i.slice(1)}
+                    else
+                        a.ppl-connect-btn(data-href='/remote/connect/#{i}/')
+                            i(class="icon-#{i}")
+                            | #{i.charAt(0).toUpperCase() + i.slice(1)}
 
-    for field in data.fields
-        div.form-role
-            label #{field.name}:
-            input.form-control(type='text', name='#{field._id}', value!='#{field.value}')
-            span.help-block
+    div.right
+        form#ppl-profile-form
+            input.form-control(type='hidden', name='csrf', value!='#{data.csrfToken}')
+            div.form-role
+                label Username:
+                input.form-control(type='text', name='username', value!='#{data.record.username}')
+                span.help-block
+            div.form-role
+                label Email:
+                input.form-control(type='text', name='email', value!='#{data.record.email}')
+                if !data.record.isVerified || data.record.isVerified === 'no'
+                    span.ppl-verify-email Verify
+                span.help-block
 
-    div.form-role
-        button#ppl-update-profile-btn.btn.btn-primary.btn-update(type='button') Update profile
+            for field in data.fields
+                div.form-role
+                    label #{field.name}:
+                    input.form-control(type='text', name='#{field._id}', value!='#{field.value}')
+                    span.help-block
 
-h4.ppl-change-password Change Password
-form#ppl-new-password.hidden
-    input.form-control(type='hidden', name='csrf', value!='#{data.csrfToken}')
-    div.form-role
-        label New Password:
-        input.form-control(type='password', name='newPassword', value!='')
-        span.help-block
-    div.form-role
-        label Confirm new Password:
-        input.form-control(type='password', name='confirm', value!='')
-        span.help-block
-    div.form-role
-        button#ppl-update-password-btn.btn.btn-primary.btn-password(type='button') Update Password
+            div.form-role
+                button#ppl-update-profile-btn.submit(type='button') Update profile
 
-div#ppl-connect
-    for social, i in data.socials
-        if social.key
-            if social.active
-                a.ppl-disconnect-btn.btn(data-href='/remote/disconnect/#{i}/')
-                    i(class="icon-#{i}")
-                    |  Disconnect #{i.charAt(0).toUpperCase() + i.slice(1)}
-            else
-                a.ppl-connect-btn.btn(data-href='/remote/connect/#{i}/')
-                    i(class="icon-#{i}")
-                    |  Connect #{i.charAt(0).toUpperCase() + i.slice(1)}
+        a.ppl-change-password(href="javascript:void(0)") Change Password
+        form#ppl-new-password.hidden
+            input.form-control(type='hidden', name='csrf', value!='#{data.csrfToken}')
+            div.form-role
+                label New Password:
+                input.form-control(type='password', name='newPassword', value!='')
+                span.help-block
+            div.form-role
+                label Confirm new Password:
+                input.form-control(type='password', name='confirm', value!='')
+                span.help-block
+            div.form-role
+                button#ppl-update-password-btn.submit(type='button') Update Password
