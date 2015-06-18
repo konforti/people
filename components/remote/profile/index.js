@@ -336,7 +336,7 @@ exports.updatePassword = function (req, res, next) {
 exports.connectOauth = function (req, res, next) {
   var social = req.params.social;
   var outcome = {};
-  req._passport.instance.authenticate('social',  {callbackURL: '/remote/connect/' + social + '/callback/'}, function (err, user, info) {
+  req._passport.instance.authenticate(social,  {callbackURL: '/remote/connect/' + social + '/callback/'}, function (err, user, info) {
     if (!info || !info.profile) {
       return res.send('Authentication problem.');
     }
