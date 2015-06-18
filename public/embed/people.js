@@ -42,9 +42,9 @@ Array.prototype.contains = function ( needle ) {
  */
 var People = function(options) {
   options = options || {};
-  this.url = options.url || '';
-  this.loginElementID = options.loginElementID || '';
-  this.profileElementID = options.profileElementID || '';
+  this.url = options.url || 'http://localhost:3000';
+  this.loginElement = document.getElementById(options.loginElementID) || document.body;
+  this.profileElement = document.getElementById(options.profileElementID) || document.body;
 
   if (this.getInfo() === null) {
     this.makeRequest('GET', this.url + '/remote/info/', {}, function (data) {
@@ -66,18 +66,29 @@ var People = function(options) {
  * User data.
  */
 People.prototype.getUser = function() {
-  return JSON.parse(localStorage.getItem('people.user'));
+  try {
+    return JSON.parse(localStorage.getItem('people.user'));
+  }
+  catch(e) {
+    return false;
+  }
 };
 
 /**
  * App Info.
  */
 People.prototype.getInfo = function() {
-  return JSON.parse(localStorage.getItem('people.info'));
-}
+  try {
+    return JSON.parse(localStorage.getItem('people.info'));
+  }
+  catch(e) {
+    return false;
+  }
+
+};
 
 /**
- * Check if the user is loggedin.
+ * Check if the user is logged in.
  * @type {boolean}
  */
 People.prototype.isUser = function() {
@@ -628,13 +639,8 @@ People.prototype.showLogin = function (options, callback) {
     }
     output += '</div>';
 
-    var el = document.getElementById(this.loginElementID);
-    if (el) {
-      el.innerHTML = output;
-    }
-    else {
-      document.body.innerHTML += output;
-    }
+    this.hideLogin();
+    if (this.loginElement) this.loginElement.innerHTML += output;
   }
 };
 
@@ -643,7 +649,7 @@ People.prototype.showLogin = function (options, callback) {
  * @param profile
  */
 People.prototype.showProfile = function (profile) {
-  var self = this
+  var self = this;
   if (!this.isUser()) {
     return false;
   }
@@ -672,13 +678,9 @@ People.prototype.showProfile = function (profile) {
       }
 
       output += '</div>';
-      var el = document.getElementById(self.profileElementID);
-      if (el) {
-        el.innerHTML = output;
-      }
-      else {
-        document.body.innerHTML += output;
-      }
+
+      self.hideProfile();
+      if (self.profileElement) self.profileElement.innerHTML += output;
     }
   }
 };

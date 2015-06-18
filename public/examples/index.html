@@ -2,12 +2,32 @@
 <html>
 <head>
     <title>People | Remote User Management</title>
-    <link href="http://people-razkonforti.rhcloud.com/embed/themes/people-basic.min.css" rel="stylesheet" type="text/css" >
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/styles/github.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
     <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+
+    <link href="http://people-razkonforti.rhcloud.com/embed/themes/people-basic.min.css" rel="stylesheet" type="text/css" >
     <script src="http://people-razkonforti.rhcloud.com/embed/people.min.js"></script>
+
     <style>
-        body {
-            background-color: rgb(66, 97, 195)
+        body{
+            margin: 0;
+            font-family: sans-serif;
+        }
+        #header {
+            background-color: rgb(66, 136, 195);
+            color: #fff;
+            padding-bottom: 200px;
+        }
+        #page {
+            max-width: 1000px;
+            margin: 0 auto;
+            color: #333;
+            line-height: 1.6;
+            font-family: sans-serif;
+            font-size: 20px;
         }
         #buttons a {
             padding: 10px 20px;
@@ -18,20 +38,19 @@
             text-decoration: none;
         }
         #page-title {
-            color: white;
             text-align: center;
-            margin-top: 200px;
+            margin-bottom: 0;
             font-size: 8em;
+            margin-top: 100px;
+            font-family: serif;
         }
         #page-subtitle {
-            color: white;
             text-align: center;
         }
         #ppl-user-block {
             position: absolute;
-            right: 10px;
+            right: 130px;
             top: 10px;
-            color: #fff;
         }
         #ppl-user-avatar {
             width: 40px;
@@ -44,42 +63,222 @@
             color: #fff;
             text-decoration: none;
         }
+        #footer {
+            border-top: 1px solid #ccc;
+            margin-top: 70px;
+        }
+        h3 {
+            font-weight: normal;
+            font-size: 36px;
+        }
+        h4 {
+            font-weight: normal;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        ul, p {
+            margin-top: 0;
+        }
+        p {
+
+        }
+        em {
+            color: #777;
+        }
     </style>
 </head>
 <body>
-<div id="buttons">
-    <a href="javascript:void(0)" id="login">Login</a>
-    <a href="javascript:void(0)" id="profile">Profile</a>
-    <a href="javascript:void(0)" id="logout">Logout</a>
+<div id="header">
+    <div id="buttons">
+        <a href="javascript:void(0)" id="login">Login</a>
+        <a href="javascript:void(0)" id="profile">Profile</a>
+        <a href="javascript:void(0)" id="logout">Logout</a>
+    </div>
+    <div id="user-block"></div>
+    <h1 id="page-title">People</h1>
+    <h2 id="page-subtitle">Remote Users Management</h2>
 </div>
-<div id="user-block"></div>
 
-<h1 id="page-title">People</h1>
-<h2 id="page-subtitle">Remote Users Management</h2>
+<div id="page">
+    <h2>People.js</h2>
+    <h3>Install</h3>
+    <p>Include the people.js in your page.</p>
+        <pre><code class="xml">
+            people.min.js
+        </code></pre>
 
-<script>
-    (function($) {
-        var people = new People({url: 'http://people-razkonforti.rhcloud.com'});
+    <h3>Usage</h3>
+    <h4>Default usage</h4>
+        <pre><code class="javascript">
+            // initialize People.
+            var people = new People({url: 'http://localhost:3000'});
 
-        people.event.on('login', function(e) {
-            console.log(':-)');
-        });
+            // Login button selector.
+            var login = document.querySelector(a#login);
 
-        $(document).on('click', '#login', function() {
-            people.showLogin(function() {
-                people.showUser('user-block');
+            // Show login form.
+            login.addEventListener('click', people.showLogin());
+
+            // User login event.
+            people.event.on('login', function(e) {
+            // User is logged in.
+            people.showUser('user-block');
             });
-        });
-        $(document).on('click', '#logout', function() {
-            people.logout();
-        });
-        $(document).on('click', '#profile', function() {
+        </code></pre>
+
+    <h3>API</h3>
+    <h4>People([options])</h4>
+    <p>Initialize People with optional options.</p>
+    <em>Options:</em>
+    <ul>
+        <li><strong>url</strong>  - The People server base path. Default: <code>http://localhost:3000</code></li>
+        <li><strong>loginElementID</strong> - To bind the login form to this element. Default: <code>body</code></li>
+        <li><strong>profileElementID</strong> - To bind the profile form to this element. Default: <code>body</code></li>
+    </ul>
+        <pre><code class="javascript">
+            var people = new People({url: 'http://localhost:3000'});
+        </code></pre>
+
+    <h4>.showLogin([options, callback])</h4>
+    <p>Display the login, register or forgot password form.</p>
+    <em>Options:</em>
+    <ul>
+        <li>
+            <strong>from</strong> - The deafult form to start with. You can use:
+            <ol>
+                <li>login</li>
+                <li>register</li>
+                <li>forgot</li>
+            </ol>
+        </li>
+    </ul>
+    <em>Callback:</em>
+    <p>You can use the callback as an on login event callback.</p>
+        <pre><code class="javascript">
+            var people = new People();
+
+            people.showLogin({form: 'register'}, function() {
+            // User is logged in
+            people.showUser('user-block');
+            });
+        </code></pre>
+
+    <h4>.hideLogin()</h4>
+    <p>Remove the login, register or forgot password form.</p>
+        <pre><code class="javascript">
+            var people = new People();
+
+            people.hideLogin();
+        </code></pre>
+
+    <h4>.showProfile()</h4>
+    <p>Display the user profile form.</p>
+        <pre><code class="javascript">
+            var people = new People();
+
             people.showProfile();
-        });
+        </code></pre>
 
-    })(jQuery)
-</script>
+    <h4>.hideProfile()</h4>
+    <p>Remove the user profile form.</p>
+        <pre><code class="javascript">
+            var people = new People();
 
-<a href="https://github.com/konforti/people"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/a6677b08c955af8400f44c6298f40e7d19cc5b2d/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>
+            people.hideProfile();
+        </code></pre>
+
+    <h4>.showUser(elementID)</h4>
+    <p>Display a user info: image, name, logout link.</p>
+    <em>Element ID</em>
+    <p>The element ID to bind the user block to.</p>
+        <pre><code class="javascript">
+            var people = new People();
+
+            people.showUser('user-block');
+        </code></pre>
+
+    <h4>.hideUser()</h4>
+    <p>Remove the user block.</p>
+        <pre><code class="javascript">
+            var people = new People();
+
+            people.hideUser();
+        </code></pre>
+
+    <h4>.event.on(event, callback)</h4>
+    <p>Event emitter.</p>
+    <em>Events:</em>
+    <ul>
+        <li><strong>login</strong> - Login</li>
+        <li><strong>register</strong> - Register</li>
+        <li><strong>logout</strong> - Logout</li>
+        <li><strong>profileupdate</strong> - Profile Update</li>
+        <li><strong>passwordupdate</strong> - Password Update</li>
+        <li><strong>passwordreset</strong> - Password Reset</li>
+    </ul>
+    <em>Callback:</em>
+    <p>On event callback.</p>
+
+        <pre><code class="javascript">
+            var people = new People();
+
+            people.event.on('login', function(e) {
+            // User is logged in.
+            people.showUser('user-block');
+            });
+        </code></pre>
+
+    <h4>.isUser()</h4>
+    <p>Check if user is logged in. Return boolean, true or false.</p>
+        <pre><code class="javascript">
+            var people = new People();
+
+            if(people.isUser()) {
+            //
+            }
+        </code></pre>
+
+    <h4>.getUser()</h4>
+    <p>Get the logged in user data. Return user data or false.</p>
+        <pre><code class="javascript">
+            var people = new People();
+
+            var user = people.getUser();
+        </code></pre>
+
+    <h4>.getInfo()</h4>
+    <p>Get app info. Return app info or false.</p>
+        <pre><code class="javascript">
+            var people = new People();
+
+            var info = people.getInfo();
+        </code></pre>
+    </div>
+    <div id="footer">
+        <div>People full <a href="https://github.com/konforti/people/wiki">documentation</a></div>
+        <div>Contribute to <a href="https://github.com/konforti/people">People</a></div>
+        <a href="https://github.com/konforti/people"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/a6677b08c955af8400f44c6298f40e7d19cc5b2d/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>
+    </div>
+
+    <script>
+        (function($) {
+            var people = new People();
+
+            $(document).on('click', '#login', function() {
+                people.showLogin(function() {
+                    people.showUser('user-block');
+                });
+            });
+            $(document).on('click', '#logout', function() {
+                people.logout();
+            });
+            $(document).on('click', '#profile', function() {
+                people.showProfile();
+            });
+
+            people.showUser('user-block');
+
+        })(jQuery)
+    </script>
 </body>
 </html>
