@@ -1,0 +1,93 @@
+html, body {
+    height:100%;
+    margin: 0;
+    font-family: sans-serif;
+}
+#header {
+    background-color: rgb(66, 136, 195);
+    color: #fff;
+    height: calc(100% - 50px);
+}
+#page {
+    max-width: 1000px;
+    margin: 0 auto;
+    color: #333;
+    line-height: 1.6;
+    font-family: sans-serif;
+    font-size: 20px;
+}
+#buttons a {
+    padding: 10px 20px;
+    color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin: 5px;
+    text-decoration: none;
+}
+#page-title-wrp {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -100%);
+    text-align: center;
+}
+h1#page-title {
+    margin: 0;
+    font-size: 8em;
+    font-family: serif;
+}
+h2#section {
+    color: #999;
+}
+#ppl-user-block {
+    position: absolute;
+    right: 130px;
+    top: 10px;
+}
+#ppl-user-avatar {
+    width: 40px;
+    border-radius: 100%;
+    vertical-align: middle;
+    margin-right: 10px;
+}
+#ppl-user-block a {
+    display: inline-block;
+    color: #fff;
+    text-decoration: none;
+}
+#footer {
+    border-top: 1px solid #ccc;
+    margin-top: 70px;
+}
+h3 {
+    font-weight: normal;
+    font-size: 36px;
+}
+h4 {
+    font-weight: normal;
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+ul, p {
+    margin-top: 0;
+}
+p {
+
+}
+em {
+    color: #777;
+}
+#page .gist .gist-file,
+#page .gist .gist-data {
+    border: 0;
+}
+#page .gist .line-numbers,
+#page .gist .gist-meta {
+    display: none;
+}
+#page .gist .file-data,
+#page .gist .lines{
+    background: #f8f8f8;
+    font-size: 20px;
+    padding: 20px;
+}

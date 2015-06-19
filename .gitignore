@@ -9,4 +9,4 @@ settings.json
 .nodemonignore
 .idea
 .directory
-*.log
+*.log 
