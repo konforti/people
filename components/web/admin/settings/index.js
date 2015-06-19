@@ -34,8 +34,8 @@ var getForm = function() {
         type: 'text',
         description: 'http://yourdomain.com'
       },
-      defaultReturnUrl: {
-        name: 'Default Return Url',
+      remoteReturnUrl: {
+        name: 'Return Url',
         type: 'text',
         description: 'http://yourdomain.com'
       }

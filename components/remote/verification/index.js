@@ -26,7 +26,7 @@ exports.sendVerificationEmail = function (req, res, options) {
 exports.verification = function (req, res, next) {
   if (req.user.isVerified === 'yes') {
     var settings = req.app.getSettings();
-    return res.redirect(settings.defaultReturnUrl);
+    return res.redirect(settings.remoteReturnUrl);
   }
   var workflow = req.app.utility.workflow(req, res);
   workflow.on('validate', function () {
@@ -88,7 +88,7 @@ exports.verify = function (req, res, next) {
       req.hooks.emit('userVerify', user);
 
       var settings = req.app.getSettings();
-      return res.redirect(settings.defaultReturnUrl + '?verified=true');
+      return res.redirect(settings.remoteReturnUrl + '?verified=true');
     });
   });
 };
