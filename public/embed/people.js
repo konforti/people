@@ -293,6 +293,7 @@ People.prototype.makeRequest = function (method, url, data, next) {
   throb.id = 'throb';
   throb.src = this.url + '/media/ajax-pulse.gif';
   throb.style.position = 'absolute';
+  throb.style.zIndex = '9999';
   document.body.appendChild(throb);
   document.onmousemove = function(e) {
     throb.style.left = e.pageX + 15 + 'px';
