@@ -65,8 +65,7 @@ var getForm = function() {
       },
       smtpHost: {
         name: 'SMTP Host',
-        type: 'text',
-        defaultValue: 'smtp.gmail.com'
+        type: 'text'
       },
       smtpUser: {
         name: 'SMTP User',

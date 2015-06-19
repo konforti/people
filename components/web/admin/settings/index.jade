@@ -51,7 +51,7 @@ block body
                  - for (var i in data.fields)
                     if (n++ % 2 === 0)
                         div.group(class!="group-#{i}")
-                            h3 #{i.replace(/([A-Z])/g, " $1").replace(/^./, function(str){ return str.toUpperCase()})}
+                            h3 #{i.replace(/([A-Z])/g, " $1").replace(/^./, function(str) { return str.toUpperCase()})}
                             - for (var j in data.fields[i])
                                 div.form-role(class!="<%- errfor.#{j} ? 'has-error' : '' %>")
                                     label #{data.fields[i][j].name}:
@@ -63,7 +63,7 @@ block body
                 - for (var i in data.fields)
                     if (n++ % 2 !== 0)
                         div.group(class!="group-#{i}")
-                            h3 #{i.replace(/([A-Z])/g, " $1").replace(/^./, function(str){ return str.toUpperCase()})}
+                            h3 #{i.replace(/([A-Z])/g, " $1").replace(/^./, function(str) {return str.toUpperCase()})}
                             - for (var j in data.fields[i])
                                 div.form-role(class!="<%- errfor.#{j} ? 'has-error' : '' %>")
                                     label #{data.fields[i][j].name}:
