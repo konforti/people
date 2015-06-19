@@ -1,18 +1,19 @@
 div.title
     h2 Profile
 div
-    div.left
-        div#ppl-connect
-            for social, i in data.socials
-                if social.key
-                    if social.active
-                        a.ppl-disconnect-btn(data-href='/remote/disconnect/#{i}/')
-                            i(class="icon-#{i}")
-                            | #{i.charAt(0).toUpperCase() + i.slice(1)}
-                    else
-                        a.ppl-connect-btn(data-href='/remote/connect/#{i}/')
-                            i(class="icon-#{i}")
-                            | #{i.charAt(0).toUpperCase() + i.slice(1)}
+    if data.socials.length > 0
+        div.left
+            div#ppl-connect
+                for social, i in data.socials
+                    if social.key
+                        if social.active
+                            a.ppl-disconnect-btn(data-href='/remote/disconnect/#{i}/')
+                                i(class="icon-#{i}")
+                                | #{i.charAt(0).toUpperCase() + i.slice(1)}
+                        else
+                            a.ppl-connect-btn(data-href='/remote/connect/#{i}/')
+                                i(class="icon-#{i}")
+                                | #{i.charAt(0).toUpperCase() + i.slice(1)}
 
     div.right
         form#ppl-profile-form

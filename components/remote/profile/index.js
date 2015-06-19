@@ -36,10 +36,12 @@ exports.readProfile = function (req, res, next) {
     var settings = req.app.getSettings();
     workflow.outcome.socials = {};
     req.app.config.socials.forEach(function(social, index, arr) {
-      workflow.outcome.socials[social] = {
-        key: !!settings[social + 'Key'],
-        active: workflow.outcome.record[social] ? !!workflow.outcome.record[social].id : false
-      };
+      if (!!settings[social + 'Key']) {
+        workflow.outcome.socials[social] = {
+          key: !!settings[social + 'Key'],
+          active: workflow.outcome.record[social] ? !!workflow.outcome.record[social].id : false
+        };
+      }
     });
 
     callback(null);
