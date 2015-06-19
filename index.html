@@ -262,7 +262,7 @@
 
     <script>
         (function($) {
-            var people = new People();
+            var people = new People({url: 'http://people-razkonforti.rhcloud.com'});
 
             $(document).on('click', '#login', function() {
                 people.showLogin(function() {
