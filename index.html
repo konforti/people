@@ -2,10 +2,12 @@
 <html>
 <head>
     <link rel="stylesheet" type="text/css" href="peoplejs.css">
+    <link rel="stylesheet" type="text/css" href="icons/style.css">
+
     <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
 
-    <link rel="stylesheet" type="text/css" href="http://people-razkonforti.rhcloud.com/embed/themes/people-basic.min.css">
-    <script src="http://people-razkonforti.rhcloud.com/embed/people.js"></script>
+    <link rel="stylesheet" type="text/css" href="//localhost:3000/embed/themes/people-basic.min.css">
+    <script src="//localhost:3000/embed/people.js"></script>
 
     <style>
 
@@ -13,134 +15,170 @@
     </style>
 </head>
 <body>
-<div id="header">
-    <div id="buttons">
-        <a href="javascript:void(0)" id="login">Login</a>
-        <a href="javascript:void(0)" id="profile">Profile</a>
-        <a href="javascript:void(0)" id="logout">Logout</a>
+    <div id="header">
+        <div id="buttons">
+            <a href="javascript:void(0)" id="login" class="icon-enter">Login</a>
+            <a href="javascript:void(0)" id="profile" class="icon-user">Profile</a>
+            <a href="javascript:void(0)" id="logout" class="icon-exit">Logout</a>
+        </div>
+        <div id="user-block"></div>
+        <div id="page-title-wrp">
+            <h1 id="page-title">People</h1>
+            <h2 id="page-subtitle">Remote Users Management</h2>
+        </div>
     </div>
-    <div id="user-block"></div>
-    <div id="page-title-wrp">
-        <h1 id="page-title">People</h1>
-        <h2 id="page-subtitle">Remote Users Management</h2>
+
+    <div id="page">
+        <h2 id="section">People.js</h2>
+        <div id="install">
+            <h3>Install</h3>
+            <a href="#install" class="icon-link"></a>
+        </div>
+        <p>Include the people.js in your page.</p>
+        <script src="https://gist.github.com/konforti/cfc5f128df4d32993364.js?file=include.html"></script>
+
+        <div id="usage">
+            <h3>Usage</h3>
+            <a href="#usage" class="icon-link"></a>
+        </div>
+        <div id="default-usage">
+            <h4>Default usage</h4>
+            <a href="#default-usage" class="icon-link"></a>
+        </div>
+        <script src="https://gist.github.com/konforti/cfc5f128df4d32993364.js?file=default.js"></script>
+
+        <div id="api">
+            <h3>API</h3>
+            <a href="#api" class="icon-link"></a>
+        </div>
+        <div id="api-people">
+            <h4>People([options])</h4>
+            <a href="#api-people" class="icon-link"></a>
+        </div>
+        <p>Initialize People with optional options.</p>
+        <p><em>Options</em> key/value Object.</p>
+        <ul>
+            <li><code>url</code>  - The People server base path. Default: <code>http://localhost:3000</code></li>
+            <li><code>loginElementID</code> - To bind the login form to this element. Default: <code>body</code></li>
+            <li><code>profileElementID</code> - To bind the profile form to this element. Default: <code>body</code></li>
+        </ul>
+        <script src="https://gist.github.com/konforti/cfc5f128df4d32993364.js?file=initialize.js"></script>
+
+        <div id="api-showLogin">
+            <h4>.showLogin([options, callback])</h4>
+            <a href="#api-showLogin" class="icon-link"></a>
+        </div>
+        <p>Display the login, register or forgot password form.</p>
+        <p><em>Options</em> key/value Object.</p>
+        <ul>
+            <li>
+                <code>form</code> - The deafult form to start with. You can use: <code>login</code>, <code>register</code> or <code>forgot</code>
+            </li>
+        </ul>
+        <p><em>Callback</em> function. You can use it as an on login event callback.</p>
+        <script src="https://gist.github.com/konforti/cfc5f128df4d32993364.js?file=showLogin.js"></script>
+
+        <div id="api-hideLogin">
+            <h4>.hideLogin()</h4>
+            <a href="#api-hideLogin" class="icon-link"></a>
+        </div>
+        <p>Remove the login, register or forgot password form.</p>
+        <script src="https://gist.github.com/konforti/cfc5f128df4d32993364.js?file=hideLogin.js"></script>
+
+        <div id="api-showProfile">
+            <h4>.showProfile()</h4>
+            <a href="#api-showProfile" class="icon-link"></a>
+        </div>
+        <p>Display the user profile form.</p>
+        <script src="https://gist.github.com/konforti/cfc5f128df4d32993364.js?file=showProfile.js"></script>
+
+        <div id="api-hideProfile">
+            <h4>.hideProfile()</h4>
+            <a href="#api-hideProfile" class="icon-link"></a>
+        </div>
+        <p>Remove the user profile form.</p>
+        <script src="https://gist.github.com/konforti/cfc5f128df4d32993364.js?file=hideProfile.js"></script>
+
+        <div id="api-showUser">
+            <h4>.showUser(elementID)</h4>
+            <a href="#api-showUser" class="icon-link"></a>
+        </div>
+        <p>Display a user info: image, name, logout link.</p>
+        <p><em>Element ID</em> string, to bind the user block to.</p>
+        <script src="https://gist.github.com/konforti/cfc5f128df4d32993364.js?file=showUser.js"></script>
+
+        <div id="api-hideUser">
+            <h4>.hideUser()</h4>
+            <a href="#api-hideUser" class="icon-link"></a>
+        </div>
+        <p>Remove the user block.</p>
+        <script src="https://gist.github.com/konforti/cfc5f128df4d32993364.js?file=hideUser.js"></script>
+
+        <div id="api-event-on">
+            <h4>.event.on(event, callback)</h4>
+            <a href="#api-event-on" class="icon-link"></a>
+        </div>
+        <p>Event emit response.</p>
+        <p><em>Event</em> name string.</p>
+        <ul>
+            <li><code>login</code> - After login</li>
+            <li><code>register</code> - After register</li>
+            <li><code>logout</code> - After logout</li>
+            <li><code>profileupdate</code> - After profile update</li>
+            <li><code>passwordupdate</code> - After Password update</li>
+            <li><code>passwordreset</code> - After password reset</li>
+        </ul>
+        <p><em>Callback</em> function on event.</p>
+        <script src="https://gist.github.com/konforti/cfc5f128df4d32993364.js?file=eventon.js"></script>
+
+        <div id="api-isUser">
+            <h4>.isUser()</h4>
+            <a href="#api-isUser" class="icon-link"></a>
+        </div>
+        <p>Check if user is logged in. Return boolean, true or false.</p>
+        <script src="https://gist.github.com/konforti/cfc5f128df4d32993364.js?file=isUser.js"></script>
+
+        <div id="api-getUser">
+            <h4>.getUser()</h4>
+            <a href="#api-getUser" class="icon-link"></a>
+        </div>
+        <p>Get the logged in user data. Return user data or false.</p>
+        <script src="https://gist.github.com/konforti/cfc5f128df4d32993364.js?file=getUser.js"></script>
+
+        <div id="api-getInfo">
+            <h4>.getInfo()</h4>
+            <a href="#api-getInfo" class="icon-link"></a>
+        </div>
+        <p>Get app info. Return app info or false.</p>
+        <script src="https://gist.github.com/konforti/cfc5f128df4d32993364.js?file=getInfo.js"></script>
+
+        <div id="footer">
+            <span>People full <a href="https://github.com/konforti/people/wiki">documentation</a></span> |
+            <span>Contribute to <a href="https://github.com/konforti/people">People</a></span>
+            <a href="https://github.com/konforti/people"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/a6677b08c955af8400f44c6298f40e7d19cc5b2d/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>
+        </div>
     </div>
-</div>
 
-<div id="page">
-    <h2 id="section">People.js</h2>
-    <h3>Install</h3>
-    <p>Include the people.js in your page.</p>
-    <script src="https://gist.github.com/konforti/cfc5f128df4d32993364.js?file=include.html"></script>
+    <script>
+        (function($) {
+            var people = new People();
+            //var people = new People({url: 'http://people-razkonforti.rhcloud.com'});
 
-    <h3>Usage</h3>
-    <h4>Default usage</h4>
-    <script src="https://gist.github.com/konforti/cfc5f128df4d32993364.js?file=default.js"></script>
-
-    <h3>API</h3>
-    <h4>People([options])</h4>
-    <p>Initialize People with optional options.</p>
-    <em>Options:</em>
-    <ul>
-        <li><strong>url</strong>  - The People server base path. Default: <code>http://localhost:3000</code></li>
-        <li><strong>loginElementID</strong> - To bind the login form to this element. Default: <code>body</code></li>
-        <li><strong>profileElementID</strong> - To bind the profile form to this element. Default: <code>body</code></li>
-    </ul>
-    <script src="https://gist.github.com/konforti/cfc5f128df4d32993364.js?file=initialize.js"></script>
-
-    <h4>.showLogin([options, callback])</h4>
-    <p>Display the login, register or forgot password form.</p>
-    <em>Options:</em>
-    <ul>
-        <li>
-            <strong>from</strong> - The deafult form to start with. You can use:
-            <ol>
-                <li>login</li>
-                <li>register</li>
-                <li>forgot</li>
-            </ol>
-        </li>
-    </ul>
-    <em>Callback:</em>
-    <p>You can use the callback as an on login event callback.</p>
-    <script src="https://gist.github.com/konforti/cfc5f128df4d32993364.js?file=showLogin.js"></script>
-
-    <h4>.hideLogin()</h4>
-    <p>Remove the login, register or forgot password form.</p>
-    <script src="https://gist.github.com/konforti/cfc5f128df4d32993364.js?file=hideLogin.js"></script>
-
-    <h4>.showProfile()</h4>
-    <p>Display the user profile form.</p>
-    <script src="https://gist.github.com/konforti/cfc5f128df4d32993364.js?file=showProfile.js"></script>
-
-    <h4>.hideProfile()</h4>
-    <p>Remove the user profile form.</p>
-    <script src="https://gist.github.com/konforti/cfc5f128df4d32993364.js?file=hideProfile.js"></script>
-
-    <h4>.showUser(elementID)</h4>
-    <p>Display a user info: image, name, logout link.</p>
-    <em>Element ID</em>
-    <p>The element ID to bind the user block to.</p>
-    <script src="https://gist.github.com/konforti/cfc5f128df4d32993364.js?file=showUser.js"></script>
-
-    <h4>.hideUser()</h4>
-    <p>Remove the user block.</p>
-    <script src="https://gist.github.com/konforti/cfc5f128df4d32993364.js?file=hideUser.js"></script>
-
-    <h4>.event.on(event, callback)</h4>
-    <p>Event emitter.</p>
-    <em>Events:</em>
-    <ul>
-        <li><strong>login</strong> - Login</li>
-        <li><strong>register</strong> - Register</li>
-        <li><strong>logout</strong> - Logout</li>
-        <li><strong>profileupdate</strong> - Profile Update</li>
-        <li><strong>passwordupdate</strong> - Password Update</li>
-        <li><strong>passwordreset</strong> - Password Reset</li>
-    </ul>
-    <em>Callback:</em>
-    <p>On event callback.</p>
-
-    <script src="https://gist.github.com/konforti/cfc5f128df4d32993364.js?file=eventon.js"></script>
-
-    <h4>.isUser()</h4>
-    <p>Check if user is logged in. Return boolean, true or false.</p>
-    <script src="https://gist.github.com/konforti/cfc5f128df4d32993364.js?file=isUser.js"></script>
-
-    <h4>.getUser()</h4>
-    <p>Get the logged in user data. Return user data or false.</p>
-    <script src="https://gist.github.com/konforti/cfc5f128df4d32993364.js?file=getUser.js"></script>
-
-    <h4>.getInfo()</h4>
-    <p>Get app info. Return app info or false.</p>
-    <script src="https://gist.github.com/konforti/cfc5f128df4d32993364.js?file=getInfo.js"></script>
-
-    <div id="footer">
-        <div>People full <a href="https://github.com/konforti/people/wiki">documentation</a></div>
-        <div>Contribute to <a href="https://github.com/konforti/people">People</a></div>
-        <a href="https://github.com/konforti/people"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/a6677b08c955af8400f44c6298f40e7d19cc5b2d/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>
-    </div>
-</div>
-
-<script>
-    (function($) {
-        //var people = new People();
-        var people = new People({url: 'http://people-razkonforti.rhcloud.com'});
-
-        $(document).on('click', '#login', function() {
-            people.showLogin(function() {
-                people.showUser('user-block');
+            $(document).on('click', '#login', function() {
+                people.showLogin(function() {
+                    people.showUser('user-block');
+                });
             });
-        });
-        $(document).on('click', '#logout', function() {
-            people.logout();
-        });
-        $(document).on('click', '#profile', function() {
-            people.showProfile();
-        });
+            $(document).on('click', '#logout', function() {
+                people.logout();
+            });
+            $(document).on('click', '#profile', function() {
+                people.showProfile();
+            });
 
-        people.showUser('user-block');
+            people.showUser('user-block');
 
-    })(jQuery)
-</script>
+        })(jQuery)
+    </script>
 </body>
 </html>

@@ -23,6 +23,7 @@ html, body {
     border-radius: 5px;
     margin: 5px;
     text-decoration: none;
+    display: inline-block;
 }
 #page-title-wrp {
     position: absolute;
@@ -37,7 +38,10 @@ h1#page-title {
     font-family: serif;
 }
 h2#section {
-    color: #999;
+    color: #ccc;
+    background-color: #333;
+    display: inline-block;
+    padding: 0 20px;
 }
 #ppl-user-block {
     position: absolute;
@@ -58,24 +62,52 @@ h2#section {
 #footer {
     border-top: 1px solid #ccc;
     margin-top: 70px;
+    padding: 70px 0;
+    color: #999;
+    text-align: center;
+}
+h3, h4 {
+    margin: 10px 0;
+    font-weight: normal;
+    display: inline-block;
 }
 h3 {
-    font-weight: normal;
-    font-size: 36px;
+    font-size: 44px;
+    font-family: serif;
+    color: #999;
+    font-style: italic;
 }
 h4 {
-    font-weight: normal;
     font-size: 32px;
-    margin-bottom: 10px;
 }
-ul, p {
+h3:hover + .icon-link,
+h4:hover + .icon-link {
+    color: #ccc;
+}
+ul {
     margin-top: 0;
 }
+ul > li {
+    list-style-type: none;
+}
 p {
-
+    margin: 10px 0;
 }
 em {
     color: #777;
+}
+code {
+    background-color: #f1f1f1;
+    padding: 0 4px;
+    color: rgb(148, 10, 10);
+}
+.icon-link {
+    display: inline-block;
+    color: #fff;
+    vertical-align: super;
+}
+.icon-link:hover {
+    color: #999;
 }
 #page .gist .gist-file,
 #page .gist .gist-data {
