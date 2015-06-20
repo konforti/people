@@ -43,22 +43,6 @@ html, body {
     display: inline-block;
     padding: 0 20px;
 }
-#page #ppl-user-block {
-    position: absolute;
-    right: 130px;
-    top: 10px;
-}
-#page #ppl-user-avatar {
-    width: 40px;
-    border-radius: 100%;
-    vertical-align: middle;
-    margin-right: 10px;
-}
-#page #ppl-user-block a {
-    display: inline-block;
-    color: #fff;
-    text-decoration: none;
-}
 #page #footer {
     border-top: 1px solid #ccc;
     margin-top: 70px;
@@ -122,4 +106,20 @@ html, body {
     background: #f8f8f8;
     font-size: 20px;
     padding: 20px;
+}
+#ppl-user-block {
+    position: absolute;
+    right: 130px;
+    top: 10px;
+}
+#ppl-user-block a {
+    display: inline-block;
+    color: #fff;
+    text-decoration: none;
+}
+#ppl-user-avatar {
+    width: 40px;
+    border-radius: 100%;
+    vertical-align: middle;
+    margin-right: 10px;
 }
