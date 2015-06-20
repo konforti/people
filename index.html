@@ -166,9 +166,11 @@
 
     <script>
         (function($) {
-            var people = new People();
             if (location.host === "www.konforti.net") {
-                people = new People({url: 'http://people-razkonforti.rhcloud.com'});
+                var people = new People({url: 'http://people-razkonforti.rhcloud.com'});
+            }
+            else {
+                var people = new People();
             }
 
             $(document).on('click', '#login', function() {
