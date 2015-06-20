@@ -5,14 +5,19 @@
     <link rel="stylesheet" type="text/css" href="icons/style.css">
 
     <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script>
+        (function() {
+            var js = document.createElement("script");
+            js.src = location.host === "www.konforti.net" ? 'http://people-razkonforti.rhcloud.com/embed/people.js' : '//localhost:3000/embed/people.js';
+            document.getElementsByTagName("head")[0].appendChild(js);
 
-    <link rel="stylesheet" type="text/css" href="//localhost:3000/embed/themes/people-basic.min.css">
-    <script src="//localhost:3000/embed/people.js"></script>
-
-    <style>
-
-
-    </style>
+            var css = document.createElement("link");
+            css.rel = 'stylesheet';
+            css.type = 'text/css';
+            css.href = location.host === "www.konforti.net" ? 'http://people-razkonforti.rhcloud.com/embed/themes/people-basic.min.css' : '//localhost:3000/embed/themes/people-basic.min.css';
+            document.getElementsByTagName("head")[0].appendChild(css);
+        })();
+    </script>
 </head>
 <body>
     <div id="header">
@@ -162,7 +167,7 @@
     <script>
         (function($) {
             var people = new People();
-            if (window.location.host === "www.konforti.net") {
+            if (location.host === "www.konforti.net") {
                 people = new People({url: 'http://people-razkonforti.rhcloud.com'});
             }
 
