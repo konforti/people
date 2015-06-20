@@ -235,7 +235,7 @@ People.prototype.clickEvents = function () {
     }
     else if (classes.contains('ppl-close-btn')) {
       var parent = e.target.parentNode;
-      if (parent) parent.parentNode.removeChild(parent);
+      if (parent) parent.outerHTML = '';
     }
     else if (classes.contains('ppl-change-password')) {
       var el = document.getElementById('ppl-new-password');
@@ -501,7 +501,7 @@ People.prototype.showUser = function (elementID) {
  */
 People.prototype.hideUser = function () {
   var el = document.getElementById('ppl-user-block');
-  if (el) el.parentNode.removeChild(el);
+  if (el) el.outerHTML = '';
 };
 
 /**
@@ -597,7 +597,7 @@ People.prototype.forgotResetForm = function () {
  */
 People.prototype.hideLogin = function () {
   var el = document.getElementById('ppl-login-block');
-  if (el) el.parentNode.removeChild(el);
+  if (el) el.outerHTML = '';
 };
 
 /**
@@ -697,7 +697,7 @@ People.prototype.showProfile = function (profile) {
  */
 People.prototype.hideProfile = function () {
   var el = document.getElementById('ppl-profile-block');
-  if (el) el.parentNode.removeChild(el);
+  if (el) el.outerHTML = '';
 };
 
 /**
