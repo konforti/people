@@ -1,8 +1,8 @@
 # People - Remote Users Management
 
-[![Build Status](https://travis-ci.org/konforti/people.svg?branch=master)](https://travis-ci.org/konforti/people)
-[![Dependency Status](https://david-dm.org/konforti/people.svg?theme=shields.io)](https://david-dm.org/konforti/people)
-[![devDependency Status](https://david-dm.org/konforti/people/dev-status.svg?theme=shields.io)](https://david-dm.org/konforti/people#info=devDependencies)
+[![Build Status](https://travis-ci.org/konforti/people.svg?branch=master)](https://travis-ci.org/konforti/people){:target="_blank"}
+[![Dependency Status](https://david-dm.org/konforti/people.svg?theme=shields.io)](https://david-dm.org/konforti/people){:target="_blank"}
+[![devDependency Status](https://david-dm.org/konforti/people/dev-status.svg?theme=shields.io)](https://david-dm.org/konforti/people#info=devDependencies){:target="_blank"}
 
 * [Usages](https://github.com/konforti/people/wiki/Usages)
 * [Installation](https://github.com/konforti/people/wiki/Installation)
