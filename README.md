@@ -1,5 +1,7 @@
 # People - Remote Users Management
 
+[![Dependency Status](https://david-dm.org/konforti/people.svg?theme=shields.io)](https://david-dm.org/konforti/people)
+
 * [Usages](https://github.com/konforti/people/wiki/Usages)
 * [Installation](https://github.com/konforti/people/wiki/Installation)
 * [Users & Roles](https://github.com/konforti/people/wiki/Users-&-Roles)
