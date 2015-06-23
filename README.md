@@ -8,9 +8,9 @@
 
 * [Usages](https://github.com/konforti/people/wiki/Usages)
 * [Installation](https://github.com/konforti/people/wiki/Installation)
-* [Users & Roles](https://github.com/konforti/people/wiki/Users-&-Roles)
+* [Roles](https://github.com/konforti/people/wiki/Roles)
 * [Login workflow](https://github.com/konforti/people/wiki/Login-workflow)
-* [Hooks & Rules](https://github.com/konforti/people/wiki/Hooks-&-Rules)
+* [Webhooks](https://github.com/konforti/people/wiki/Webhooks)
 
 
 ## People.js
