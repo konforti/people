@@ -14,17 +14,17 @@
 
 
 ## People.js
-Live demo and People.js API
+Live demo and People.js API <br>
 http://www.konforti.net/people
 
 ## User management
-User management admin control demo
+User management admin demo
 
 | Platform                                 | Username | Password |
 | ---------------------------------------- | -------- | -------- |
 |https://people-razkonforti.rhcloud.com/   | admin    | rrg2st   |
 
 ## API
-Server side API reference
+Server side API reference<br>
 http://www.konforti.net/slate
 
