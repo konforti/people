@@ -1,3 +1,4 @@
+WinChan=function(){function c(a,b,c){a.attachEvent?a.attachEvent("on"+b,c):a.addEventListener&&a.addEventListener(b,c,!1)}function d(a,b,c){a.detachEvent?a.detachEvent("on"+b,c):a.removeEventListener&&a.removeEventListener(b,c,!1)}function e(){var a=-1,b=navigator.userAgent;if("Microsoft Internet Explorer"===navigator.appName){var c=new RegExp("MSIE ([0-9]{1,}[.0-9]{0,})");null!=c.exec(b)&&(a=parseFloat(RegExp.$1))}else if(b.indexOf("Trident")>-1){var c=new RegExp("rv:([0-9]{2,2}[.0-9]{0,})");null!==c.exec(b)&&(a=parseFloat(RegExp.$1))}return a>=8}function f(){try{var a=navigator.userAgent;return-1!=a.indexOf("Fennec/")||-1!=a.indexOf("Firefox/")&&-1!=a.indexOf("Android")}catch(b){}return!1}function g(){return window.JSON&&window.JSON.stringify&&window.JSON.parse&&window.postMessage}function h(a){/^https?:\/\//.test(a)||(a=window.location.href);var b=document.createElement("a");return b.href=a,b.protocol+"//"+b.host}function i(){window.location;for(var c=window.opener.frames,d=c.length-1;d>=0;d--)try{if(c[d].location.protocol===window.location.protocol&&c[d].location.host===window.location.host&&c[d].name===a)return c[d]}catch(e){}}var a="__winchan_relay_frame",b="die",j=e();return g()?{open:function(e,g){function q(){if(k&&document.body.removeChild(k),k=void 0,o&&(o=clearInterval(o)),d(window,"message",r),d(window,"unload",q),n)try{n.close()}catch(a){m.postMessage(b,l)}n=m=void 0}function r(a){if(a.origin===l)try{var b=JSON.parse(a.data);"ready"===b.a?m.postMessage(p,l):"error"===b.a?(q(),g&&(g(b.d),g=null)):"response"===b.a&&(q(),g&&(g(null,b.d),g=null))}catch(c){}}if(!g)throw"missing required callback argument";var i;e.url||(i="missing required 'url' parameter"),e.relay_url||(i="missing required 'relay_url' parameter"),i&&setTimeout(function(){g(i)},0),e.window_name||(e.window_name=null),(!e.window_features||f())&&(e.window_features=void 0);var k,l=h(e.url);if(l!==h(e.relay_url))return setTimeout(function(){g("invalid arguments: origin of url and relay_url must match")},0);var m;j&&(k=document.createElement("iframe"),k.setAttribute("src",e.relay_url),k.style.display="none",k.setAttribute("name",a),document.body.appendChild(k),m=k.contentWindow);var n=window.open(e.url,e.window_name,e.window_features);m||(m=n);var o=setInterval(function(){n&&n.closed&&(q(),g&&(g("unknown closed window"),g=null))},500),p=JSON.stringify({a:"request",d:e.params});return c(window,"unload",q),c(window,"message",r),{close:q,focus:function(){if(n)try{n.focus()}catch(a){}}}},onOpen:function(a){function g(a){a=JSON.stringify(a),j?f.doPost(a,e):f.postMessage(a,e)}function h(b){var c;try{c=JSON.parse(b.data)}catch(f){}c&&"request"===c.a&&(d(window,"message",h),e=b.origin,a&&setTimeout(function(){a(e,c.d,function(b){a=void 0,g({a:"response",d:b})})},0))}function k(a){if(a.data===b)try{window.close()}catch(c){}}var e="*",f=j?i():window.opener;if(!f)throw"can't find relay frame";c(j?f:window,"message",h),c(j?f:window,"message",k);try{g({a:"ready"})}catch(l){c(f,"load",function(){g({a:"ready"})})}var m=function(){try{d(j?f:window,"message",k)}catch(b){}a&&g({a:"error",d:"client closed window"}),a=void 0;try{window.close()}catch(c){}};return c(window,"unload",m),{detach:function(){d(window,"unload",m)}}}}:{open:function(a,b,c,d){setTimeout(function(){d("unsupported browser")},0)},onOpen:function(a){setTimeout(function(){a("unsupported browser")},0)}}}();
 'use strict';
 
 /**
@@ -102,6 +103,22 @@ People.prototype.isUser = function() {
 People.prototype.event = new EventEmitter();
 
 /**
+ * windowFeatures().
+ */
+People.prototype.windowFeatures = function() {
+  var width = '750',
+    height = '350',
+    top = ((window.outerHeight - height) / 2).toString(),
+    left = ((window.outerWidth - width) / 2).toString();
+
+  return 'width=' + width + ',height=' + height + ',top=' + top + ',left=' + left + ',scrollbars=0';
+};
+
+People.prototype.relayUrl = function() {
+  return  this.url + '/cdn/winchan/relay.html';
+};
+
+/**
  * Register events.
  */
 People.prototype.clickEvents = function () {
@@ -203,18 +220,16 @@ People.prototype.clickEvents = function () {
     var classes = e.target.classList;
     if (classes.contains('ppl-social-login')) {
       var name = e.target.id.replace('ppl-login-', '');
-      var url = self.url + '/remote/register/' + name + '/',
-        width = 1000,
-        height = 650,
-        top = (window.outerHeight - height) / 2,
-        left = (window.outerWidth - width) / 2;
-      window.open(url, '', 'width=' + width + ',height=' + height + ',scrollbars=0,top=' + top + ',left=' + left);
-
-      window.addEventListener('message', function(ev) {
-        self.receiveMessage(ev, self, function() {
-          this.login(ev.data);
+      WinChan.open({
+          url: self.url + '/remote/register/' + name + '/',
+          relay_url: self.relayUrl(),
+          window_features: self.windowFeatures()
+        },
+        function(err, r) {
+          if (!err) {
+            self.login(r.data);
+          }
         });
-      }, false);
     }
     else if (classes.contains('ppl-to-login')) {
       self.showLogin();
@@ -242,23 +257,19 @@ People.prototype.clickEvents = function () {
       if (el) el.classList.toggle('hidden');
     }
     else if (classes.contains('ppl-connect-btn')) {
-      var url = e.target.getAttribute('data-href');
-
-      var url = self.url + url,
-        width = 1000,
-        height = 650,
-        top = (window.outerHeight - height) / 2,
-        left = (window.outerWidth - width) / 2;
-      window.open(url, '', 'width=' + width + ',height=' + height + ',scrollbars=0,top=' + top + ',left=' + left);
-
-      window.addEventListener('message', function (ev) {
-        self.receiveMessage(ev, self, function() {
-          e.target.classList.remove('ppl-connect-btn');
-          e.target.classList.add('ppl-disconnect-btn');
-          e.target.setAttribute('data-href', e.target.getAttribute('data-href').replace('/connect/', '/disconnect/'));
-          e.target.innerHTML = e.target.innerHTML.replace('Connect', 'Disconnect');
+      WinChan.open({
+          url: self.url + e.target.getAttribute('data-href'),
+          relay_url: self.relayUrl(),
+          window_features: self.windowFeatures()
+        },
+        function(err, r) {
+          if (!err) {
+            e.target.classList.remove('ppl-connect-btn');
+            e.target.classList.add('ppl-disconnect-btn');
+            e.target.setAttribute('data-href', e.target.getAttribute('data-href').replace('/connect/', '/disconnect/'));
+            e.target.innerHTML = e.target.innerHTML.replace('Connect', 'Disconnect');
+          }
         });
-      }, false);
     }
     else if (classes.contains('ppl-disconnect-btn')) {
       var url = e.target.getAttribute('data-href');
@@ -698,19 +709,4 @@ People.prototype.showProfile = function (profile) {
 People.prototype.hideProfile = function () {
   var el = document.getElementById('ppl-profile-block');
   if (el) el.outerHTML = '';
-};
-
-/**
- * Receive message from popup.
- * @param event
- */
-People.prototype.receiveMessage = function (event, self, next) {
-  //window.removeEventListener('message', receiveMessage, false);
-  if (event.origin !== self.url) {
-    return;
-  }
-
-  if (next) {
-    return next();
-  }
 };

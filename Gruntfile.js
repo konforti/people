@@ -70,7 +70,7 @@ module.exports = function(grunt) {
          files: [
           'public/layouts/**/*.js', '!public/layouts/**/*.min.js',
           'public/views/**/*.js', '!public/views/**/*.min.js',
-          'public/embed/**/*.js', '!public/embed/**/*.min.js'
+          'public/cdn/**/*.js', '!public/cdn/**/*.min.js'
          ],
          tasks: ['newer:uglify', 'newer:jshint:client']
       },
@@ -90,7 +90,7 @@ module.exports = function(grunt) {
         files: [
           'public/layouts/**/*.less',
           'public/less/**/*.less',
-          'public/embed/**/**/*.less'
+          'public/cdn/**/**/*.less'
         ],
         tasks: ['less:layouts']
       }
@@ -141,12 +141,12 @@ module.exports = function(grunt) {
           ext: '.min.js'
         }]
       },
-      embed: {
+      cdn: {
         files: [{
           expand: true,
-          cwd: 'public/embed/',
+          cwd: 'public/cdn/',
           src: ['**/*.js', '!**/*.min.js'],
-          dest: 'public/embed/',
+          dest: 'public/cdn/',
           ext: '.min.js'
         }]
       }
@@ -158,13 +158,13 @@ module.exports = function(grunt) {
           ignores: [
             'public/layouts/**/*.min.js',
             'public/views/**/*.min.js',
-            'public/embed/**/*.min.js'
+            'public/cdn/**/*.min.js'
           ]
         },
         src: [
           'public/layouts/**/*.js',
           'public/views/**/*.js',
-          'public/embed/**/*.js'
+          'public/cdn/**/*.js'
         ]
       },
       server: {
@@ -189,9 +189,9 @@ module.exports = function(grunt) {
             'public/layouts/core.less'
           ],
           'public/layouts/admin.min.css': ['public/layouts/admin.less'],
-          'public/embed/themes/people-basic.min.css': ['public/embed/themes/less/people-basic.less'],
-          'public/embed/themes/people-blue.min.css': ['public/embed/themes/less/people-blue.less'],
-          'public/embed/themes/people-cards.min.css': ['public/embed/themes/less/people-cards.less']
+          'public/cdn/themes/people-basic.min.css': ['public/cdn/themes/less/people-basic.less'],
+          'public/cdn/themes/people-blue.min.css': ['public/cdn/themes/less/people-blue.less'],
+          'public/cdn/themes/people-cards.min.css': ['public/cdn/themes/less/people-cards.less']
         }
       },
       views: {
@@ -203,12 +203,12 @@ module.exports = function(grunt) {
           ext: '.min.css'
         }]
       },
-      embed: {
+      cdn: {
         files: [{
           expand: true,
-          cwd: 'public/embed/themes/less/',
+          cwd: 'public/cdn/themes/less/',
           src: ['**/*.less', '!**/shared.less'],
-          dest: 'public/embed/themes/',
+          dest: 'public/cdn/themes/',
           ext: '.min.css'
         }]
       }
@@ -220,15 +220,15 @@ module.exports = function(grunt) {
           'public/layouts/**/*.min.js.map',
           'public/views/**/*.min.js',
           'public/views/**/*.min.js.map',
-          'public/embed/**/*.min.js',
-          'public/embed/**/*.min.js.map'
+          'public/cdn/**/*.min.js',
+          'public/cdn/**/*.min.js.map'
         ]
       },
       css: {
         src: [
           'public/layouts/**/*.min.css',
           'public/views/**/*.min.css',
-          'public/embed/**/*.min.css'
+          'public/cdn/**/*.min.css'
         ]
       },
       vendor: {

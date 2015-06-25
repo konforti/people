@@ -29,8 +29,8 @@ var getForm = function() {
         type: 'text',
         description: 'http://yourdomain.com/webhooks'
       },
-      allowDomain: {
-        name: 'Allow domain',
+      allowDomains: {
+        name: 'Allow domains',
         type: 'text',
         description: 'http://yourdomain.com'
       },
@@ -195,9 +195,14 @@ exports.update = function (req, res, next) {
   });
 
   workflow.on('patchSettings', function () {
-    for (var i in settings) {
-      if (settings.hasOwnProperty(i)) {
-        settings[i] = req.body[i];
+    for (var key in settings) {
+      if (settings.hasOwnProperty(key)) {
+        if (key === 'allowDomains') {
+          settings[key] = req.body[key].replace(/\s/g, '').split(',');
+        }
+        else {
+          settings[key] = req.body[key];
+        }
       }
     }
 

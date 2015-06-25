@@ -365,8 +365,6 @@ exports.connectOauth = function (req, res, next) {
           if (err) {
             return next(err);
           }
-          var settings = req.app.getSettings();
-          outcome.allowDomain = settings.allowDomain;
           res.render('../remote/profile/connect', {data: JSON.stringify(outcome)});
         });
       }

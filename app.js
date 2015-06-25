@@ -61,9 +61,9 @@ app.set('view engine', 'jade');
 app.use(require('morgan')('dev'));
 app.use(require('compression')());
 app.use(require('serve-static')(path.join(__dirname, 'public'), {
-  setHeaders: function(res, path) {
-    res.setHeader("Access-Control-Allow-Origin", app.appSettings.allowDomain);
-  }
+  //setHeaders: function(res, path) {
+  //  res.setHeader("Access-Control-Allow-Origin", app.appSettings.allowDomains);
+  //}
 }));
 app.use(require('method-override')());
 app.use(bodyParser.json());
@@ -104,18 +104,19 @@ app.locals.copyrightName = app.appSettings.projectName;
 app.locals.copyrightYear = new Date().getFullYear();
 app.locals.cacheBreaker = 'br34k-01';
 
-// CORS middleware.
 app.locals.projectName = app.appSettings.projectName;
 app.locals.copyrightName = app.appSettings.projectName;
 
-var allowCrossDomain = function(req, res, next) {
-  res.header('Access-Control-Allow-Origin', app.appSettings.allowDomain);
+// CORS middleware.
+app.use(function(req, res, next) {
+  if(app.appSettings.allowDomains.indexOf(req.headers.origin) > -1){
+    res.header('Access-Control-Allow-Origin', req.headers.origin);
+  }
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
   res.header('Access-Control-Allow-Credentials', 'true');
   next();
-};
-app.use(allowCrossDomain);
+});
 
 // Hooks middleware.
 app.use(function(req, res, next) {

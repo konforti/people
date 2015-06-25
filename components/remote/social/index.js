@@ -8,50 +8,6 @@ var signature = require('cookie-signature');
  * @param res
  * @param next
  */
-exports.registerFacebook = function (req, res, next) {
-  var workflow = req.app.utility.workflow(req, res);
-  req._passport.instance.authenticate('facebook', {callbackURL: '/remote/register/facebook/callback/'}, function (err, user, info) {
-    if (err) {
-      return workflow.emit('exception', err);
-    }
-
-    if (!info || !info.profile) {
-      workflow.outcome.errfor.username = 'No info';
-      return workflow.emit('response');
-    }
-
-    req.app.db.models.User.findOne({'facebook.id': info.profile.id}, function (err, user) {
-      if (err) {
-        return workflow.emit('exception', err);
-      }
-
-      info.profile.avatar = '//graph.facebook.com/' + info.profile.id + '/picture?height=100&width=100';
-      req.session.socialProfile = info.profile;
-
-      if (!user) {
-        // Register.
-        if (!info.profile.emails || !info.profile.emails[0].value) {
-          res.render('../remote/social/need-mail', {email: info.profile.emails && info.profile.emails[0].value || ''});
-        }
-        else {
-          registerSocial(req, res, next);
-        }
-      }
-      else {
-        // Login.
-        workflow.user = user;
-        loginSocial(req, res, workflow);
-      }
-    });
-  })(req, res, next);
-};
-
-/**
- *
- * @param req
- * @param res
- * @param next
- */
 exports.registerOauth = function (req, res, next) {
   var social = req.params.social;
   var workflow = req.app.utility.workflow(req, res);
@@ -243,7 +199,6 @@ var loginSocial = function (req, res, workflow) {
     var sid = signature.sign(req.sessionID, settings.cryptoKey);
 
     workflow.outcome.success = !workflow.hasErrors();
-    workflow.outcome.allowDomain = settings.allowDomain;
     workflow.outcome.sid = sid;
     workflow.outcome.user = {
       email: workflow.user.email,
