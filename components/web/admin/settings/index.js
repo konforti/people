@@ -33,11 +33,6 @@ var getForm = function() {
         name: 'Allow domains',
         type: 'text',
         description: 'http://yourdomain.com'
-      },
-      remoteReturnUrl: {
-        name: 'Return Url',
-        type: 'text',
-        description: 'http://yourdomain.com'
       }
     },
     loginAttempts: {
@@ -197,7 +192,7 @@ exports.update = function (req, res, next) {
   workflow.on('patchSettings', function () {
     for (var key in settings) {
       if (settings.hasOwnProperty(key)) {
-        if (key === 'allowDomains') {
+        if (key === 'allowDomains' || key === 'webhooksURL') {
           settings[key] = req.body[key].replace(/\s/g, '').split(',');
         }
         else {

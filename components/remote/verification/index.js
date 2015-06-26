@@ -24,12 +24,13 @@ exports.sendVerificationEmail = function (req, res, options) {
 };
 
 exports.verification = function (req, res, next) {
-  if (req.user.isVerified === 'yes') {
-    var settings = req.app.getSettings();
-    return res.redirect(settings.remoteReturnUrl);
-  }
   var workflow = req.app.utility.workflow(req, res);
+
   workflow.on('validate', function () {
+    if (req.user.isVerified === 'yes') {
+      return  workflow.emit('response');
+    }
+
     workflow.emit('generateToken');
   });
 
@@ -87,8 +88,7 @@ exports.verify = function (req, res, next) {
 
       req.hooks.emit('userVerify', user);
 
-      var settings = req.app.getSettings();
-      return res.redirect(settings.remoteReturnUrl + '?verified=true');
+      res.render('../remote/verification/verify', {data: JSON.stringify(workflow.outcome)});
     });
   });
 };

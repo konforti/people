@@ -1,0 +1,23 @@
+doctype html
+html
+    head
+        title Email Verification
+        meta(name='viewport', content='width=device-width, initial-scale=1.0')
+        link(rel='stylesheet', href='/layouts/core.min.css?#{cacheBreaker}')
+
+    body
+        div.page
+            div.container
+                div.row
+                    div.page-header
+                        h1 Email Verification
+                        p Your email was verified. You can continue using the application.
+                        a(href="javascript:window_close();") Close this window
+
+            script(type='application/json', id='data-record') !{data}
+
+        script(src='/layouts/core.min.js?#{cacheBreaker}')
+        script(src='/views/register/remote/success.js?#{cacheBreaker}')
+
+
+
