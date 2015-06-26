@@ -2,6 +2,27 @@
 var crypto = require('crypto');
 var signature = require('cookie-signature');
 
+var sendWelcomeEmail = function (req, res, options) {
+  var settings = req.app.getSettings();
+  req.app.utility.sendmail(req, res, {
+    from: settings.smtpFromName + ' <' + settings.smtpFromAddress + '>',
+    to: options.email,
+    subject: 'Welcome to ' + settings.projectName,
+    textPath: '../remote/register/email-text',
+    htmlPath: '../remote/register/email-html',
+    locals: {
+      verifyURL: req.protocol + '://' + req.headers.host + '/remote/verification/' + options.verificationToken + '/',
+      projectName: settings.projectName
+    },
+    success: function () {
+      options.onSuccess();
+    },
+    error: function (err) {
+      options.onError(err);
+    }
+  });
+};
+
 /**
  *
  * @param req
@@ -141,7 +162,7 @@ exports.register = function (req, res, next) {
 
   workflow.on('sendWelcomeEmail', function (token) {
 
-    require('../verification').sendVerificationEmail(req, res, {
+    sendWelcomeEmail(req, res, {
       email: req.body.email.toLowerCase(),
       verificationToken: token,
       onSuccess: function () {
