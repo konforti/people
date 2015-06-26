@@ -61,9 +61,11 @@ app.set('view engine', 'jade');
 app.use(require('morgan')('dev'));
 app.use(require('compression')());
 app.use(require('serve-static')(path.join(__dirname, 'public'), {
-  //setHeaders: function(res, path) {
-  //  res.setHeader("Access-Control-Allow-Origin", app.appSettings.allowDomains);
-  //}
+  setHeaders: function(res, path) {
+    if (app.appSettings.allowDomains.indexOf(res.req.headers.origin) > -1) {
+      res.setHeader("Access-Control-Allow-Origin", res.req.headers.origin);
+    }
+  }
 }));
 app.use(require('method-override')());
 app.use(bodyParser.json());
