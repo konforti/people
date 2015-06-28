@@ -4,24 +4,24 @@ block head
     title Manage Email
 
 block neck
-    //link(rel='stylesheet', href='/views/admin/emails/index.min.css?#{cacheBreaker}')
+    link(rel='stylesheet', href='/views/admin/emails/index.min.css?#{cacheBreaker}')
 
 block feet
-    //script(src='/views/admin/emails/index.min.js?#{cacheBreaker}')
+    script(src='/views/admin/emails/index.min.js?#{cacheBreaker}')
 
 block body
     div.row
         div.col-xs-12
             div#header
-            div#settings
+            div#emails
 
 
     script(type='text/template', id='tmpl-header')
         div.page-header
-            h1 Settings
+            h1 Emails
 
-    script(type='text/templatefilter', id='tmpl-settings')
-        form.settings
+    script(type='text/template', id='tmpl-emails')
+        form.emails
             div.alerts
                 | <% _.each(errors, function(err) { %>
                 div.alert.alert-danger.alert-dismissable
@@ -38,14 +38,12 @@ block body
             div.left
                 for field, i in data.fields
                     div.group(class!="group-#{i}")
-                        h3 #{i.replace(/([A-Z])/g, " $1").replace(/^./, function(str) { return str.toUpperCase()})}
+                        h3 #{field.name}
                         div.form-role(class!="<%- errfor.#{i} ? 'has-error' : '' %>")
-                            label #{field.name}:
-                            input.form-control(type="#{field.type}", name="#{i}", value!="#{field.value}")
+                            textarea.form-control(name="#{i}" rows="16") #{field.value}
                             span.help-block <%- errfor.#{i} %>
 
             div.form-role
                 button.btn.btn-primary.btn-update(type='button') Update
 
     script(type='text/template', id='data-record') !{JSON.stringify(data.record)}
-    //script(type='text/template', id='data-fields') !{JSON.stringify(data.fields)}

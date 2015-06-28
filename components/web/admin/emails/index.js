@@ -1,11 +1,17 @@
 'use strict';
 var fs = require('fs');
-var crypto = require('crypto');
 
+var getTmpl = function() {
+  return {
+    register: process.env.PWD + '/components/remote/register/email-markdown.md',
+    forgot: process.env.PWD + '/components/remote/forgot/email-markdown.md',
+    verify: process.env.PWD + '/components/remote/verification/email-markdown.md'
+  }
+};
 
 var getForm = function() {
   return {
-    welcome: {
+    register: {
       name: 'Welcome',
       type: 'textarea'
     },
@@ -26,11 +32,12 @@ exports.read = function (req, res, next) {
   outcome.fields = getForm();
 
   try {
-    outcome.record.register = fs.readFileSync(process.env.PWD + 'components/remote/register/email-markdown.md', {encoding: 'utf8'});
-    outcome.record.forgot = fs.readFileSync(process.env.PWD + 'components/remote/forgot/email-markdown.md', {encoding: 'utf8'});
-    outcome.record.verify = fs.readFileSync(process.env.PWD + 'components/remote/verification/email-markdown.md', {encoding: 'utf8'});
+    outcome.record.register = fs.readFileSync(process.env.PWD + '/components/remote/register/email-markdown.md', {encoding: 'utf8'});
+    outcome.record.forgot = fs.readFileSync(process.env.PWD + '/components/remote/forgot/email-markdown.md', {encoding: 'utf8'});
+    outcome.record.verify = fs.readFileSync(process.env.PWD + '/components/remote/verification/email-markdown.md', {encoding: 'utf8'});
   }
   catch(e) {
+    console.log(e);
   }
 
 
@@ -38,6 +45,7 @@ exports.read = function (req, res, next) {
   var getFields = function (callback) {
     for (var key in outcome.fields) {
       if (outcome.fields.hasOwnProperty(key)) {
+
         outcome.fields[key].value = outcome.record[key];
       }
     }
@@ -60,11 +68,11 @@ exports.read = function (req, res, next) {
     }
   };
 
-  require('async').parallel([getFields, getKeys], asyncFinally);
+  require('async').parallel([getFields], asyncFinally);
 };
 
 exports.update = function (req, res, next) {
-  var settings = req.app.getSettings();
+  var tmpls = getTmpl();
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function () {
@@ -82,37 +90,22 @@ exports.update = function (req, res, next) {
   });
 
   workflow.on('patchSettings', function () {
-    for (var key in settings) {
-      if (settings.hasOwnProperty(key)) {
-        if (key === 'allowDomains' || key === 'webhooksURL') {
-          settings[key] = req.body[key].replace(/\s/g, '').split(',');
-        }
-        else {
-          settings[key] = req.body[key];
-        }
+    for (var key in tmpls) {
+      if (tmpls.hasOwnProperty(key)) {
+        tmpls[key] = req.body[key]
+
+        fs.writeFile(tmpls[key], req.body[key], function (err) {
+          if (err) {
+            return workflow.emit('exception', err);
+          }
+          workflow.outcome.emails = tmpls;
+          return workflow.emit('response');
+        });
       }
     }
 
-    fs.writeFile(process.env.PWD + '/settings.json', JSON.stringify(settings, null, '\t'), function (err) {
-      if (err) {
-        return workflow.emit('exception', err);
-      }
-      req.app.appSettings = settings;
-      workflow.outcome.settings = settings;
-      return workflow.emit('response');
-    });
+
   });
 
   workflow.emit('validate');
-};
-
-exports.reset = function (req, res, next) {
-
-  var settings = req.app.getSettings();
-  var workflow = req.app.utility.workflow(req, res);
-
-  settings = generateKey('sk', settings);
-
-  workflow.outcome.settings = settings;
-  return workflow.emit('response');
 };

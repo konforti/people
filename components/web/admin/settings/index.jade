@@ -20,7 +20,7 @@ block body
         div.page-header
             h1 Settings
 
-    script(type='text/templatefilter', id='tmpl-settings')
+    script(type='text/template', id='tmpl-settings')
         form.settings
             div.alerts
                 | <% _.each(errors, function(err) { %>
