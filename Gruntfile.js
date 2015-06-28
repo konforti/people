@@ -15,6 +15,10 @@ module.exports = function(grunt) {
             src: ['backbone.js'], dest: 'public/vendor/backbone/'
           },
           {
+            expand: true, cwd: 'bower_components/codemirror/',
+            src: ['addon/**', 'lib/**', 'mode/**'], dest: 'public/vendor/codemirror/'
+          },
+          {
             expand: true, cwd: 'bower_components/font-awesome/',
             src: ['fonts/**', 'less/**'], dest: 'public/vendor/font-awesome/'
           },

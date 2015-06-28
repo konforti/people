@@ -5,9 +5,20 @@ block head
 
 block neck
     link(rel='stylesheet', href='/views/admin/emails/index.min.css?#{cacheBreaker}')
+    link(rel='stylesheet', href='/vendor/codemirror/lib/codemirror.css?#{cacheBreaker}')
 
 block feet
     script(src='/views/admin/emails/index.min.js?#{cacheBreaker}')
+
+    script(src='/vendor/codemirror/lib/codemirror.js?#{cacheBreaker}')
+    script(src='/vendor/codemirror/mode/xml/xml.js?#{cacheBreaker}')
+    script(src='/vendor/codemirror/mode/markdown/markdown.js?#{cacheBreaker}')
+    script(src='/vendor/codemirror/mode/gfm/gfm.js?#{cacheBreaker}')
+    script(src='/vendor/codemirror/mode/css/css.js?#{cacheBreaker}')
+    script(src='/vendor/codemirror/mode/htmlmixed/htmlmixed.js?#{cacheBreaker}')
+    script(src='/vendor/codemirror/addon/edit/continuelist.js?#{cacheBreaker}')
+    script(src='/vendor/codemirror/addon/mode/overlay.js?#{cacheBreaker}')
+
 
 block body
     div.row
@@ -35,13 +46,14 @@ block body
                 | <% } %>
 
 
-            div.left
+            div.content
                 for field, i in data.fields
-                    div.group(class!="group-#{i}")
+                    div.group(id!="group-#{i}")
                         h3 #{field.name}
                         div.form-role(class!="<%- errfor.#{i} ? 'has-error' : '' %>")
-                            textarea.form-control(name="#{i}" rows="16") #{field.value}
+                            textarea.form-control(name="#{i}") #{field.value}
                             span.help-block <%- errfor.#{i} %>
+                            button.btn.btn-default.btn-test(type='button' id="test-mail-#{i}") Test mail
 
             div.form-role
                 button.btn.btn-primary.btn-update(type='button') Update

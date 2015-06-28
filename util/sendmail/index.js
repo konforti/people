@@ -15,6 +15,7 @@ exports = module.exports = function (req, res, options) {
   error: Function
 } */
 
+  var settings = req.app.getSettings();
   var renderText = function (callback) {
     res.render(options.textPath, options.locals, function (err, text) {
       if (err) {
@@ -39,12 +40,63 @@ exports = module.exports = function (req, res, options) {
     });
   };
 
+  var renderMd = function (callback) {
+    var vars = {
+      '%username': req.user.username,
+      '%appname': settings.projectName,
+      '%url': settings.projectName
+    };
+
+    var md = require('markdown-it')({
+      html: true,
+      linkify: true,
+      typographer: true,
+      breaks: true
+    });
+
+    md.inline.ruler.before('emphasis', 'var', function(state, silent) {
+      var token;
+
+      if (state.src.charCodeAt(state.pos) === 0x25/* % */) {
+        token = state.push('text', '', 0);
+
+        if (state.src.indexOf('%username') > -1) {
+          token.content = req.user.username;
+        }
+        else if (state.src.indexOf('%appname') > -1) {
+          token.content = settings.projectName;
+        }
+        else if (state.src.indexOf('%verifyUrl') > -1) {
+          token.content = settings.projectName;
+        }
+
+        state.pos = state.posMax + 1;
+        return true;
+      }
+
+      return false;
+    });
+
+    require('fs').readFile(options.mdPath + '.md', 'utf8', function(err, data) {
+      if (err) {
+        return console.log(err);
+      }
+
+      options.html = md.render(data);
+      return callback(null, 'done');
+    });
+  };
+
   var renderers = [];
   if (options.textPath) {
     renderers.push(renderText);
   }
 
-  if (options.htmlPath) {
+  if (options.mdPath) {
+    renderers.push(renderMd);
+  }
+
+  else if (options.htmlPath) {
     renderers.push(renderHtml);
   }
 
@@ -70,7 +122,6 @@ exports = module.exports = function (req, res, options) {
 
       var nodemailer = require('nodemailer');
       // Create reusable transporter object using SMTP transport.
-      var settings = req.app.getSettings();
       var transporter = nodemailer.createTransport({
         host: settings.smtpHost,
         auth: {
@@ -87,6 +138,7 @@ exports = module.exports = function (req, res, options) {
         bcc: options.bcc,
         subject: options.subject,
         text: options.text,
+        html: options.html,
         attachment: attachments
       };
 

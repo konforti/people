@@ -129,6 +129,7 @@ exports = module.exports = function (app, passport) {
 
   // Admin > Emails.
   app.get('/admin/emails/', require('./admin/emails/index').read);
+  app.get('/admin/emails/test', require('./admin/emails/index').test);
   app.put('/admin/emails/', require('./admin/emails/index').update);
   app.post('/admin/emails/', require('./admin/emails/index').update);
 

@@ -1,8 +1,8 @@
 /* global app:true */
 
-(function() {
+(function () {
   'use strict';
-
+window.debug = '';
   app = app || {};
 
   app.Emails = Backbone.Model.extend({
@@ -12,10 +12,10 @@
       errors: [],
       errfor: {}
     },
-    url: function() {
+    url: function () {
       return '/admin/emails';
     },
-    parse: function(response) {
+    parse: function (response) {
       if (response.emails) {
         app.mainView.model.set(response.emails);
         delete response.emails;
@@ -27,84 +27,98 @@
 
   app.HeaderView = Backbone.View.extend({
     el: '#header',
-    template: _.template( $('#tmpl-header').html() ),
+    template: _.template($('#tmpl-header').html()),
 
-    initialize: function() {
+    initialize: function () {
       this.model = app.mainView.model;
       //this.listenTo(this.model, 'change', this.render);
       this.render();
     },
 
-    render: function() {
-      this.$el.html(this.template( this.model.attributes ));
+    render: function () {
+      this.$el.html(this.template(this.model.attributes));
     }
   });
 
   app.EmailsView = Backbone.View.extend({
     el: '#emails',
-    template: _.template( $('#tmpl-emails').html() ),
+    template: _.template($('#tmpl-emails').html()),
     events: {
       'click .btn-update': 'update',
-      'click .btn-reset-secret': 'reset'
+      'click .btn-test': 'test'
     },
-    initialize: function() {
+    initialize: function () {
       this.model = new app.Emails();
       this.syncUp();
       this.listenTo(app.mainView.model, 'change', this.syncUp);
       this.listenTo(this.model, 'sync', this.render);
       this.render();
     },
-    syncUp: function() {
+    syncUp: function () {
       for (var key in app.mainView.model.attributes) {
         if (app.mainView.model.attributes.hasOwnProperty(key)) {
           this.model.set(key, app.mainView.model.get(key));
         }
       }
     },
-    render: function() {
-      this.$el.html(this.template( this.model.attributes ));
+    render: function () {
+      this.$el.html(this.template(this.model.attributes));
 
       for (var key in this.model.attributes) {
         if (this.model.attributes.hasOwnProperty(key)) {
-          this.$el.find('[name="'+ key +'"]').val(this.model.attributes[key]);
+          this.$el.find('[name="' + key + '"]').val(this.model.attributes[key]);
         }
       }
-    },
-    update: function() {
-      var toSave = {};
-      this.$el.find('.form-role input').each(function(i, el) {
-        if (el.type === "checkbox") {
-          el.value = el.checked === true ? 1 : 0;
-        }
-        toSave[el.name] = el.value;
 
+      app.editors = {};
+      $('textarea.form-control').each(function(i, el) {
+        app.editors[$(el).attr('name')] = CodeMirror.fromTextArea(el, {
+          mode: 'gfm', // GitHub Flavored Markdown.
+          lineNumbers: false,
+          matchBrackets: true,
+          lineWrapping: true,
+          theme: 'default',
+          extraKeys: {"Enter": "newlineAndIndentContinueMarkdownList"}
+        });
       });
-      this.$el.find('.form-role select').each(function(i, el) {
-        toSave[el.name] = el.value;
+    },
+    update: function () {
+      var toSave = {};
+      this.$el.find('.CodeMirror-code').each(function (i, el) {
+        var key =  $(el).parents('.group').attr('id').replace('group-', '');
+        window.debug = app.editors
+        toSave[key] = app.editors[key].getValue();
       });
 
       this.model.save(toSave);
     },
 
-    reset: function() {
-      if (window.confirm("Your current Secret Key will no long work after reset.\nyou will need to update any application configuration using the old secret because it will no longer work.\nContinue?")) {
-        this.modelReset.save();
-      }
+    test: function (ev) {
+      var testId =  ev.target.id.replace('test-mail-', '');
+
+      $.get('/admin/emails/test?id=' + testId, function(data) {
+        if (data.success === true) {
+          alert( "Test mail sent to " + data.email);
+        }
+        else {
+          alert( "Error: " + data.err);
+        }
+      });
     }
   });
 
   app.MainView = Backbone.View.extend({
     el: '.page .container',
-    initialize: function() {
+    initialize: function () {
       app.mainView = this;
-      this.model = new app.Emails( JSON.parse( unescape($('#data-record').html())) );
+      this.model = new app.Emails(JSON.parse(unescape($('#data-record').html())));
 
       app.headerView = new app.HeaderView();
       app.emailsView = new app.EmailsView();
     }
   });
 
-  $(document).ready(function() {
+  $(document).ready(function () {
     app.mainView = new app.MainView();
   });
 }());

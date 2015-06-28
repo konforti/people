@@ -30,11 +30,14 @@ exports.read = function (req, res, next) {
   var outcome = {};
   outcome.record = {};
   outcome.fields = getForm();
+  var tmpls = getTmpl();
 
   try {
-    outcome.record.register = fs.readFileSync(process.env.PWD + '/components/remote/register/email-markdown.md', {encoding: 'utf8'});
-    outcome.record.forgot = fs.readFileSync(process.env.PWD + '/components/remote/forgot/email-markdown.md', {encoding: 'utf8'});
-    outcome.record.verify = fs.readFileSync(process.env.PWD + '/components/remote/verification/email-markdown.md', {encoding: 'utf8'});
+    for (var key in tmpls) {
+      if (tmpls.hasOwnProperty(key)) {
+        outcome.record[key] = fs.readFileSync(tmpls[key], {encoding: 'utf8'});
+      }
+    }
   }
   catch(e) {
     console.log(e);
@@ -77,35 +80,58 @@ exports.update = function (req, res, next) {
 
   workflow.on('validate', function () {
     if (!req.user.isMemberOf('root')) {
-      workflow.outcome.errors.push('You may not update settings.');
+      workflow.outcome.errors.push('You may not update Email templates.');
       return workflow.emit('response');
     }
 
-    if (!req.body.projectName) {
-      workflow.outcome.errfor.projectName = 'required';
-      return workflow.emit('response');
-    }
-
-    workflow.emit('patchSettings');
+    workflow.emit('patchTmpl');
   });
 
-  workflow.on('patchSettings', function () {
+  workflow.on('patchTmpl', function () {
+    workflow.outcome.emails = {};
     for (var key in tmpls) {
       if (tmpls.hasOwnProperty(key)) {
-        tmpls[key] = req.body[key]
-
         fs.writeFile(tmpls[key], req.body[key], function (err) {
           if (err) {
             return workflow.emit('exception', err);
           }
-          workflow.outcome.emails = tmpls;
-          return workflow.emit('response');
+          console.log(req.body[key]);
+          workflow.outcome.emails[key] = req.body[key];
         });
       }
     }
 
-
+    return workflow.emit('response');
   });
 
   workflow.emit('validate');
+};
+
+exports.test = function (req, res, next) {
+  var settings = req.app.getSettings();
+  var id = req.query.id;
+  req.app.utility.sendmail(req, res, {
+    from: settings.smtpFromName + ' <' + settings.smtpFromAddress + '>',
+    to: settings.systemEmail,
+    subject: '[Test] for ' + id + ' mail',
+    textPath: process.env.PWD + '/components/remote/' + id + '/email-text',
+    htmlPath: process.env.PWD + '/components/remote/' + id + '/email-html',
+    mdPath: process.env.PWD + '/components/remote/' + id + '/email-markdown',
+    locals: {
+      verifyURL: req.protocol + '://' + req.headers.host + '/remote/verification/' + 'VERYLONGTOKEN' + '/',
+      projectName: settings.projectName
+    },
+    success: function () {
+      res.send({
+        success: true,
+        email: settings.smtpFromAddress
+      });
+    },
+    error: function (err) {
+      res.send({
+        success: false,
+        err: err
+      });
+    }
+  });
 };
