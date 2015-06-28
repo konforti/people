@@ -127,6 +127,11 @@ exports = module.exports = function (app, passport) {
   app.put('/admin/settings/reset', require('./admin/settings/index').reset);
   app.post('/admin/settings/reset', require('./admin/settings/index').reset);
 
+  // Admin > Emails.
+  app.get('/admin/emails/', require('./admin/emails/index').read);
+  app.put('/admin/emails/', require('./admin/emails/index').update);
+  app.post('/admin/emails/', require('./admin/emails/index').update);
+
   // Admin > Search.
   app.get('/admin/search/', require('./admin/search/index').find);
 
