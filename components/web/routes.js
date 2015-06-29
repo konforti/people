@@ -157,9 +157,9 @@ exports = module.exports = function (app, passport) {
   app.get('/account/:social/disconnect/', require('./account/index').disconnectOauth);
 
   // Account > Verification.
-  app.get('/account/verification/', require('./account/verification/index').init);
-  app.post('/account/verification/', require('./account/verification/index').resendVerification);
-  app.get('/account/verification/:token/', require('./account/verification/index').verify);
+  app.get('/account/verification/', require('./account/verify/index').init);
+  app.post('/account/verification/', require('./account/verify/index').resendVerification);
+  app.get('/account/verification/:token/', require('./account/verify/index').verify);
 
   // Route not found.
   app.all('*', require('./http/index').http404);

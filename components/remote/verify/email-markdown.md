@@ -1,13 +1,11 @@
-%username
-
-Welcome to %appname!
+%app.name Email Verification
 
 Thank you for register.
 Please verify your email address by clicking the following link:
-[Confirm my account](%verifyUrl)
+%user.verifyUrl
 
 If you are having any issues with your account,
-please don't hesitate to contact us by replying to this mail.​
+please don't hesitate to contact us by replying to this mail.
 
 Thanks,
-%appname team
+%app.name team

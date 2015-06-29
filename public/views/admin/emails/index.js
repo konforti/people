@@ -2,7 +2,7 @@
 
 (function () {
   'use strict';
-window.debug = '';
+
   app = app || {};
 
   app.Emails = Backbone.Model.extend({
@@ -86,7 +86,6 @@ window.debug = '';
       var toSave = {};
       this.$el.find('.CodeMirror-code').each(function (i, el) {
         var key =  $(el).parents('.group').attr('id').replace('group-', '');
-        window.debug = app.editors
         toSave[key] = app.editors[key].getValue();
       });
 

@@ -10,7 +10,9 @@ var sendWelcomeEmail = function (req, res, options) {
     subject: 'Welcome to ' + settings.projectName,
     textPath: '../remote/register/email-text',
     htmlPath: '../remote/register/email-html',
+    markdownPath: '../remote/register/email-markdown',
     locals: {
+      username: req.user.username,
       verifyURL: req.protocol + '://' + req.headers.host + '/remote/verification/' + options.verificationToken + '/',
       projectName: settings.projectName
     },

@@ -53,7 +53,7 @@ block body
                         div.form-role(class!="<%- errfor.#{i} ? 'has-error' : '' %>")
                             textarea.form-control(name="#{i}") #{field.value}
                             span.help-block <%- errfor.#{i} %>
-                            button.btn.btn-default.btn-test(type='button' id="test-mail-#{i}") Test mail
+                            button.btn.btn-default.btn-test(type='button' id="test-mail-#{i}") Send test mail...
 
             div.form-role
                 button.btn.btn-primary.btn-update(type='button') Update

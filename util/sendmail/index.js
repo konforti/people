@@ -40,11 +40,13 @@ exports = module.exports = function (req, res, options) {
     });
   };
 
-  var renderMd = function (callback) {
+  var renderMarkdown = function (callback) {
     var vars = {
-      '%username': req.user.username,
-      '%appname': settings.projectName,
-      '%url': settings.projectName
+      '%user.name': options.locals.username,
+      '%user.email': options.locals.email,
+      '%app.name': options.locals.projectName,
+      '%user.verifyUrl': options.locals.verifyURL,
+      '%user.resetToken': options.locals.resetCode
     };
 
     var md = require('markdown-it')({
@@ -59,15 +61,10 @@ exports = module.exports = function (req, res, options) {
 
       if (state.src.charCodeAt(state.pos) === 0x25/* % */) {
         token = state.push('text', '', 0);
-
-        if (state.src.indexOf('%username') > -1) {
-          token.content = req.user.username;
-        }
-        else if (state.src.indexOf('%appname') > -1) {
-          token.content = settings.projectName;
-        }
-        else if (state.src.indexOf('%verifyUrl') > -1) {
-          token.content = settings.projectName;
+        for (var key in vars) {
+          if (state.src.indexOf(key) > -1) {
+            token.content = vars[key];
+          }
         }
 
         state.pos = state.posMax + 1;
@@ -77,7 +74,7 @@ exports = module.exports = function (req, res, options) {
       return false;
     });
 
-    require('fs').readFile(options.mdPath + '.md', 'utf8', function(err, data) {
+    require('fs').readFile(options.markdownPath + '.md', 'utf8', function(err, data) {
       if (err) {
         return console.log(err);
       }
@@ -92,8 +89,8 @@ exports = module.exports = function (req, res, options) {
     renderers.push(renderText);
   }
 
-  if (options.mdPath) {
-    renderers.push(renderMd);
+  if (options.markdownPath) {
+    renderers.push(renderMarkdown);
   }
 
   else if (options.htmlPath) {

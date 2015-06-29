@@ -5,7 +5,7 @@ var getTmpl = function() {
   return {
     register: process.env.PWD + '/components/remote/register/email-markdown.md',
     forgot: process.env.PWD + '/components/remote/forgot/email-markdown.md',
-    verify: process.env.PWD + '/components/remote/verification/email-markdown.md'
+    verify: process.env.PWD + '/components/remote/verify/email-markdown.md'
   }
 };
 
@@ -95,7 +95,7 @@ exports.update = function (req, res, next) {
           if (err) {
             return workflow.emit('exception', err);
           }
-          console.log(req.body[key]);
+
           workflow.outcome.emails[key] = req.body[key];
         });
       }
@@ -116,9 +116,11 @@ exports.test = function (req, res, next) {
     subject: '[Test] for ' + id + ' mail',
     textPath: process.env.PWD + '/components/remote/' + id + '/email-text',
     htmlPath: process.env.PWD + '/components/remote/' + id + '/email-html',
-    mdPath: process.env.PWD + '/components/remote/' + id + '/email-markdown',
+    markdownPath: process.env.PWD + '/components/remote/' + id + '/email-markdown',
     locals: {
-      verifyURL: req.protocol + '://' + req.headers.host + '/remote/verification/' + 'VERYLONGTOKEN' + '/',
+      username: req.user.username,
+      verifyURL: req.protocol + '://' + req.headers.host + '/remote/verification/' + 'VeRYL0nGt0kEN' + '/',
+      resetCode: 'VeRYL0nGt0kEN',
       projectName: settings.projectName
     },
     success: function () {

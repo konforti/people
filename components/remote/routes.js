@@ -56,8 +56,8 @@ exports = module.exports = function (app, passport) {
   app.post('/remote/password/', require('./profile/index').updatePassword);
 
   // Email verification.
-  app.post('/remote/verification/', require('./verification/index').verification);
-  app.get('/remote/verification/:token/', require('./verification/index').verify);
+  app.post('/remote/verification/', require('./verify/index').verification);
+  app.get('/remote/verification/:token/', require('./verify/index').verify);
 
   // Social Connect.
   app.get('/remote/connect/twitter/', passport.authenticate('twitter', {callbackURL: '/remote/connect/twitter/callback/'}));

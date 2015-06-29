@@ -169,7 +169,7 @@ exports.updateProfile = function (req, res, next) {
 
   workflow.on('sendVerificationEmail', function (token) {
 
-    require('../verification').sendVerificationEmail(req, res, {
+    require('../verify').sendVerificationEmail(req, res, {
       email: req.body.email.toLowerCase(),
       verificationToken: token,
       onSuccess: function () {

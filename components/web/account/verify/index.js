@@ -6,8 +6,8 @@ var sendVerificationEmail = function (req, res, options) {
     from: settings.smtpFromName + ' <' + settings.smtpFromAddress + '>',
     to: options.email,
     subject: 'Verify Your ' + settings.projectName + ' Account',
-    textPath: 'account/verification/email-text',
-    htmlPath: 'account/verification/email-html',
+    textPath: 'account/verify/email-text',
+    htmlPath: 'account/verify/email-html',
     locals: {
       verifyURL: req.protocol + '://' + req.headers.host + '/account/verification/' + options.verificationToken + '/',
       projectName: settings.projectName
@@ -34,7 +34,7 @@ exports.init = function (req, res, next) {
         return next(err);
       }
 
-      res.render('account/verification/index', {
+      res.render('account/verify/index', {
         data: {
           user: JSON.stringify(user)
         }
