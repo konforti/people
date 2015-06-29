@@ -252,7 +252,7 @@ People.prototype.clickEvents = function () {
       self.showLogin({form: 'forgot'});
     }
     else if (classes.contains('ppl-verify-email')) {
-      self.makeRequest('POST', self.url + '/remote/verification/', {}, function (data) {
+      self.makeRequest('POST', self.url + '/remote/verify/', {}, function (data) {
         var message = 'A verification mail sent to your email address.';
         if (!self.errors(data, message)) {
           // Wait.

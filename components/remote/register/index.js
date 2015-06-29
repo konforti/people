@@ -13,7 +13,7 @@ var sendWelcomeEmail = function (req, res, options) {
     markdownPath: '../remote/register/email-markdown',
     locals: {
       username: req.user.username,
-      verifyURL: req.protocol + '://' + req.headers.host + '/remote/verification/' + options.verificationToken + '/',
+      verifyURL: req.protocol + '://' + req.headers.host + '/remote/verify/' + options.verificationToken + '/',
       projectName: settings.projectName
     },
     success: function () {

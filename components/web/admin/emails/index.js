@@ -119,7 +119,7 @@ exports.test = function (req, res, next) {
     markdownPath: process.env.PWD + '/components/remote/' + id + '/email-markdown',
     locals: {
       username: req.user.username,
-      verifyURL: req.protocol + '://' + req.headers.host + '/remote/verification/' + 'VeRYL0nGt0kEN' + '/',
+      verifyURL: req.protocol + '://' + req.headers.host + '/remote/verify/' + 'VeRYL0nGt0kEN' + '/',
       resetCode: 'VeRYL0nGt0kEN',
       projectName: settings.projectName
     },
