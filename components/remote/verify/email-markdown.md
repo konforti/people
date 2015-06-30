@@ -1,8 +1,9 @@
-%app.name Email Verification
+![Logo here](https://raw.githubusercontent.com/konforti/people/master/public/media/logo-symbol-64x64.png)
 
-Thank you for register.
+### %app.name Email Verification
+
 Please verify your email address by clicking the following link:
-%user.verifyUrl
+[Verify my email](http://localhost:3000/remote/verify/VeRYL0nGt0kEN)
 
 If you are having any issues with your account,
 please don't hesitate to contact us by replying to this mail.
