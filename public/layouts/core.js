@@ -15,7 +15,9 @@ var app; //the main declaration
     $(document).ajaxStop(function(){  $('.ajax-spinner').hide(); });
     $.ajaxSetup({
       beforeSend: function (xhr) {
-        xhr.setRequestHeader('x-csrf-token', $.cookie('_csrfToken'));
+        if ($.cookie('people.token')) {
+          xhr.setRequestHeader('Authorization','Bearer ', $.cookie('people.token'));
+        }
       }
     });
 

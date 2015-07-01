@@ -6,7 +6,7 @@ var getTmpl = function() {
     register: process.env.PWD + '/components/remote/register/email-markdown.md',
     forgot: process.env.PWD + '/components/remote/forgot/email-markdown.md',
     verify: process.env.PWD + '/components/remote/verify/email-markdown.md'
-  }
+  };
 };
 
 var getForm = function() {
@@ -23,7 +23,7 @@ var getForm = function() {
       name: 'Verify Email',
       type: 'textarea'
     }
-  }
+  };
 };
 
 exports.read = function (req, res, next) {

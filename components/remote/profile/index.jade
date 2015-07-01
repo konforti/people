@@ -17,7 +17,6 @@ div
 
     div.right
         form#ppl-profile-form
-            input.form-control(type='hidden', name='csrf', value!='#{data.csrfToken}')
             div.form-role
                 label Username:
                 input.form-control(type='text', name='username', value!='#{data.record.username}')
@@ -40,7 +39,6 @@ div
 
         a.ppl-change-password(href="javascript:void(0)") Change Password
         form#ppl-new-password.hidden
-            input.form-control(type='hidden', name='csrf', value!='#{data.csrfToken}')
             div.form-role
                 label New Password:
                 input.form-control(type='password', name='newPassword', value!='')

@@ -1,5 +1,7 @@
 'use strict';
 
+var jwt = require('jsonwebtoken');
+
 var getSocials = function(req) {
   var settings = req.app.getSettings();
   var ret = [];
@@ -142,10 +144,19 @@ exports.register = function (req, res) {
         return workflow.emit('response');
       }
       else {
-        req.login(user, function (err) {
+        req.login(user, {session: false}, function (err) {
           if (err) {
             return workflow.emit('exception', err);
           }
+
+          var payload = {
+            id: user.id,
+            email: user.email,
+            username: user.username
+          };
+
+          var settings = req.app.getSettings();
+          res.cookie('people.token', jwt.sign(payload, settings.cryptoKey));
 
           workflow.outcome.defaultReturnUrl = user.defaultReturnUrl();
           workflow.emit('response');

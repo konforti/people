@@ -5,16 +5,13 @@ var config = require('./config'),
     express = require('express'),
     cookieParser = require('cookie-parser'),
     bodyParser = require('body-parser'),
-    session = require('express-session'),
-    mongoStore = require('connect-mongo')(session),
     http = require('http'),
     path = require('path'),
     fs = require('fs'),
     crypto = require('crypto'),
     passport = require('passport'),
     mongoose = require('mongoose'),
-    helmet = require('helmet'),
-    csrf = require('csurf');
+    helmet = require('helmet');
 
 // Create express app.
 var app = express();
@@ -71,28 +68,11 @@ app.use(require('method-override')());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser(app.appSettings.cryptoKey));
-app.use(session({
-  resave: false,
-  saveUninitialized: false,
-  secret: app.appSettings.cryptoKey,
-  store: new mongoStore({ url: config.mongodb.uri })
-}));
 app.use(passport.initialize());
-app.use(passport.session());
-app.use(function(req, res, next) {
-  if (req.path.indexOf('/remote/') === 0 || req.path.indexOf('/api/') === 0) {
-    req.csrfToken = function() {return '';};
-    next();
-  }
-  else {
-    (csrf())(req, res, next);
-  }
-});
 app.use(helmet());
 
 // Response locals.
 app.use(function(req, res, next) {
-  res.cookie('_csrfToken', req.csrfToken());
   res.locals.user = {};
   res.locals.user.defaultReturnUrl = req.user && req.user.defaultReturnUrl();
   res.locals.user.username = req.user && req.user.username;
@@ -105,9 +85,6 @@ app.locals.copyrightName = app.appSettings.projectName;
 
 app.locals.copyrightYear = new Date().getFullYear();
 app.locals.cacheBreaker = 'br34k-01';
-
-app.locals.projectName = app.appSettings.projectName;
-app.locals.copyrightName = app.appSettings.projectName;
 
 // CORS middleware.
 app.use(function(req, res, next) {
@@ -148,7 +125,6 @@ app.utility = {};
 app.utility.sendmail = require('./util/sendmail');
 app.utility.slugify = require('./util/slugify');
 app.utility.workflow = require('./util/workflow');
-//app.utility.auth = require('./util/auth');
 
 // Listen up.
 app.server.listen(app.config.port, app.config.ip, function() {

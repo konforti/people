@@ -1,5 +1,7 @@
 'use strict';
 
+var jwt = require('jsonwebtoken');
+
 var getReturnUrl = function (req) {
   var returnUrl = req.user.defaultReturnUrl();
   if (req.session.returnUrl) {
@@ -108,10 +110,19 @@ exports.login = function (req, res) {
         });
       }
       else {
-        req.login(user, function (err) {
+        req.login(user, {session: false}, function (err) {
           if (err) {
             return workflow.emit('exception', err);
           }
+
+          var payload = {
+            id: user.id,
+            email: user.email,
+            username: user.username
+          };
+
+          var settings = req.app.getSettings();
+          res.cookie('people.token', jwt.sign(payload, settings.cryptoKey));
 
           workflow.emit('response');
         });
@@ -144,7 +155,7 @@ exports.loginOauth = function (req, res, next) {
         res.render('login/index', {socials: getSocials(req)});
       }
       else {
-        req.login(user, function (err) {
+        req.login(user, {session: false}, function (err) {
           if (err) {
             return next(err);
           }

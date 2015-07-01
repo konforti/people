@@ -1,6 +1,7 @@
 'use strict';
 var crypto = require('crypto');
 var signature = require('cookie-signature');
+var jwt = require('jsonwebtoken');
 
 var sendWelcomeEmail = function (req, res, options) {
   var settings = req.app.getSettings();
@@ -189,23 +190,24 @@ exports.register = function (req, res, next) {
         return workflow.emit('response');
       }
       else {
-        req.login(user, function (err) {
+        req.login(user, {session: false}, function (err) {
           if (err) {
             return workflow.emit('exception', err);
           }
 
           var settings = req.app.getSettings();
           var gravatarHash = crypto.createHash('md5').update(req.email).digest('hex');
-          var sid = signature.sign(req.sessionID, settings.cryptoKey);
 
-          workflow.outcome.sid = sid;
-          workflow.outcome.user = {
+          var payload = {
+            id: user.id,
             email: user.email,
             username: user.username,
             avatar: 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g'
           };
 
-          req.hooks.emit('userLogin', workflow.outcome.user);
+          workflow.outcome.jwt = jwt.sign(payload, settings.cryptoKey);
+
+          req.hooks.emit('userLogin', user);
           workflow.emit('response');
         });
       }
@@ -298,21 +300,22 @@ exports.login = function (req, res, next) {
         });
       }
       else {
-        req.login(user, function (err) {
+        req.login(user, {session: false}, function (err) {
           if (err) {
             return workflow.emit('exception', err);
           }
 
           var settings = req.app.getSettings();
           var gravatarHash = crypto.createHash('md5').update(user.email).digest('hex');
-          var sid = signature.sign(req.sessionID, settings.cryptoKey);
 
-          workflow.outcome.sid = sid;
-          workflow.outcome.user = {
+          var payload = {
+            id: user.id,
             email: user.email,
             username: user.username,
             avatar: 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g'
           };
+
+          workflow.outcome.jwt = jwt.sign(payload, settings.cryptoKey);
 
           req.hooks.emit('userLogin', user);
           workflow.emit('response');

@@ -1,28 +1,25 @@
 'use strict';
 
 /**
- * unsaveUninitialized().
+ * Ensure Authenticated.
  * @param req
  * @param res
  * @param next
  * @returns {*}
  */
-//function unsaveUninitialized(req, res, next) {
-//  if (Object.keys(req.session.passport).length === 0) {
-//    delete req.session.passport;
-//  }
-//
-//  return next();
-//}
+function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+
+  res.send({errors: ['403 Forbidden']});
+}
 
 /**
  *
  * @type {Function}
  */
 exports = module.exports = function (app, passport) {
-
-  // Prevent empty sessions store.
-  //app.all('/remote*', unsaveUninitialized);
 
   // Remote info.
   app.get('/remote/info/', require('./register/index').info);
@@ -49,6 +46,12 @@ exports = module.exports = function (app, passport) {
   app.get('/remote/register/tumblr/', passport.authenticate('tumblr', {callbackURL: '/remote/register/tumblr/callback/'}));
 
   app.get('/remote/register/:social/callback/', require('./social/index').registerOauth);
+
+  // Authenticated users.
+  app.all('/remote/profile*', ensureAuthenticated);
+  app.all('/remote/password*', ensureAuthenticated);
+  app.all('/remote/verify*', ensureAuthenticated);
+  app.all('/remote/connect*', ensureAuthenticated);
 
   // Profile form.
   app.get('/remote/profile/', require('./profile/index').readProfile);

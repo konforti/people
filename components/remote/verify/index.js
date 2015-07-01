@@ -89,7 +89,7 @@ exports.verify = function (req, res, next) {
 
       req.hooks.emit('userVerify', user);
 
-      res.render('../remote/verify/verify', {data: JSON.stringify(workflow.outcome)});
+      res.render('../remote/verify/verify', {data: ''});
     });
   });
 };

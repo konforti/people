@@ -47,6 +47,17 @@ Array.prototype.contains = function ( needle ) {
   return array.indexOf(needle) > -1;
 };
 
+var urlBase64Decode = function(str) {
+  var output = str.replace(/-/g, '+').replace(/_/g, '/');
+  switch (output.length % 4) {
+    case 0: {break;}
+    case 2: {output += '=='; break;}
+    case 3: {output += '=';  break;}
+    default: {throw 'Illegal base64url string!';}
+  }
+  return decodeURIComponent(escape(window.atob(output)));
+};
+
 /**
  * Constructor.
  * @param options
@@ -187,7 +198,7 @@ People.prototype.clickEvents = function () {
         var elms = document.querySelectorAll('#ppl-profile-form input');
         var values = {sid: self.getCookie('people.sid'), fields: {}};
         for (var i = 0, elm; elm = elms[i]; ++i) {
-          if (elm.name === 'csrf' || elm.name === 'username' || elm.name === 'email') {
+          if (elm.name === 'username' || elm.name === 'email') {
             values[elm.name] = elm.value;
           }
           else {
@@ -479,10 +490,12 @@ People.prototype.errors = function(data, messege) {
  */
 People.prototype.login = function (data) {
   // Set cookies.
-  this.setCookie('people.sid', data.sid, 14);
+  this.setCookie('people.sid', data.jwt, 14);
 
   // Save Shallow user to local storage.
-  localStorage.setItem('people.user', JSON.stringify(data.user));
+  var payload = data.jwt.split('.')[1];
+  payload = urlBase64Decode(payload);
+  localStorage.setItem('people.user', payload);
   this.hideLogin();
   this.event.emit('login', data);
 };

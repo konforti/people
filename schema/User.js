@@ -72,7 +72,7 @@ exports = module.exports = function(app, mongoose) {
   };
   userSchema.methods.isMemberOf = function(role) {
     for (var i = 0 ; i < this.roles.length ; i++) {
-      if (this.roles[i]._id === role) {
+      if (this.roles[i] === role || this.roles[i]._id === role) {
         return true;
       }
     }
