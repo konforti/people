@@ -14,23 +14,19 @@ function authentication(req, res, next) {
   if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
     token = req.headers.authorization.split(' ')[1];
   }
-  else if (req.cookies && req.cookies['people.token']) {
-    token = req.cookies['people.token'];
+  else if (req.cookies && req.cookies[req.app.locals.webJwtName]) {
+    token = req.cookies[req.app.locals.webJwtName];
   }
 
   jwt.verify(token, settings.cryptoKey, function(err, decoded) {
-    if (err) {
+    if (err || !decoded) {
       res.set('X-Auth-Required', 'true');
-      res.redirect('/login/');
+      return next();
     }
 
     req.app.db.models.User.findById(decoded.id, function (err, user) {
-      if (err) {
-        res.redirect('/login/');
-      }
-
-      if (!user) {
-        res.redirect('/login/');
+      if (err || !user) {
+        return next();
       }
 
       req.user = user;
@@ -74,6 +70,9 @@ function ensureAdmin(req, res, next) {
  * @type {Function}
  */
 exports = module.exports = function (app, passport) {
+  // Authentication.
+  app.all('/*', authentication);
+
   // Front end.
   app.get('/', require('./index').init);
   app.get('/about/', require('./about/index').init);
@@ -113,7 +112,6 @@ exports = module.exports = function (app, passport) {
   app.get('/login/:social/callback/', require('./login/index').loginOauth);
 
   // Admin.
-  app.all('/admin*', authentication);
   app.all('/admin*', ensureAuthenticated);
   app.all('/admin*', ensureAdmin);
   app.get('/admin/', require('./admin/index').init);

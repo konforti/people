@@ -156,7 +156,7 @@ exports.register = function (req, res) {
           };
 
           var settings = req.app.getSettings();
-          res.cookie('people.token', jwt.sign(payload, settings.cryptoKey));
+          res.cookie(req.app.locals.webJwtName, jwt.sign(payload, settings.cryptoKey));
 
           workflow.outcome.defaultReturnUrl = user.defaultReturnUrl();
           workflow.emit('response');

@@ -82,6 +82,8 @@ app.use(function(req, res, next) {
 // Global locals.
 app.locals.projectName = app.appSettings.projectName;
 app.locals.copyrightName = app.appSettings.projectName;
+app.locals.webJwtName = 'people.token';
+app.locals.remoteJwtName = 'people.jwt';
 
 app.locals.copyrightYear = new Date().getFullYear();
 app.locals.cacheBreaker = 'br34k-01';
