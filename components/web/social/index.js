@@ -11,7 +11,7 @@ var signature = require('cookie-signature');
 exports.registerOauth = function (req, res, next) {
   var social = req.params.social;
   var workflow = req.app.utility.workflow(req, res);
-  req._passport.instance.authenticate(social, {callbackURL: '/remote/register/' + social + '/callback/'}, function (err, user, info) {
+  req._passport.instance.authenticate(social, {callbackURL: '/register/' + social + '/callback/'}, function (err, user, info) {
     if (err) {
       return workflow.emit('exception', err);
     }
@@ -33,12 +33,12 @@ exports.registerOauth = function (req, res, next) {
       }
 
       info.profile.avatar = info.profile._json.profile_image_url || info.profile._json.avatar_url || info.profile._json.image.url + '?sz=100' || '';
-      req.session.socialProfile = info.profile;
+      workflow.profile = info.profile;
 
       if (!user) {
         // Register.
         if (!info.profile.emails || !info.profile.emails[0].value) {
-          res.render('../remote/social/need-mail', {email: ''});
+          res.render('../web/social/need-mail', {email: ''});
         }
         else {
           registerSocial(req, res, next);
@@ -149,9 +149,9 @@ var registerSocial = exports.registerSocial = function (req, res, next) {
       from: settings.smtpFromName + ' <' + settings.smtpFromAddress + '>',
       to: workflow.email,
       subject: 'Your ' + settings.projectName + ' Account',
-      textPath: '../remote/register/email-text',
-      htmlPath: '../remote/register/email-html',
-      markdownPath: '../remote/register/email-markdown',
+      textPath: '../web/register/email-text',
+      htmlPath: '../web/register/email-html',
+      markdownPath: '../web/register/email-markdown',
       locals: {
         username: workflow.username,
         email: workflow.email,
@@ -196,11 +196,7 @@ var loginSocial = function (req, res, workflow) {
       workflow.user.avatar = 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g';
     }
 
-    var settings = req.app.getSettings();
-    var sid = signature.sign(req.sessionID, settings.cryptoKey);
-
     workflow.outcome.success = !workflow.hasErrors();
-    workflow.outcome.sid = sid;
     workflow.outcome.user = {
       email: workflow.user.email,
       username: workflow.user.username,
@@ -211,7 +207,7 @@ var loginSocial = function (req, res, workflow) {
     req.hooks.emit('userLogin', workflow.outcome.user);
 
     if (!req.body.email) {
-      res.render('../remote/social/success', {data: JSON.stringify(workflow.outcome)});
+      res.render('../web/social/success', {data: JSON.stringify(workflow.outcome)});
     }
     else {
       workflow.emit('response');
