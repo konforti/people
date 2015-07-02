@@ -38,7 +38,7 @@ exports.registerOauth = function (req, res, next) {
       if (!user) {
         // Register.
         if (!info.profile.emails || !info.profile.emails[0].value) {
-          res.render('../remote/social/need-mail', {email: info.profile.emails && info.profile.emails[0].value || ''});
+          res.render('../remote/social/need-mail', {email: ''});
         }
         else {
           registerSocial(req, res, next);

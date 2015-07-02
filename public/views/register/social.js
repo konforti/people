@@ -10,7 +10,10 @@
     defaults: {
       errors: [],
       errfor: {},
-      email: ''
+      email: '',
+      id: '',
+      username: '',
+      provider: ''
     }
   });
 
@@ -24,7 +27,7 @@
     },
     initialize: function() {
       this.model = new app.Register();
-      this.model.set('email', $('#data-email').text());
+      this.model.set('record', $('#data-record').text());
       this.listenTo(this.model, 'sync', this.render);
       this.render();
     },
@@ -44,7 +47,10 @@
       this.$el.find('.btn-register').attr('disabled', true);
 
       this.model.save({
-        email: this.$el.find('[name="email"]').val()
+        email: this.$el.find('[name="email"]').val(),
+        id: this.model.record.id,
+        username: this.model.record.username,
+        provider: this.model.record.provider
       },{
         success: function(model, response) {
           if (response.success) {
