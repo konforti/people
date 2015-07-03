@@ -16,7 +16,7 @@ block body
                 hr
                 p Or login using...
                 for social in socials
-                    a.btn.btn-info(href='/login/#{social}/')
+                    a.btn.btn-info(href='/register/#{social}/')
                         i.fa.fa-lg(class="fa-#{social}")
                         |  #{social.charAt(0).toUpperCase() + social.slice(1)}
 

@@ -1,18 +1,12 @@
-'use strict';
-var crypto = require('crypto');
-var signature = require('cookie-signature');
+'use strict'
 
-/**
- *
- * @param req
- * @param res
- * @param next
- */
+var crypto = require('crypto');
+
 exports.registerOauth = function (req, res, next) {
   var social = req.params.social;
   var workflow = req.app.utility.workflow(req, res);
-  req._passport.instance.authenticate(social, {callbackURL: '/remote/register/' + social + '/callback/'}, function (err, user, info) {
-    if (err) {
+  req._passport.instance.authenticate(social, {callbackURL: '/register/' + social + '/callback/'}, function (err, user, info) {
+    if (err) {console.log('asdasd');
       return workflow.emit('exception', err);
     }
 
@@ -38,7 +32,7 @@ exports.registerOauth = function (req, res, next) {
       if (!user) {
         // Register.
         if (!info.profile.emails || !info.profile.emails[0].value) {
-          res.render('../remote/social/need-mail', {email: info.profile.emails && info.profile.emails[0].value || ''});
+          res.render('../web/social/need-mail', {email: info.profile.emails && info.profile.emails[0].value || ''});
         }
         else {
           registerSocial(req, res, next);
@@ -53,10 +47,6 @@ exports.registerOauth = function (req, res, next) {
   })(req, res, next);
 };
 
-/**
- * registerSocial().
- * @type {Function}
- */
 var registerSocial = exports.registerSocial = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
@@ -149,9 +139,9 @@ var registerSocial = exports.registerSocial = function (req, res, next) {
       from: settings.smtpFromName + ' <' + settings.smtpFromAddress + '>',
       to: workflow.email,
       subject: 'Your ' + settings.projectName + ' Account',
-      textPath: '../remote/register/email-text',
-      htmlPath: '../remote/register/email-html',
-      markdownPath: '../remote/register/email-markdown',
+      textPath: '../web/register/email-text',
+      htmlPath: '../web/register/email-html',
+      markdownPath: '../web/register/email-markdown',
       locals: {
         username: workflow.username,
         email: workflow.email,
@@ -165,7 +155,6 @@ var registerSocial = exports.registerSocial = function (req, res, next) {
         workflow.emit('logUserIn');
       }
     });
-
   });
 
   workflow.on('logUserIn', function () {
@@ -175,12 +164,6 @@ var registerSocial = exports.registerSocial = function (req, res, next) {
   workflow.emit('validate');
 };
 
-/**
- * loginSocial().
- * @param req
- * @param res
- * @param next
- */
 var loginSocial = function (req, res, workflow) {
   req.login(workflow.user, function (err) {
     if (err) {
@@ -196,11 +179,7 @@ var loginSocial = function (req, res, workflow) {
       workflow.user.avatar = 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g';
     }
 
-    var settings = req.app.getSettings();
-    var sid = signature.sign(req.sessionID, settings.cryptoKey);
-
     workflow.outcome.success = !workflow.hasErrors();
-    workflow.outcome.sid = sid;
     workflow.outcome.user = {
       email: workflow.user.email,
       username: workflow.user.username,
@@ -211,7 +190,7 @@ var loginSocial = function (req, res, workflow) {
     req.hooks.emit('userLogin', workflow.outcome.user);
 
     if (!req.body.email) {
-      res.render('../remote/social/success', {data: JSON.stringify(workflow.outcome)});
+      res.render('../web/social/success', {data: JSON.stringify(workflow.outcome)});
     }
     else {
       workflow.emit('response');

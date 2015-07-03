@@ -121,37 +121,3 @@ exports.login = function (req, res) {
 
   workflow.emit('validate');
 };
-
-exports.loginOauth = function (req, res, next) {
-  var social = req.params.social;
-  req._passport.instance.authenticate(social, {callbackURL: '/login/' + social + '/callback/'}, function (err, user, info) {
-    if (!info || !info.profile) {
-      return res.redirect('/login/');
-    }
-
-    if (social === 'tumblr' && !info.profile.hasOwnProperty('id')) {
-      info.profile.id = info.profile.username;
-    }
-
-    var cond = {};
-    cond[social + ".id"] = info.profile.id;
-    req.app.db.models.User.findOne(cond, function (err, user) {
-      if (err) {
-        return next(err);
-      }
-
-      if (!user) {
-        res.render('login/index', {socials: getSocials(req)});
-      }
-      else {
-        req.login(user, function (err) {
-          if (err) {
-            return next(err);
-          }
-
-          res.redirect(getReturnUrl(req));
-        });
-      }
-    });
-  })(req, res, next);
-};

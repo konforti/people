@@ -1,0 +1,20 @@
+doctype html
+html
+    head
+        title Login Success
+        meta(name='viewport', content='width=device-width, initial-scale=1.0')
+        link(rel='stylesheet', href='/layouts/core.min.css?#{cacheBreaker}')
+
+    body
+        div.page
+            div.container
+                div.row
+                    div.page-header
+                        h1 Logged in Successfully
+
+            script(type='application/json', id='data-record') !{data}
+
+        script(src='/layouts/core.min.js?#{cacheBreaker}')
+
+
+

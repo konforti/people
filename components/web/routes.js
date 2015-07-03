@@ -45,7 +45,7 @@ exports = module.exports = function (app, passport) {
   app.post('/register/', require('./register/index').register);
 
   // Social register.
-  app.post('/register/social/', require('./register/index').registerSocial);
+  app.post('/register/social/', require('./social/index').registerSocial);
 
   app.get('/register/twitter/', passport.authenticate('twitter', {callbackURL: '/register/twitter/callback/'}));
   app.get('/register/github/', passport.authenticate('github', {callbackURL: '/register/github/callback/', scope: ['user:email']}));
@@ -53,7 +53,7 @@ exports = module.exports = function (app, passport) {
   app.get('/register/google/', passport.authenticate('google', {callbackURL: '/register/google/callback/', scope: ['profile email']}));
   app.get('/register/tumblr/', passport.authenticate('tumblr', {callbackURL: '/register/tumblr/callback/'}));
 
-  app.get('/register/:social/callback/', require('./register/index').registerOauth);
+  app.get('/register/:social/callback/', require('./social/index').registerOauth);
 
   // Login/out.
   app.get('/login/', require('./login/index').init);
@@ -64,15 +64,6 @@ exports = module.exports = function (app, passport) {
   app.get('/login/reset/:email/:token/', require('./login/reset/index').init);
   app.put('/login/reset/:email/:token/', require('./login/reset/index').set);
   app.get('/logout/', require('./logout/index').init);
-
-  // Social login.
-  app.get('/login/twitter/', passport.authenticate('twitter', {callbackURL: '/login/twitter/callback/'}));
-  app.get('/login/github/', passport.authenticate('github', {callbackURL: '/login/github/callback/'}));
-  app.get('/login/facebook/', passport.authenticate('facebook', {callbackURL: '/login/facebook/callback/'}));
-  app.get('/login/google/', passport.authenticate('google', {callbackURL: '/login/google/callback/', scope: ['profile email']}));
-  app.get('/login/tumblr/', passport.authenticate('tumblr', {callbackURL: '/login/tumblr/callback/', scope: ['profile email']}));
-
-  app.get('/login/:social/callback/', require('./login/index').loginOauth);
 
   // Admin.
   app.all('/admin*', ensureAuthenticated);
