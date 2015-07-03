@@ -1,6 +1,6 @@
 'use strict';
 var crypto = require('crypto');
-var signature = require('cookie-signature');
+var jwt = require('jsonwebtoken');
 
 /**
  *
@@ -38,10 +38,15 @@ exports.registerOauth = function (req, res, next) {
       if (!user) {
         // Register.
         if (!info.profile.emails || !info.profile.emails[0].value) {
+
+          var settings = req.app.getSettings();
+          res.cookie('need_mail',
+            jwt.sign(info.profile, settings.cryptoKey, {expiresInMinutes: 60}));
+
           res.render('../web/social/need-mail', {email: ''});
         }
         else {
-          registerSocial(req, res, next);
+          registerSocial(req, res, info.profile);
         }
       }
       else {
@@ -53,16 +58,26 @@ exports.registerOauth = function (req, res, next) {
   })(req, res, next);
 };
 
+exports.registerSocial = function (req, res, next) {
+  if (req.cookies && req.cookies['need_mail']) {
+    var settings = req.app.getSettings();
+    var token = req.cookies['need_mail'];
+    jwt.verify(token, settings.cryptoKey, function(err, decoded) {
+      registerSocial(req, res, decoded);
+    });
+  }
+};
+
 /**
  * registerSocial().
  * @type {Function}
  */
-var registerSocial = exports.registerSocial = function (req, res, next) {
+var registerSocial = function (req, res, profile) {
   var workflow = req.app.utility.workflow(req, res);
 
-  workflow.email = '';
-  if (req.session.socialProfile && req.session.socialProfile.emails && req.session.socialProfile.emails[0].value) {
-    workflow.email = req.session.socialProfile.emails[0].value;
+  profile.email = '';
+  if (profile && profile.emails && profile.emails[0].value) {
+    workflow.email = profile.emails[0].value;
   }
   else {
     workflow.email = req.body.email;
@@ -83,7 +98,7 @@ var registerSocial = exports.registerSocial = function (req, res, next) {
   });
 
   workflow.on('duplicateUsernameCheck', function () {
-    workflow.username = req.session.socialProfile.displayName ||  req.session.socialProfile.username || req.session.socialProfile.id;
+    workflow.username = profile.displayName ||  profile.username || profile.id;
     if (!/^[a-zA-Z0-9\-\_]+$/.test(workflow.username)) {
       workflow.username = workflow.username.replace(/[^a-zA-Z0-9\-\_]/g, '');
     }
@@ -94,7 +109,7 @@ var registerSocial = exports.registerSocial = function (req, res, next) {
       }
 
       if (user) {
-        workflow.username = workflow.username + req.session.socialProfile.id;
+        workflow.username = workflow.username + profile.id;
       }
 
       workflow.emit('duplicateEmailCheck');
@@ -130,7 +145,7 @@ var registerSocial = exports.registerSocial = function (req, res, next) {
         workflow.email
       ]
     };
-    fieldsToSet[req.session.socialProfile.provider] = {id: req.session.socialProfile.id};
+    fieldsToSet[profile.provider] = {id: profile.id};
 
     req.app.db.models.User.create(fieldsToSet, function (err, user) {
       if (err) {
@@ -165,7 +180,6 @@ var registerSocial = exports.registerSocial = function (req, res, next) {
         workflow.emit('logUserIn');
       }
     });
-
   });
 
   workflow.on('logUserIn', function () {
@@ -188,8 +202,8 @@ var loginSocial = function (req, res, workflow) {
     }
 
     workflow.user.avatar = '';
-    if (req.session.socialProfile && req.session.socialProfile.avatar) {
-      workflow.user.avatar = req.session.socialProfile.avatar;
+    if (workflow.avatar) {
+      workflow.user.avatar = workflow.avatar;
     }
     else {
       var gravatarHash = crypto.createHash('md5').update(req.email).digest('hex');
@@ -202,15 +216,9 @@ var loginSocial = function (req, res, workflow) {
       username: workflow.user.username,
       avatar: workflow.user.avatar
     };
-    delete req.session.socialProfile;
 
     req.hooks.emit('userLogin', workflow.outcome.user);
 
-    if (!req.body.email) {
-      res.render('../web/social/success', {data: JSON.stringify(workflow.outcome)});
-    }
-    else {
-      workflow.emit('response');
-    }
+    res.redirect(req.user.defaultReturnUrl());
   });
 };
