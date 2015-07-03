@@ -35,7 +35,7 @@ exports.registerOauth = function (req, res, next) {
           res.render('../web/social/need-mail', {email: info.profile.emails && info.profile.emails[0].value || ''});
         }
         else {
-          registerSocial(req, res, next);
+          registerSocial(req, res, info.profile);
         }
       }
       else {
@@ -47,12 +47,16 @@ exports.registerOauth = function (req, res, next) {
   })(req, res, next);
 };
 
-var registerSocial = exports.registerSocial = function (req, res, next) {
+exports.registerSocial = function (req, res, next) {
+  registerSocial(req, res, req.session.socialProfile);
+};
+
+var registerSocial = exports.registerSocial = function (req, res, profile) {
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.email = '';
-  if (req.session.socialProfile && req.session.socialProfile.emails && req.session.socialProfile.emails[0].value) {
-    workflow.email = req.session.socialProfile.emails[0].value;
+  if (profile && profile.emails && profile.emails[0].value) {
+    workflow.email = profile.emails[0].value;
   }
   else {
     workflow.email = req.body.email;
@@ -73,7 +77,7 @@ var registerSocial = exports.registerSocial = function (req, res, next) {
   });
 
   workflow.on('duplicateUsernameCheck', function () {
-    workflow.username = req.session.socialProfile.displayName ||  req.session.socialProfile.username || req.session.socialProfile.id;
+    workflow.username = profile.displayName ||  profile.username || profile.id;
     if (!/^[a-zA-Z0-9\-\_]+$/.test(workflow.username)) {
       workflow.username = workflow.username.replace(/[^a-zA-Z0-9\-\_]/g, '');
     }
@@ -84,7 +88,7 @@ var registerSocial = exports.registerSocial = function (req, res, next) {
       }
 
       if (user) {
-        workflow.username = workflow.username + req.session.socialProfile.id;
+        workflow.username = workflow.username + profile.id;
       }
 
       workflow.emit('duplicateEmailCheck');
@@ -120,7 +124,7 @@ var registerSocial = exports.registerSocial = function (req, res, next) {
         workflow.email
       ]
     };
-    fieldsToSet[req.session.socialProfile.provider] = {id: req.session.socialProfile.id};
+    fieldsToSet[profile.provider] = {id: profile.id};
 
     req.app.db.models.User.create(fieldsToSet, function (err, user) {
       if (err) {
@@ -171,8 +175,8 @@ var loginSocial = function (req, res, workflow) {
     }
 
     workflow.user.avatar = '';
-    if (req.session.socialProfile && req.session.socialProfile.avatar) {
-      workflow.user.avatar = req.session.socialProfile.avatar;
+    if (workflow && workflow.avatar) {
+      workflow.user.avatar = workflow.avatar;
     }
     else {
       var gravatarHash = crypto.createHash('md5').update(req.email).digest('hex');
@@ -185,7 +189,7 @@ var loginSocial = function (req, res, workflow) {
       username: workflow.user.username,
       avatar: workflow.user.avatar
     };
-    delete req.session.socialProfile;
+    delete workflow;
 
     req.hooks.emit('userLogin', workflow.outcome.user);
 
