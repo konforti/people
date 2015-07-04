@@ -54,24 +54,34 @@ exports = module.exports = function (req, res, options) {
         return console.log(err);
       }
 
-      var marked = require('marked');
-      marked.setOptions({
+      var md = require('markdown-it')({
+        html: true,
+        linkify: true,
+        typographer: true,
         breaks: true
       });
-      var tokens = marked.lexer(data);
-      tokens.forEach(function(token, index, arr) {
-        for (var key in vars) {
-          if (token.text.indexOf(key) > -1) {
 
-            token.text = token.text.split(key).join(vars[key]);
+      md.inline.ruler.before('emphasis', 'var', function(state, silent) {
+        var token;
+        if (state.src.charCodeAt(state.pos) === 0x25/* % */) {
+          token = state.push('text', '', 0);
 
+          for (var key in vars) {
+            if (state.src.indexOf(key) > -1) {
+              token.content = vars[key];
+            }
           }
+          state.pos = state.posMax + 1;
+          return true;
         }
+
+        return false;
       });
 
-      var html = marked.parser(tokens);
-      html = html.split('<img ').join('<img style="margin: 0 auto; display: block;" ');
 
+      var html = md.render(data);
+      html = html.split('<img ').join('<img style="margin: 0 auto; display: block;" ');
+      console.log(html);
       options.html = '';
       options.html += '<table cellpadding="0" cellspacing="0" border="0" align="center"border-collapse:collapse"><tbody><tr><td width="600" valign="top" style="border-collapse:collapse;padding-top:0px;padding-bottom:10px">';
       options.html += html;

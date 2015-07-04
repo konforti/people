@@ -116,7 +116,7 @@ exports.test = function (req, res, next) {
     subject: '[Test] for ' + id + ' mail',
     textPath: 'remote/' + id + '/email-text',
     htmlPath: 'remote/' + id + '/email-html',
-    markdownPath: 'remote/' + id + '/email-markdown',
+    markdownPath: 'components/remote/' + id + '/email-markdown',
     locals: {
       username: req.user.username,
       verifyURL: req.protocol + '://' + req.headers.host + '/remote/verify/' + 'VeRYL0nGt0kEN' + '/',

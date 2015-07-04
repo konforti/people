@@ -17,12 +17,16 @@
 Live demo and People.js API <br>
 http://www.konforti.net/people
 
+![client](https://github.com/konforti/people/blob/master/components/web/public/media/g13.png)
+
 ## User management
 User management admin demo
 
 | Platform                                 | Username | Password |
 | ---------------------------------------- | -------- | -------- |
 |https://people-razkonforti.rhcloud.com/   | admin    | rrg2st   |
+
+![server](https://github.com/konforti/people/blob/master/components/web/public/media/g12.png)
 
 ## API
 Server side API reference<br>
