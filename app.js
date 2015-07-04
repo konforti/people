@@ -13,6 +13,7 @@ var config = require('./config'),
     crypto = require('crypto'),
     passport = require('passport'),
     mongoose = require('mongoose'),
+    serveStatic = require('serve-static'),
     helmet = require('helmet');
 
 // Create express app.
@@ -59,13 +60,14 @@ app.set('view engine', 'jade');
 // Middleware.
 app.use(require('morgan')('dev'));
 app.use(require('compression')());
-app.use(require('serve-static')(path.join(__dirname, 'public'), {
+app.use(serveStatic(path.join(__dirname, 'components/remote/public'), {
   setHeaders: function(res, path) {
     if (app.appSettings.allowDomains.indexOf(res.req.headers.origin) > -1) {
       res.setHeader("Access-Control-Allow-Origin", res.req.headers.origin);
     }
   }
 }));
+app.use(serveStatic(path.join(__dirname, 'components/web/public')));
 app.use(session({
   resave: false,
   saveUninitialized: false,
