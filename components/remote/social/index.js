@@ -172,9 +172,9 @@ var registerSocial = function (req, res, profile) {
       from: settings.smtpFromName + ' <' + settings.smtpFromAddress + '>',
       to: workflow.email,
       subject: 'Your ' + settings.projectName + ' Account',
-      textPath: '../remote/register/email-text',
-      htmlPath: '../remote/register/email-html',
-      markdownPath: '../remote/register/email-markdown',
+      textPath: 'remote/register/email-text',
+      htmlPath: 'remote/register/email-html',
+      markdownPath: 'remote/register/email-markdown',
       locals: {
         username: workflow.username,
         email: workflow.email,
@@ -233,7 +233,7 @@ var loginSocial = function (req, res, workflow) {
     workflow.outcome.jwt = jwt.sign(payload, settings.cryptoKey, {expiresInMinutes: 60});
 
     if (!req.body.email) {
-      res.render('../remote/social/success', {data: JSON.stringify(workflow.outcome)});
+      res.render('remote/social/success', {data: JSON.stringify(workflow.outcome)});
     }
     else {
       workflow.emit('response');

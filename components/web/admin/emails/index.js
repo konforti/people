@@ -65,7 +65,7 @@ exports.read = function (req, res, next) {
       res.send(outcome);
     }
     else {
-      res.render('admin/emails/index', {
+      res.render('web/admin/emails/index', {
         data: outcome
       });
     }
@@ -114,9 +114,9 @@ exports.test = function (req, res, next) {
     from: settings.smtpFromName + ' <' + settings.smtpFromAddress + '>',
     to: settings.systemEmail,
     subject: '[Test] for ' + id + ' mail',
-    textPath: process.env.PWD + '/components/remote/' + id + '/email-text',
-    htmlPath: process.env.PWD + '/components/remote/' + id + '/email-html',
-    markdownPath: process.env.PWD + '/components/remote/' + id + '/email-markdown',
+    textPath: 'remote/' + id + '/email-text',
+    htmlPath: 'remote/' + id + '/email-html',
+    markdownPath: 'remote/' + id + '/email-markdown',
     locals: {
       username: req.user.username,
       verifyURL: req.protocol + '://' + req.headers.host + '/remote/verify/' + 'VeRYL0nGt0kEN' + '/',

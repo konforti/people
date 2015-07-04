@@ -6,7 +6,7 @@ exports.http404 = function (req, res) {
     res.send({error: 'Resource not found.'});
   }
   else {
-    res.render('http/404');
+    res.render('web/http/404');
   }
 };
 
@@ -23,6 +23,6 @@ exports.http500 = function (err, req, res, next) {
     res.send({error: 'Something went wrong.', details: data});
   }
   else {
-    res.render('http/500', data);
+    res.render('web/http/500', data);
   }
 };

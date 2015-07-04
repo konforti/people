@@ -19,7 +19,7 @@ exports.init = function (req, res) {
     res.redirect(req.user.defaultReturnUrl());
   }
   else {
-    res.render('login/index', {socials: getSocials(req)});
+    res.render('web/login/index', {socials: getSocials(req)});
   }
 };
 

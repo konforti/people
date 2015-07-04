@@ -162,7 +162,7 @@ exports.read = function (req, res, next) {
       res.send(outcome);
     }
     else {
-      res.render('admin/settings/index', {
+      res.render('web/admin/settings/index', {
         data: outcome
       });
     }

@@ -50,7 +50,7 @@ exports.registerOauth = function (req, res, next) {
           };
           var token = jwt.sign(payload, settings.cryptoKey, {expiresInMinutes: 60});
           res.cookie('need_mail', token);
-          res.render('../web/social/need-mail', {email: ''});
+          res.render('web/social/need-mail', {email: ''});
         }
         else {
           registerSocial(req, res, info.profile);
@@ -172,8 +172,8 @@ var registerSocial = function (req, res, profile) {
       from: settings.smtpFromName + ' <' + settings.smtpFromAddress + '>',
       to: workflow.email,
       subject: 'Your ' + settings.projectName + ' Account',
-      textPath: '../web/register/email-text',
-      htmlPath: '../web/register/email-html',
+      textPath: 'web/register/email-text',
+      htmlPath: 'web/register/email-html',
       locals: {
         username: workflow.username,
         email: workflow.email,

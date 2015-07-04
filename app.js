@@ -53,7 +53,7 @@ require('./schema/models')(app, mongoose);
 // Settings.
 app.disable('x-powered-by');
 app.set('port', config.port);
-app.set('views', path.join(__dirname, 'components/web'));
+app.set('views', path.join(__dirname, 'components'));
 app.set('view engine', 'jade');
 
 // Middleware.

@@ -19,7 +19,7 @@ exports.init = function (req, res) {
     res.redirect(req.user.defaultReturnUrl());
   }
   else {
-    res.render('register/index', {socials: getSocials(req)});
+    res.render('web/register/index', {socials: getSocials(req)});
   }
 };
 
@@ -115,8 +115,8 @@ exports.register = function (req, res) {
       from: settings.smtpFromName + ' <' + settings.smtpFromAddress + '>',
       to: req.body.email,
       subject: 'Your ' + settings.projectName + ' Account',
-      textPath: 'register/email-text',
-      htmlPath: 'register/email-html',
+      textPath: 'web/register/email-text',
+      htmlPath: 'web/register/email-html',
       locals: {
         username: req.body.username,
         email: req.body.email,

@@ -5,7 +5,7 @@ exports.init = function (req, res) {
     res.redirect(req.user.defaultReturnUrl());
   }
   else {
-    res.render('login/forgot/index');
+    res.render('web/login/forgot/index');
   }
 };
 
@@ -64,8 +64,8 @@ exports.send = function (req, res, next) {
       from: settings.smtpFromName + ' <' + settings.smtpFromAddress + '>',
       to: user.email,
       subject: 'Reset your ' + settings.projectName + ' password',
-      textPath: 'login/forgot/email-text',
-      htmlPath: 'login/forgot/email-html',
+      textPath: 'web/login/forgot/email-text',
+      htmlPath: 'web/login/forgot/email-html',
       locals: {
         username: user.username,
         resetLink: req.protocol + '://' + req.headers.host + '/login/reset/' + user.email + '/' + token + '/',
