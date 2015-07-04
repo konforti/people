@@ -210,11 +210,8 @@ var loginSocial = function (req, res, workflow) {
     }
 
     workflow.user.avatar = '';
-<<<<<<< HEAD
-    if (workflow && workflow.avatar) {
-=======
+
     if (workflow.avatar) {
->>>>>>> jwt
       workflow.user.avatar = workflow.avatar;
     }
     else {
@@ -228,10 +225,6 @@ var loginSocial = function (req, res, workflow) {
       username: workflow.user.username,
       avatar: workflow.user.avatar
     };
-<<<<<<< HEAD
-    delete workflow;
-=======
->>>>>>> jwt
 
     var payload = {
       id: workflow.user.id,
