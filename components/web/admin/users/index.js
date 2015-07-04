@@ -57,7 +57,7 @@ exports.find = function (req, res, next) {
     }
     else {
       outcome.results.filters = req.query;
-      res.render('admin/users/index', {
+      res.render('web/admin/users/index', {
         data: {
           results: JSON.stringify(outcome.results),
           statuses: outcome.statuses
@@ -135,7 +135,7 @@ exports.read = function (req, res, next) {
       res.send(outcome.record);
     }
     else {
-      res.render('admin/users/details', {
+      res.render('web/admin/users/details', {
         data: {
           record: escape(JSON.stringify(outcome.record)),
           roles: outcome.roles,

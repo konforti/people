@@ -1,10 +1,58 @@
 'use strict';
 
 /**
+ * authentication().
+ * @param req
+ * @param res
+ * @param next
+ */
+function authentication(req, res, next) {
+  var settings = req.app.getSettings();
+  var jwt = require('jsonwebtoken');
+  var token = null;
+  if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
+    token = req.headers.authorization.split(' ')[1];
+  }
+
+  jwt.verify(token, settings.cryptoKey, function(err, decoded) {
+    if (err || !decoded) {
+      res.set('X-Auth-Required', 'true');
+      return next();
+    }
+
+    req.app.db.models.User.findById(decoded.id, function (err, user) {
+      if (err || !user) {
+        return next();
+      }
+
+      req.user = user;
+      return next();
+    });
+  });
+}
+
+/**
+ * Ensure Authenticated.
+ * @param req
+ * @param res
+ * @param next
+ * @returns {*}
+ */
+function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+
+  res.send({errors: ['403 Forbidden']});
+}
+
+/**
  *
  * @type {Function}
  */
 exports = module.exports = function (app, passport) {
+  // Authentication.
+  app.all('/remote*', authentication);
 
   // Remote info.
   app.get('/remote/info/', require('./register/index').info);
@@ -31,6 +79,12 @@ exports = module.exports = function (app, passport) {
   app.get('/remote/register/tumblr/', passport.authenticate('tumblr', {callbackURL: '/remote/register/tumblr/callback/'}));
 
   app.get('/remote/register/:social/callback/', require('./social/index').registerOauth);
+
+  // Authenticated users.
+  app.all('/remote/profile*', ensureAuthenticated);
+  app.all('/remote/password*', ensureAuthenticated);
+  app.all('/remote/verify*', ensureAuthenticated);
+  app.all('/remote/connect*', ensureAuthenticated);
 
   // Profile form.
   app.get('/remote/profile/', require('./profile/index').readProfile);

@@ -1,5 +1,7 @@
 'use strict';
 
+var jwt = require('jsonwebtoken');
+
 var getSocials = function(req) {
   var settings = req.app.getSettings();
   var ret = [];
@@ -17,7 +19,7 @@ exports.init = function (req, res) {
     res.redirect(req.user.defaultReturnUrl());
   }
   else {
-    res.render('register/index', {socials: getSocials(req)});
+    res.render('web/register/index', {socials: getSocials(req)});
   }
 };
 
@@ -113,8 +115,8 @@ exports.register = function (req, res) {
       from: settings.smtpFromName + ' <' + settings.smtpFromAddress + '>',
       to: req.body.email,
       subject: 'Your ' + settings.projectName + ' Account',
-      textPath: 'register/email-text',
-      htmlPath: 'register/email-html',
+      textPath: 'web/register/email-text',
+      htmlPath: 'web/register/email-html',
       locals: {
         username: req.body.username,
         email: req.body.email,
@@ -142,10 +144,19 @@ exports.register = function (req, res) {
         return workflow.emit('response');
       }
       else {
-        req.login(user, function (err) {
+        req.login(user, {session: false}, function (err) {
           if (err) {
             return workflow.emit('exception', err);
           }
+
+          var payload = {
+            id: user.id,
+            email: user.email,
+            username: user.username
+          };
+
+          var settings = req.app.getSettings();
+          res.cookie(req.app.locals.webJwtName, jwt.sign(payload, settings.cryptoKey, {expiresInMinutes: 60}));
 
           workflow.outcome.defaultReturnUrl = user.defaultReturnUrl();
           workflow.emit('response');

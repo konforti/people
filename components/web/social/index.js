@@ -1,12 +1,18 @@
-'use strict'
-
+'use strict';
 var crypto = require('crypto');
+var jwt = require('jsonwebtoken');
 
+/**
+ *
+ * @param req
+ * @param res
+ * @param next
+ */
 exports.registerOauth = function (req, res, next) {
   var social = req.params.social;
   var workflow = req.app.utility.workflow(req, res);
   req._passport.instance.authenticate(social, {callbackURL: '/register/' + social + '/callback/'}, function (err, user, info) {
-    if (err) {console.log('asdasd');
+    if (err) {
       return workflow.emit('exception', err);
     }
 
@@ -27,12 +33,24 @@ exports.registerOauth = function (req, res, next) {
       }
 
       info.profile.avatar = info.profile._json.profile_image_url || info.profile._json.avatar_url || info.profile._json.image.url + '?sz=100' || '';
-      req.session.socialProfile = info.profile;
+      workflow.profile = info.profile;
 
       if (!user) {
         // Register.
         if (!info.profile.emails || !info.profile.emails[0].value) {
-          res.render('../web/social/need-mail', {email: info.profile.emails && info.profile.emails[0].value || ''});
+
+          var settings = req.app.getSettings();
+          var payload = {
+            emails: info.profile.emails,
+            displayName: info.profile.displayName,
+            username: info.profile.username,
+            id: info.profile.id,
+            provider: info.profile.provider
+
+          };
+          var token = jwt.sign(payload, settings.cryptoKey, {expiresInMinutes: 60});
+          res.cookie('need_mail', token);
+          res.render('web/social/need-mail', {email: ''});
         }
         else {
           registerSocial(req, res, info.profile);
@@ -49,9 +67,21 @@ exports.registerOauth = function (req, res, next) {
 
 exports.registerSocial = function (req, res, next) {
   registerSocial(req, res, req.session.socialProfile);
+  if (req.cookies && req.cookies['need_mail']) {
+    var settings = req.app.getSettings();
+    var token = req.cookies['need_mail'];
+    jwt.verify(token, settings.cryptoKey, function(err, decoded) {
+      decoded.email = req.body.email;
+      registerSocial(req, res, decoded);
+    });
+  }
 };
 
-var registerSocial = exports.registerSocial = function (req, res, profile) {
+/**
+ * registerSocial().
+ * @type {Function}
+ */
+var registerSocial = function (req, res, profile) {
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.email = '';
@@ -143,9 +173,8 @@ var registerSocial = exports.registerSocial = function (req, res, profile) {
       from: settings.smtpFromName + ' <' + settings.smtpFromAddress + '>',
       to: workflow.email,
       subject: 'Your ' + settings.projectName + ' Account',
-      textPath: '../web/register/email-text',
-      htmlPath: '../web/register/email-html',
-      markdownPath: '../web/register/email-markdown',
+      textPath: 'web/register/email-text',
+      htmlPath: 'web/register/email-html',
       locals: {
         username: workflow.username,
         email: workflow.email,
@@ -168,18 +197,28 @@ var registerSocial = exports.registerSocial = function (req, res, profile) {
   workflow.emit('validate');
 };
 
+/**
+ * loginSocial().
+ * @param req
+ * @param res
+ * @param next
+ */
 var loginSocial = function (req, res, workflow) {
-  req.login(workflow.user, function (err) {
+  req.login(workflow.user, {session: false}, function (err) {
     if (err) {
       return workflow.emit('exception', err);
     }
 
     workflow.user.avatar = '';
+<<<<<<< HEAD
     if (workflow && workflow.avatar) {
+=======
+    if (workflow.avatar) {
+>>>>>>> jwt
       workflow.user.avatar = workflow.avatar;
     }
     else {
-      var gravatarHash = crypto.createHash('md5').update(req.email).digest('hex');
+      var gravatarHash = crypto.createHash('md5').update(workflow.user.email).digest('hex');
       workflow.user.avatar = 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g';
     }
 
@@ -189,15 +228,21 @@ var loginSocial = function (req, res, workflow) {
       username: workflow.user.username,
       avatar: workflow.user.avatar
     };
+<<<<<<< HEAD
     delete workflow;
+=======
+>>>>>>> jwt
+
+    var payload = {
+      id: workflow.user.id,
+      email: workflow.user.email,
+      username: workflow.user.username
+    };
+
+    var settings = req.app.getSettings();
+    res.cookie(req.app.locals.webJwtName, jwt.sign(payload, settings.cryptoKey, {expiresInMinutes: 60}));
 
     req.hooks.emit('userLogin', workflow.outcome.user);
-
-    if (!req.body.email) {
-      res.render('../web/social/success', {data: JSON.stringify(workflow.outcome)});
-    }
-    else {
-      workflow.emit('response');
-    }
+    res.redirect(req.user.defaultReturnUrl());
   });
 };

@@ -68,11 +68,8 @@ exports.readProfile = function (req, res, next) {
       res.send(workflow.outcome.record);
     }
     else {
-      var csrfToken = crypto.pseudoRandomBytes(16).toString('hex');
-      req.session.remoteToken = csrfToken;
-      req.app.render('../remote/profile/index', {
+      req.app.render('remote/profile/index', {
         data: {
-          csrfToken: csrfToken,
           record: workflow.outcome.record,
           fields: workflow.outcome.fields,
           socials: workflow.outcome.socials
@@ -97,15 +94,6 @@ exports.updateProfile = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function () {
-
-    if (req.body.csrf !== req.session.remoteToken) {
-      workflow.outcome.errfor.form = 'invalid csrf token';
-    }
-
-    var settings = req.app.getSettings();
-    if (req.sessionID !== signature.unsign(req.body.sid, settings.cryptoKey)) {
-      workflow.outcome.errfor.session = 'invalid session';
-    }
 
     if (workflow.hasErrors()) {
       return workflow.emit('response');
@@ -221,11 +209,8 @@ exports.updateProfile = function (req, res, next) {
       }
     });
 
-    var csrfToken = crypto.pseudoRandomBytes(16).toString('hex');
-    req.session.remoteToken = csrfToken;
-    req.app.render('../remote/profile/index', {
+    req.app.render('remote/profile/index', {
         data: {
-          csrfToken: csrfToken,
           record: workflow.outcome.record,
           fields: workflow.outcome.fields,
           socials: workflow.outcome.socials
@@ -251,18 +236,8 @@ exports.updatePassword = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function () {
-
-    if (req.body.csrf !== req.session.remoteToken) {
-      workflow.outcome.errfor.form = 'invalid csrf token';
-    }
-
     if (req.body.newPassword !== req.body.confirm) {
       workflow.outcome.errfor.password = 'password not match';
-    }
-
-    var settings = req.app.getSettings();
-    if (req.sessionID !== signature.unsign(req.body.sid, settings.cryptoKey)) {
-      workflow.outcome.errfor.session = 'invalid session';
     }
 
     if (workflow.hasErrors()) {
@@ -316,11 +291,8 @@ exports.updatePassword = function (req, res, next) {
       }
     });
 
-    var csrfToken = crypto.pseudoRandomBytes(16).toString('hex');
-    req.session.remoteToken = csrfToken;
-    req.app.render('../remote/profile/index', {
+    req.app.render('remote/profile/index', {
         data: {
-          csrfToken: csrfToken,
           record: workflow.outcome.record,
           fields: workflow.outcome.fields
         }
@@ -365,7 +337,7 @@ exports.connectOauth = function (req, res, next) {
           if (err) {
             return next(err);
           }
-          res.render('../remote/profile/connect', {data: JSON.stringify(outcome)});
+          res.render('remote/profile/connect', {data: JSON.stringify(outcome)});
         });
       }
     });

@@ -13,8 +13,8 @@ var config = require('./config'),
     crypto = require('crypto'),
     passport = require('passport'),
     mongoose = require('mongoose'),
-    helmet = require('helmet'),
-    csrf = require('csurf');
+    serveStatic = require('serve-static'),
+    helmet = require('helmet');
 
 // Create express app.
 var app = express();
@@ -54,45 +54,35 @@ require('./schema/models')(app, mongoose);
 // Settings.
 app.disable('x-powered-by');
 app.set('port', config.port);
-app.set('views', path.join(__dirname, 'components/web'));
+app.set('views', path.join(__dirname, 'components'));
 app.set('view engine', 'jade');
 
 // Middleware.
 app.use(require('morgan')('dev'));
 app.use(require('compression')());
-app.use(require('serve-static')(path.join(__dirname, 'public'), {
+app.use(serveStatic(path.join(__dirname, 'components/remote/public'), {
   setHeaders: function(res, path) {
     if (app.appSettings.allowDomains.indexOf(res.req.headers.origin) > -1) {
       res.setHeader("Access-Control-Allow-Origin", res.req.headers.origin);
     }
   }
 }));
-app.use(require('method-override')());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser(app.appSettings.cryptoKey));
+app.use(serveStatic(path.join(__dirname, 'components/web/public')));
 app.use(session({
   resave: false,
   saveUninitialized: false,
   secret: app.appSettings.cryptoKey,
   store: new mongoStore({ url: config.mongodb.uri })
 }));
+app.use(require('method-override')());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser(app.appSettings.cryptoKey));
 app.use(passport.initialize());
-app.use(passport.session());
-app.use(function(req, res, next) {
-  if (req.path.indexOf('/remote/') === 0 || req.path.indexOf('/api/') === 0) {
-    req.csrfToken = function() {return '';};
-    next();
-  }
-  else {
-    (csrf())(req, res, next);
-  }
-});
 app.use(helmet());
 
 // Response locals.
 app.use(function(req, res, next) {
-  res.cookie('_csrfToken', req.csrfToken());
   res.locals.user = {};
   res.locals.user.defaultReturnUrl = req.user && req.user.defaultReturnUrl();
   res.locals.user.username = req.user && req.user.username;
@@ -102,12 +92,11 @@ app.use(function(req, res, next) {
 // Global locals.
 app.locals.projectName = app.appSettings.projectName;
 app.locals.copyrightName = app.appSettings.projectName;
+app.locals.webJwtName = 'people.token';
+app.locals.remoteJwtName = 'people.jwt';
 
 app.locals.copyrightYear = new Date().getFullYear();
 app.locals.cacheBreaker = 'br34k-01';
-
-app.locals.projectName = app.appSettings.projectName;
-app.locals.copyrightName = app.appSettings.projectName;
 
 // CORS middleware.
 app.use(function(req, res, next) {
@@ -148,7 +137,6 @@ app.utility = {};
 app.utility.sendmail = require('./util/sendmail');
 app.utility.slugify = require('./util/slugify');
 app.utility.workflow = require('./util/workflow');
-//app.utility.auth = require('./util/auth');
 
 // Listen up.
 app.server.listen(app.config.port, app.config.ip, function() {

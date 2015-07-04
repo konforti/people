@@ -29,7 +29,7 @@ exports.find = function (req, res, next) {
     }
     else {
       results.filters = req.query;
-      res.render('admin/statuses/index', {data: {results: escape(JSON.stringify(results))}});
+      res.render('web/admin/statuses/index', {data: {results: escape(JSON.stringify(results))}});
     }
   });
 };
@@ -44,7 +44,7 @@ exports.read = function (req, res, next) {
       res.send(status);
     }
     else {
-      res.render('admin/statuses/details', {data: {record: escape(JSON.stringify(status))}});
+      res.render('web/admin/statuses/details', {data: {record: escape(JSON.stringify(status))}});
     }
   });
 };

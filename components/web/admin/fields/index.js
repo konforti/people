@@ -29,7 +29,7 @@ exports.find = function (req, res, next) {
     }
     else {
       results.filters = req.query;
-      res.render('admin/fields/index', {data: {results: escape(JSON.stringify(results))}});
+      res.render('web/admin/fields/index', {data: {results: escape(JSON.stringify(results))}});
     }
   });
 };
@@ -44,7 +44,7 @@ exports.read = function (req, res, next) {
       res.send(field);
     }
     else {
-      res.render('admin/fields/details', {data: {record: escape(JSON.stringify(field))}});
+      res.render('web/admin/fields/details', {data: {record: escape(JSON.stringify(field))}});
     }
   });
 };

@@ -1,13 +1,6 @@
 'use strict';
 
-var getReturnUrl = function (req) {
-  var returnUrl = req.user.defaultReturnUrl();
-  if (req.session.returnUrl) {
-    returnUrl = req.session.returnUrl;
-    delete req.session.returnUrl;
-  }
-  return returnUrl;
-};
+var jwt = require('jsonwebtoken');
 
 var getSocials = function(req) {
   var settings = req.app.getSettings();
@@ -23,10 +16,10 @@ var getSocials = function(req) {
 
 exports.init = function (req, res) {
   if (req.isAuthenticated()) {
-    res.redirect(getReturnUrl(req));
+    res.redirect(req.user.defaultReturnUrl());
   }
   else {
-    res.render('login/index', {socials: getSocials(req)});
+    res.render('web/login/index', {socials: getSocials(req)});
   }
 };
 
@@ -108,10 +101,19 @@ exports.login = function (req, res) {
         });
       }
       else {
-        req.login(user, function (err) {
+        req.login(user, {session: false}, function (err) {
           if (err) {
             return workflow.emit('exception', err);
           }
+
+          var payload = {
+            id: user.id,
+            email: user.email,
+            username: user.username
+          };
+
+          var settings = req.app.getSettings();
+          res.cookie(req.app.locals.webJwtName, jwt.sign(payload, settings.cryptoKey, {expiresInMinutes: 60}));
 
           workflow.emit('response');
         });

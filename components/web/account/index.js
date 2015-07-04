@@ -54,7 +54,7 @@ var renderSettings = function (req, res, next, oauthMessage) {
       }
     });
 
-    res.render('account/index', {
+    res.render('web/account/index', {
       data: {
         record: escape(JSON.stringify(outcome.record)),
         fields: outcome.fields,
