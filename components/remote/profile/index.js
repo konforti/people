@@ -94,10 +94,6 @@ exports.updateProfile = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function () {
-    var settings = req.app.getSettings();
-    if (req.sessionID !== signature.unsign(req.body.sid, settings.cryptoKey)) {
-      workflow.outcome.errfor.session = 'invalid session';
-    }
 
     if (workflow.hasErrors()) {
       return workflow.emit('response');
@@ -242,11 +238,6 @@ exports.updatePassword = function (req, res, next) {
   workflow.on('validate', function () {
     if (req.body.newPassword !== req.body.confirm) {
       workflow.outcome.errfor.password = 'password not match';
-    }
-
-    var settings = req.app.getSettings();
-    if (req.sessionID !== signature.unsign(req.body.sid, settings.cryptoKey)) {
-      workflow.outcome.errfor.session = 'invalid session';
     }
 
     if (workflow.hasErrors()) {

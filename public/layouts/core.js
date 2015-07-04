@@ -16,7 +16,7 @@ var app; //the main declaration
     $.ajaxSetup({
       beforeSend: function (xhr) {
         if ($.cookie('people.token')) {
-          xhr.setRequestHeader('Authorization','Bearer ', $.cookie('people.token'));
+          xhr.setRequestHeader('Authorization','Bearer ' + $.cookie('people.token'));
         }
       }
     });

@@ -1,6 +1,7 @@
 'use strict';
 var crypto = require('crypto');
 var signature = require('cookie-signature');
+var jwt = require('jsonwebtoken');
 
 /**
  *
@@ -33,12 +34,23 @@ exports.registerOauth = function (req, res, next) {
       }
 
       info.profile.avatar = info.profile._json.profile_image_url || info.profile._json.avatar_url || info.profile._json.image.url + '?sz=100' || '';
-      req.session.socialProfile = info.profile;
+      workflow.profile = info.profile;
 
       if (!user) {
         // Register.
         if (!info.profile.emails || !info.profile.emails[0].value) {
-          res.render('../remote/social/need-mail', {email: ''});
+          var settings = req.app.getSettings();
+          var payload = {
+            emails: info.profile.emails,
+            displayName: info.profile.displayName,
+            username: info.profile.username,
+            id: info.profile.id,
+            provider: info.profile.provider
+
+          };
+          var token = jwt.sign(payload, settings.cryptoKey, {expiresInMinutes: 60});
+          res.cookie('need_mail', token);
+          res.render('./need-mail', {email: ''});
         }
         else {
           registerSocial(req, res, next);
@@ -53,16 +65,27 @@ exports.registerOauth = function (req, res, next) {
   })(req, res, next);
 };
 
+exports.registerSocial = function (req, res, next) {
+  if (req.cookies && req.cookies['need_mail']) {
+    var settings = req.app.getSettings();
+    var token = req.cookies['need_mail'];
+    jwt.verify(token, settings.cryptoKey, function(err, decoded) {
+      decoded.email = req.body.email;
+      registerSocial(req, res, decoded);
+    });
+  }
+};
+
 /**
  * registerSocial().
  * @type {Function}
  */
-var registerSocial = exports.registerSocial = function (req, res, next) {
+var registerSocial = function (req, res, profile) {
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.email = '';
-  if (req.session.socialProfile && req.session.socialProfile.emails && req.session.socialProfile.emails[0].value) {
-    workflow.email = req.session.socialProfile.emails[0].value;
+  if (profile && profile.emails && profile.emails[0].value) {
+    workflow.email = profile.emails[0].value;
   }
   else {
     workflow.email = req.body.email;
@@ -83,7 +106,7 @@ var registerSocial = exports.registerSocial = function (req, res, next) {
   });
 
   workflow.on('duplicateUsernameCheck', function () {
-    workflow.username = req.session.socialProfile.displayName ||  req.session.socialProfile.username || req.session.socialProfile.id;
+    workflow.username = profile.displayName ||  profile.username || profile.id;
     if (!/^[a-zA-Z0-9\-\_]+$/.test(workflow.username)) {
       workflow.username = workflow.username.replace(/[^a-zA-Z0-9\-\_]/g, '');
     }
@@ -94,7 +117,7 @@ var registerSocial = exports.registerSocial = function (req, res, next) {
       }
 
       if (user) {
-        workflow.username = workflow.username + req.session.socialProfile.id;
+        workflow.username = workflow.username + profile.id;
       }
 
       workflow.emit('duplicateEmailCheck');
@@ -130,7 +153,7 @@ var registerSocial = exports.registerSocial = function (req, res, next) {
         workflow.email
       ]
     };
-    fieldsToSet[req.session.socialProfile.provider] = {id: req.session.socialProfile.id};
+    fieldsToSet[profile.provider] = {id: profile.id};
 
     req.app.db.models.User.create(fieldsToSet, function (err, user) {
       if (err) {
@@ -182,33 +205,32 @@ var registerSocial = exports.registerSocial = function (req, res, next) {
  * @param next
  */
 var loginSocial = function (req, res, workflow) {
-  req.login(workflow.user, function (err) {
+  req.login(workflow.user, {session: false}, function (err) {
     if (err) {
       return workflow.emit('exception', err);
     }
 
     workflow.user.avatar = '';
-    if (req.session.socialProfile && req.session.socialProfile.avatar) {
-      workflow.user.avatar = req.session.socialProfile.avatar;
+    if (workflow.avatar) {
+      workflow.user.avatar = workflow.avatar;
     }
     else {
-      var gravatarHash = crypto.createHash('md5').update(req.email).digest('hex');
+      var gravatarHash = crypto.createHash('md5').update(workflow.user.email).digest('hex');
       workflow.user.avatar = 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g';
     }
 
-    var settings = req.app.getSettings();
-    var sid = signature.sign(req.sessionID, settings.cryptoKey);
-
     workflow.outcome.success = !workflow.hasErrors();
-    workflow.outcome.sid = sid;
-    workflow.outcome.user = {
+    req.hooks.emit('userLogin', workflow.user);
+
+    var payload = {
+      id: workflow.user.id,
       email: workflow.user.email,
       username: workflow.user.username,
       avatar: workflow.user.avatar
     };
-    delete req.session.socialProfile;
 
-    req.hooks.emit('userLogin', workflow.outcome.user);
+    var settings = req.app.getSettings();
+    workflow.outcome.jwt = jwt.sign(payload, settings.cryptoKey, {expiresInMinutes: 60});
 
     if (!req.body.email) {
       res.render('../remote/social/success', {data: JSON.stringify(workflow.outcome)});

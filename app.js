@@ -5,6 +5,8 @@ var config = require('./config'),
     express = require('express'),
     cookieParser = require('cookie-parser'),
     bodyParser = require('body-parser'),
+    session = require('express-session'),
+    mongoStore = require('connect-mongo')(session),
     http = require('http'),
     path = require('path'),
     fs = require('fs'),
@@ -63,6 +65,12 @@ app.use(require('serve-static')(path.join(__dirname, 'public'), {
       res.setHeader("Access-Control-Allow-Origin", res.req.headers.origin);
     }
   }
+}));
+app.use(session({
+  resave: false,
+  saveUninitialized: false,
+  secret: app.appSettings.cryptoKey,
+  store: new mongoStore({ url: config.mongodb.uri })
 }));
 app.use(require('method-override')());
 app.use(bodyParser.json());

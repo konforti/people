@@ -1,7 +1,7 @@
 'use strict';
 
+// winchan (https://github.com/mozilla/winchan/blob/master/winchan.js)
 var WinChan=function(){function a(a,b,c){a.attachEvent?a.attachEvent("on"+b,c):a.addEventListener&&a.addEventListener(b,c,!1)}function b(a,b,c){a.detachEvent?a.detachEvent("on"+b,c):a.removeEventListener&&a.removeEventListener(b,c,!1)}function c(){var a=-1,b=navigator.userAgent;if("Microsoft Internet Explorer"===navigator.appName){var c=new RegExp("MSIE ([0-9]{1,}[.0-9]{0,})");null!=c.exec(b)&&(a=parseFloat(RegExp.$1))}else if(b.indexOf("Trident")>-1){var c=new RegExp("rv:([0-9]{2,2}[.0-9]{0,})");null!==c.exec(b)&&(a=parseFloat(RegExp.$1))}return a>=8}function d(){try{var a=navigator.userAgent;return-1!=a.indexOf("Fennec/")||-1!=a.indexOf("Firefox/")&&-1!=a.indexOf("Android")}catch(b){}return!1}function e(){return window.JSON&&window.JSON.stringify&&window.JSON.parse&&window.postMessage}function f(a){/^https?:\/\//.test(a)||(a=window.location.href);var b=document.createElement("a");return b.href=a,b.protocol+"//"+b.host}function g(){for(var a=(window.location,window.opener.frames),b=a.length-1;b>=0;b--)try{if(a[b].location.protocol===window.location.protocol&&a[b].location.host===window.location.host&&a[b].name===h)return a[b]}catch(c){}}var h="__winchan_relay_frame",i="die",j=c();return e()?{open:function(c,e){function g(){if(m&&document.body.removeChild(m),m=void 0,q&&(q=clearInterval(q)),b(window,"message",k),b(window,"unload",g),p)try{p.close()}catch(a){o.postMessage(i,n)}p=o=void 0}function k(a){if(a.origin===n)try{var b=JSON.parse(a.data);"ready"===b.a?o.postMessage(r,n):"error"===b.a?(g(),e&&(e(b.d),e=null)):"response"===b.a&&(g(),e&&(e(null,b.d),e=null))}catch(c){}}if(!e)throw"missing required callback argument";var l;c.url||(l="missing required 'url' parameter"),c.relay_url||(l="missing required 'relay_url' parameter"),l&&setTimeout(function(){e(l)},0),c.window_name||(c.window_name=null),(!c.window_features||d())&&(c.window_features=void 0);var m,n=f(c.url);if(n!==f(c.relay_url))return setTimeout(function(){e("invalid arguments: origin of url and relay_url must match")},0);var o;j&&(m=document.createElement("iframe"),m.setAttribute("src",c.relay_url),m.style.display="none",m.setAttribute("name",h),document.body.appendChild(m),o=m.contentWindow);var p=window.open(c.url,c.window_name,c.window_features);o||(o=p);var q=setInterval(function(){p&&p.closed&&(g(),e&&(e("unknown closed window"),e=null))},500),r=JSON.stringify({a:"request",d:c.params});return a(window,"unload",g),a(window,"message",k),{close:g,focus:function(){if(p)try{p.focus()}catch(a){}}}},onOpen:function(c){function d(a){a=JSON.stringify(a),j?k.doPost(a,h):k.postMessage(a,h)}function e(a){var f;try{f=JSON.parse(a.data)}catch(g){}f&&"request"===f.a&&(b(window,"message",e),h=a.origin,c&&setTimeout(function(){c(h,f.d,function(a){c=void 0,d({a:"response",d:a})})},0))}function f(a){if(a.data===i)try{window.close()}catch(b){}}var h="*",k=j?g():window.opener;if(!k)throw"can't find relay frame";a(j?k:window,"message",e),a(j?k:window,"message",f);try{d({a:"ready"})}catch(l){a(k,"load",function(a){d({a:"ready"})})}var m=function(){try{b(j?k:window,"message",f)}catch(a){}c&&d({a:"error",d:"client closed window"}),c=void 0;try{window.close()}catch(e){}};return a(window,"unload",m),{detach:function(){b(window,"unload",m)}}}}:{open:function(a,b,c,d){setTimeout(function(){d("unsupported browser")},0)},onOpen:function(a){setTimeout(function(){a("unsupported browser")},0)}}}();
-
 
 /**
  * EventEmitter.
@@ -69,7 +69,7 @@ var People = function(options) {
   this.profileElement = document.getElementById(options.profileElementID) || document.body;
 
   if (this.getInfo() === null) {
-    this.makeRequest('GET', this.url + '/remote/info/', {}, function (data) {
+    this.ajax('GET', this.url + '/remote/info/', {}, function (data) {
       var data = JSON.parse(data.responseText);
       if (data.success === true) {
         localStorage.setItem('people.info', JSON.stringify(data.info));
@@ -115,7 +115,7 @@ People.prototype.getInfo = function() {
  * @type {boolean}
  */
 People.prototype.isUser = function() {
-  return this.getCookie('people.sid').length > 0;
+  return this.getCookie('people.jwt').length > 0;
 };
 
 /**
@@ -150,7 +150,7 @@ People.prototype.clickEvents = function () {
     // Elements ID
     switch (e.target.id) {
       case 'ppl-login-btn':
-        self.makeRequest('POST', self.url + '/remote/login/', {
+        self.ajax('POST', self.url + '/remote/login/', {
           username: document.getElementById('ppl-login-name').value,
           password: document.getElementById('ppl-login-pass').value
         }, function (data) {
@@ -161,7 +161,7 @@ People.prototype.clickEvents = function () {
         break;
 
       case 'ppl-register-btn':
-        self.makeRequest('POST', self.url + '/remote/register/', {
+        self.ajax('POST', self.url + '/remote/register/', {
           username: document.getElementById('register-name').value,
           email: document.getElementById('ppl-register-email').value,
           password: document.getElementById('ppl-register-pass').value
@@ -173,7 +173,7 @@ People.prototype.clickEvents = function () {
         break;
 
       case 'ppl-forgot-btn':
-        self.makeRequest('POST', self.url + '/remote/forgot/', {
+        self.ajax('POST', self.url + '/remote/forgot/', {
           email: document.getElementById('ppl-forgot-email').value
         }, function (data) {
           if (!self.errors(data)) {
@@ -183,7 +183,7 @@ People.prototype.clickEvents = function () {
         break;
 
       case 'ppl-forgot-reset-btn':
-        self.makeRequest('POST', self.url + '/remote/forgot/reset/', {
+        self.ajax('POST', self.url + '/remote/forgot/reset/', {
           token: document.getElementById('ppl-forgot-reset-token').value,
           password: document.getElementById('ppl-forgot-reset-pass').value
         }, function (data) {
@@ -196,7 +196,7 @@ People.prototype.clickEvents = function () {
 
       case 'ppl-update-profile-btn':
         var elms = document.querySelectorAll('#ppl-profile-form input');
-        var values = {sid: self.getCookie('people.sid'), fields: {}};
+        var values = {jwt: self.getCookie('people.jwt'), fields: {}};
         for (var i = 0, elm; elm = elms[i]; ++i) {
           if (elm.name === 'username' || elm.name === 'email') {
             values[elm.name] = elm.value;
@@ -206,7 +206,7 @@ People.prototype.clickEvents = function () {
           }
         }
         values.fields = JSON.stringify(values.fields);
-        self.makeRequest('POST', self.url + '/remote/profile/', values, function (data) {
+        self.ajax('POST', self.url + '/remote/profile/', values, function (data) {
           if (!self.errors(data)) {
             self.event.emit('profileupdate', data);
             self.showProfile(data.responseText);
@@ -216,11 +216,11 @@ People.prototype.clickEvents = function () {
 
       case 'ppl-update-password-btn':
         var elms = document.querySelectorAll('#ppl-new-password input');
-        var values = {sid: self.getCookie('people.sid')};
+        var values = {jwt: self.getCookie('people.jwt')};
         for (var i = 0, elm; elm = elms[i]; ++i) {
           values[elm.name] = elm.value;
         }
-        self.makeRequest('POST', self.url + '/remote/password/', values, function (data) {
+        self.ajax('POST', self.url + '/remote/password/', values, function (data) {
           if (!self.errors(data)) {
             self.event.emit('passwordupdate', data);
             self.showProfile(data.responseText);
@@ -263,7 +263,7 @@ People.prototype.clickEvents = function () {
       self.showLogin({form: 'forgot'});
     }
     else if (classes.contains('ppl-verify-email')) {
-      self.makeRequest('POST', self.url + '/remote/verify/', {}, function (data) {
+      self.ajax('POST', self.url + '/remote/verify/', {}, function (data) {
         var message = 'A verification mail sent to your email address.';
         if (!self.errors(data, message)) {
           // Wait.
@@ -296,7 +296,7 @@ People.prototype.clickEvents = function () {
     else if (classes.contains('ppl-disconnect-btn')) {
       var url = e.target.getAttribute('data-href');
 
-      self.makeRequest('GET', self.url + url, {}, function (data) {
+      self.ajax('GET', self.url + url, {}, function (data) {
         if (!self.errors(data, 'Disconnect successfully')) {
           e.target.classList.remove('ppl-disconnect-btn');
           e.target.classList.add('ppl-connect-btn');
@@ -316,29 +316,12 @@ People.prototype.clickEvents = function () {
  * @param next
  * @returns {boolean}
  */
-People.prototype.makeRequest = function (method, url, data, next) {
-  var throb = document.getElementById('throb');
-  if (throb) {
-    throb.parentNode.removeChild(throb);
-  }
+People.prototype.ajax = function (method, url, data, next) {
+  var self = this;
+  self.addThrob();
 
-  throb  = document.createElement('img');
-  throb.id = 'throb';
-  throb.src = this.url + '/media/ajax-pulse.gif';
-  throb.style.position = 'absolute';
-  throb.style.zIndex = '9999';
-  document.body.appendChild(throb);
-  document.onmousemove = function(e) {
-    throb.style.left = e.pageX + 15 + 'px';
-    throb.style.top = e.pageY + 'px';
-  };
-
-  var httpRequest = new XMLHttpRequest(),
-    body = '',
-    query = '';
-
-  if (!httpRequest) {
-    alert('Giving up :( Cannot create an XMLHTTP instance');
+  var xhr = new XMLHttpRequest(), body = '', query = '';
+  if (!xhr) {
     return false;
   }
 
@@ -353,25 +336,47 @@ People.prototype.makeRequest = function (method, url, data, next) {
   }
   else {
     body = str.join('&');
-
   }
 
-  httpRequest.open(method, url + query, true);
-  httpRequest.onreadystatechange = function () {
-    if (httpRequest.readyState === 4 && httpRequest.status === 200) {
-      var throb = document.getElementById('throb');
-      if (throb) {
-        throb.parentNode.removeChild(throb);
-      }
+  xhr.open(method, url + query, true);
+  xhr.addEventListener('load', function(ev) {
+    self.removeThrob();
+    next(xhr);
+  }, false);
 
-      next(httpRequest);
-    }
-  };
-
-  httpRequest.withCredentials = true;
-  httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-  httpRequest.send(body);
+  xhr.withCredentials = true;
+  if (self.getCookie('people.jwt')) {
+    xhr.setRequestHeader('Authorization','Bearer ' + this.getCookie('people.jwt'));
+  }
+  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+  xhr.send(body);
 };
+
+/**
+ * removeThrob().
+ */
+People.prototype.removeThrob = function () {
+  var throb = document.getElementById('throb');
+  if (throb) throb.parentNode.removeChild(throb);
+};
+
+/**
+ * addThrob();
+ */
+People.prototype.addThrob = function () {
+  this.removeThrob();
+  var throb  = document.createElement('img');
+  throb.id = 'throb';
+  throb.src = this.url + '/media/ajax-pulse.gif';
+  throb.style.position = 'absolute';
+  throb.style.zIndex = '9999';
+  document.body.appendChild(throb);
+  document.onmousemove = function(e) {
+    throb.style.left = e.pageX + 15 + 'px';
+    throb.style.top = e.pageY + 'px';
+  };
+};
+
 
 
 /**
@@ -490,7 +495,7 @@ People.prototype.errors = function(data, messege) {
  */
 People.prototype.login = function (data) {
   // Set cookies.
-  this.setCookie('people.sid', data.jwt, 14);
+  this.setCookie('people.jwt', data.jwt, 14);
 
   // Save Shallow user to local storage.
   var payload = data.jwt.split('.')[1];
@@ -504,7 +509,7 @@ People.prototype.login = function (data) {
  * Logout current user.
  */
 People.prototype.logout = function () {
-  this.eraseCookie('people.sid');
+  this.eraseCookie('people.jwt');
   localStorage.removeItem('people.user');
   this.hideUser();
   this.hideProfile();
@@ -697,7 +702,7 @@ People.prototype.showProfile = function (profile) {
   }
 
   if (!profile) {
-    this.makeRequest('GET', this.url + '/remote/profile/', {sid: this.getCookie('people.sid')}, function (data) {
+    this.ajax('GET', this.url + '/remote/profile/', {jwt: this.getCookie('people.jwt')}, function (data) {
       profile = data.responseText;
       renderProfile();
     });

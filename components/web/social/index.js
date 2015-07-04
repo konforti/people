@@ -40,9 +40,16 @@ exports.registerOauth = function (req, res, next) {
         if (!info.profile.emails || !info.profile.emails[0].value) {
 
           var settings = req.app.getSettings();
-          res.cookie('need_mail',
-            jwt.sign(info.profile, settings.cryptoKey, {expiresInMinutes: 60}));
+          var payload = {
+            emails: info.profile.emails,
+            displayName: info.profile.displayName,
+            username: info.profile.username,
+            id: info.profile.id,
+            provider: info.profile.provider
 
+          };
+          var token = jwt.sign(payload, settings.cryptoKey, {expiresInMinutes: 60});
+          res.cookie('need_mail', token);
           res.render('../web/social/need-mail', {email: ''});
         }
         else {
@@ -63,6 +70,7 @@ exports.registerSocial = function (req, res, next) {
     var settings = req.app.getSettings();
     var token = req.cookies['need_mail'];
     jwt.verify(token, settings.cryptoKey, function(err, decoded) {
+      decoded.email = req.body.email;
       registerSocial(req, res, decoded);
     });
   }
@@ -75,7 +83,7 @@ exports.registerSocial = function (req, res, next) {
 var registerSocial = function (req, res, profile) {
   var workflow = req.app.utility.workflow(req, res);
 
-  profile.email = '';
+  workflow.email = '';
   if (profile && profile.emails && profile.emails[0].value) {
     workflow.email = profile.emails[0].value;
   }
@@ -166,7 +174,6 @@ var registerSocial = function (req, res, profile) {
       subject: 'Your ' + settings.projectName + ' Account',
       textPath: '../web/register/email-text',
       htmlPath: '../web/register/email-html',
-      markdownPath: '../web/register/email-markdown',
       locals: {
         username: workflow.username,
         email: workflow.email,
@@ -196,7 +203,7 @@ var registerSocial = function (req, res, profile) {
  * @param next
  */
 var loginSocial = function (req, res, workflow) {
-  req.login(workflow.user, function (err) {
+  req.login(workflow.user, {session: false}, function (err) {
     if (err) {
       return workflow.emit('exception', err);
     }
@@ -206,7 +213,7 @@ var loginSocial = function (req, res, workflow) {
       workflow.user.avatar = workflow.avatar;
     }
     else {
-      var gravatarHash = crypto.createHash('md5').update(req.email).digest('hex');
+      var gravatarHash = crypto.createHash('md5').update(workflow.user.email).digest('hex');
       workflow.user.avatar = 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g';
     }
 
@@ -217,8 +224,16 @@ var loginSocial = function (req, res, workflow) {
       avatar: workflow.user.avatar
     };
 
-    req.hooks.emit('userLogin', workflow.outcome.user);
+    var payload = {
+      id: workflow.user.id,
+      email: workflow.user.email,
+      username: workflow.user.username
+    };
 
+    var settings = req.app.getSettings();
+    res.cookie(req.app.locals.webJwtName, jwt.sign(payload, settings.cryptoKey, {expiresInMinutes: 60}));
+
+    req.hooks.emit('userLogin', workflow.outcome.user);
     res.redirect(req.user.defaultReturnUrl());
   });
 };
