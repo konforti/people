@@ -89,19 +89,13 @@ exports.read = function (req, res, next) {
  */
 exports.readCurrent = function (req, res, next) {
   var settings = req.app.getSettings();
-  var collection = req.app.db.collection('sessions');
-  var sid = signature.unsign(req.params.sid, settings.cryptoKey);
-
-  collection.find({_id: sid}).toArray(function (err, record) {
-    if (err) {
-      return next(err, null);
+  var jwt = require('jsonwebtoken');
+  jwt.verify(req.params.jwt, settings.cryptoKey, function(err, decoded) {
+    if (err || !decoded) {
+      return next(err);
     }
 
-    if (!record || !record[0]) {
-      return next('No Record', null);
-    }
-    var session = JSON.parse(record[0].session);
-    req.app.db.models.User.findById(session.passport.user).populate('roles', 'name').exec(function (err, record) {
+    req.app.db.models.User.findById(decoded.id).populate('roles', 'name').exec(function (err, record) {
       if (err) {
         return next(err);
       }

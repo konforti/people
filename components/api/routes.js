@@ -54,7 +54,7 @@ exports = module.exports = function (app) {
   // List all users.
   app.get('/api/v1/persons/', require('./persons').find);
   // Retrieve current user.
-  app.get('/api/v1/persons/current/:sid/', require('./persons').readCurrent);
+  app.get('/api/v1/persons/current/:jwt/', require('./persons').readCurrent);
   // Retrieve a user.
   app.get('/api/v1/persons/:id/', require('./persons').read);
   // Update a User (mode).
