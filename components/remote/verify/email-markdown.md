@@ -3,7 +3,7 @@
 ### %app.name Email Verification
 
 Please verify your email address by clicking the following link:
-[Verify my email](http://localhost:3000/remote/verify/VeRYL0nGt0kEN)
+[Verify my email](%user.verifyUrl)
 
 If you are having any issues with your account,
 please don't hesitate to contact us by replying to this mail.

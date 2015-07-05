@@ -1,7 +1,7 @@
 extends ./../../layouts/admin
 
 block head
-    title Manage Email
+    title Manage Email templates
 
 block neck
     link(rel='stylesheet', href='/views/admin/emails/index.min.css?#{cacheBreaker}')
@@ -29,7 +29,30 @@ block body
 
     script(type='text/template', id='tmpl-header')
         div.page-header
-            h1 Emails
+            h1 Email templates
+
+            p You can use
+                a(href = 'https://guides.github.com/features/mastering-markdown/#syntax', target = '_blank')  markdown language
+                |  to write your emails.<br>
+                | You can use a predefined tokens for dynamic variables.<br>
+                | Available tokens:
+
+            ul
+                li
+                    code %app.name
+                    |  The global application name
+                li
+                    code %user.name
+                    |  The current user name
+                li
+                    code %user.email
+                    |  The curent user email
+                li
+                    code %user.verifyUrl
+                    |  A one time URL for verifying the current user
+                li
+                    code %user.resetToken
+                    |  A one time token to for a user password reset
 
     script(type='text/template', id='tmpl-emails')
         form.emails
