@@ -86,7 +86,7 @@ exports = module.exports = function (app, passport) {
   // Authenticated users.
   app.all('/remote/profile*', ensureAuthenticated);
   app.all('/remote/password*', ensureAuthenticated);
-  app.all('/remote/twostepn*', ensureAuthenticated);
+  app.all('/remote/twostep*', ensureAuthenticated);
   app.all('/remote/verify*', ensureAuthenticated);
   app.all('/remote/connect*', ensureAuthenticated);
 
@@ -96,7 +96,7 @@ exports = module.exports = function (app, passport) {
   app.post('/remote/password/', require('./profile/index').updatePassword);
 
   // 2 step
-  app.post('/remote/twostepn/', require('./profile/index').twostep);
+  app.post('/remote/twostep/', require('./profile/index').twostep);
 
   // Email verification.
   app.post('/remote/verify/', require('./verify/index').verification);

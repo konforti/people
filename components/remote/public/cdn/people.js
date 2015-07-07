@@ -233,10 +233,10 @@ People.prototype.clickEvents = function () {
         if (code.value.length !== 6) {
           return alert('A 6-digit code is required.');
         }
-        var secret = document.querySelector('#qr-code code');
+        var secret = document.querySelector('#ppl-manual-code');
 
         var values = {
-          secret: secret.value.split(' ').join(''),
+          secret: secret.innerText.split(' ').join(''),
           code: code.value
         };
         _self.ajax('POST', _self.url + '/remote/twostep/', values, function (data) {
@@ -323,6 +323,20 @@ People.prototype.clickEvents = function () {
           e.target.innerHTML = e.target.innerHTML.replace('Disconnect', 'Connect');
         }
       });
+    }
+    else if (classes.contains('ppl-2step-click')) {
+      if (e.target.checked) {
+        _self.show2step();
+      }
+      else {
+        if (window.confirm("Do you really want to disable 2-Step Verification?")) {
+          _self.ajax('POST', _self.url + '/remote/twostep/', {secret: null}, function (data) {
+            if (!_self.errors(data)) {
+              _self.event.emit('twostepupdate', data);
+            }
+          });
+        }
+      }
     }
   }, false);
 };
@@ -467,10 +481,11 @@ People.prototype.errors = function(data, messege) {
   data = JSON.parse(data.responseText);
 
   function ele() {
-    var wrp = document.querySelector('.ppl-alerts');
+    var wrp = document.querySelectorAll('.ppl-alerts');
+    var last = wrp.length - 1;
     if (wrp) {
-      wrp.innerHTML = '<div class="ppl-alert"><div class="ppl-close-btn">&times</div></div>';
-      return wrp.querySelector('.ppl-alert');
+      wrp[last].innerHTML = '<div class="ppl-alert"><div class="ppl-close-btn">&times</div></div>';
+      return wrp[last].querySelector('.ppl-alert');
     }
 
     return false;
@@ -817,17 +832,17 @@ People.prototype.show2step = function () {
   this.key = this.generateKey();
   var qrWidth = 160;
   var qrHeight = 160;
-  var qrUrl = 'otpauth://totp' + encodeURIComponent(info.appName) + '?secret=' + this.key + '&issuer=People';
+  var qrUrl = 'otpauth://totp/' + encodeURIComponent(info.appName) + '?secret=' + this.key + '&issuer=People';
 
   opt.body = '';
   opt.body += '<p>Add an additional level of security to your account. <br>Whenever you log in, you\'ll be prompted to enter<br> a security code generated on your mobile device.</p>';
   opt.body += '<p>Open your two-step application and add your account by scanning this QR code.</p>';
-  opt.body += '<div id="qr-code">';
+  opt.body += '<div id="ppl-qr-code">';
   opt.body += '<img src="https://chart.googleapis.com/chart?chs=' + qrWidth + 'x' + qrHeight + '&amp;cht=qr&amp;chl=' + qrUrl + '" alt="QR Code" width="' + qrWidth + '" height="' + qrHeight + '"/>';
-  opt.body += '<code>' + this.key.match(/..../g).join(' ') + '</code>';
+  opt.body += '<code id="ppl-manual-code">' + this.key.match(/..../g).join(' ') + '</code>';
+  opt.body += '</div>';
   opt.body += '<label>Enter the 6-digit code the application generates</label>';
   opt.body += '<input type="text" name="code" placeholder="123456">';
-  opt.body += '</div>';
   opt.body += '<a id="ppl-2step-btn" class="submit" href="javascript:void(0)">Enable</a> ';
 
   this.showBlock(opt, document.body);

@@ -64,7 +64,7 @@ exports.readProfile = function (req, res, next) {
       }
     });
 
-    workflow.outcome.record.totp = (typeof workflow.outcome.record.totp !== 'undefined' && workflow.outcome.record.totp.length > 0) ? 1 : 0;
+    workflow.outcome.record.totp = (typeof workflow.outcome.record.totp !== 'undefined' && workflow.outcome.record.totp.length > 0) ? 'checked' : '';
     if (req.xhr) {
       res.send(workflow.outcome.record);
     }
@@ -318,12 +318,25 @@ exports.twostep = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function () {
+    if (req.body.secret === null) {
+      workflow.emit('patchUser');
+    }
+
+    var notp = require('notp');
+
     if (req.body.code.length !== 6) {
       workflow.outcome.errfor.code = 'A 6-digit code is required.';
     }
-
+    console.log(req.body.code);
+    console.log(req.body.secret);
     if (req.body.secret.length !== 16) {
-      workflow.outcome.error = 'Secret code is wrong.';
+      workflow.outcome.errors.push('The secret is wrong.');
+    }
+
+    var verified = notp.totp.verify(req.body.code, req.body.secret);
+    console.log(verified);
+    if(!verified) {
+      workflow.outcome.errors.push('Code is not verified.');
     }
 
     if (workflow.hasErrors()) {
@@ -341,7 +354,7 @@ exports.twostep = function (req, res, next) {
         return workflow.emit('exception', err);
       }
 
-      //workflow.outcome.record = user;
+      workflow.outcome = 'Success';
       workflow.emit('response');
     });
   });
