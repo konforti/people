@@ -144,59 +144,59 @@ People.prototype.relayUrl = function() {
  * Register events.
  */
 People.prototype.clickEvents = function () {
-  var self = this;
+  var _self = this;
   document.addEventListener('click', function (e) {
 
     // Elements ID
     switch (e.target.id) {
       case 'ppl-login-btn':
-        self.ajax('POST', self.url + '/remote/login/', {
+        _self.ajax('POST', _self.url + '/remote/login/', {
           username: document.getElementById('ppl-login-name').value,
           password: document.getElementById('ppl-login-pass').value
         }, function (data) {
-          if (!self.errors(data)) {
-            self.login(JSON.parse(data.responseText));
+          if (!_self.errors(data)) {
+            _self.login(JSON.parse(data.responseText));
           }
         });
         break;
 
       case 'ppl-register-btn':
-        self.ajax('POST', self.url + '/remote/register/', {
+        _self.ajax('POST', _self.url + '/remote/register/', {
           username: document.getElementById('register-name').value,
           email: document.getElementById('ppl-register-email').value,
           password: document.getElementById('ppl-register-pass').value
         }, function (data) {
-          if (!self.errors(data)) {
-            self.login(JSON.parse(data.responseText));
+          if (!_self.errors(data)) {
+            _self.login(JSON.parse(data.responseText));
           }
         });
         break;
 
       case 'ppl-forgot-btn':
-        self.ajax('POST', self.url + '/remote/forgot/', {
+        _self.ajax('POST', _self.url + '/remote/forgot/', {
           email: document.getElementById('ppl-forgot-email').value
         }, function (data) {
-          if (!self.errors(data)) {
-            self.showLogin({form: 'reset'});
+          if (!_self.errors(data)) {
+            _self.showLogin({form: 'reset'});
           }
         });
         break;
 
       case 'ppl-forgot-reset-btn':
-        self.ajax('POST', self.url + '/remote/forgot/reset/', {
+        _self.ajax('POST', _self.url + '/remote/forgot/reset/', {
           token: document.getElementById('ppl-forgot-reset-token').value,
           password: document.getElementById('ppl-forgot-reset-pass').value
         }, function (data) {
-          if (!self.errors(data)) {
-            self.event.emit('passwordreset', data);
-            self.showLogin();
+          if (!_self.errors(data)) {
+            _self.event.emit('passwordreset', data);
+            _self.showLogin();
           }
         });
         break;
 
       case 'ppl-update-profile-btn':
         var elms = document.querySelectorAll('#ppl-profile-form input');
-        var values = {jwt: self.getCookie('people.jwt'), fields: {}};
+        var values = {fields: {}};
         for (var i = 0, elm; elm = elms[i]; ++i) {
           if (elm.name === 'username' || elm.name === 'email') {
             values[elm.name] = elm.value;
@@ -206,35 +206,54 @@ People.prototype.clickEvents = function () {
           }
         }
         values.fields = JSON.stringify(values.fields);
-        self.ajax('POST', self.url + '/remote/profile/', values, function (data) {
-          if (!self.errors(data)) {
-            self.event.emit('profileupdate', data);
-            self.showProfile(data.responseText);
+        _self.ajax('POST', _self.url + '/remote/profile/', values, function (data) {
+          if (!_self.errors(data)) {
+            _self.event.emit('profileupdate', data);
+            _self.showProfile(data.responseText);
           }
         });
         break;
 
       case 'ppl-update-password-btn':
         var elms = document.querySelectorAll('#ppl-new-password input');
-        var values = {jwt: self.getCookie('people.jwt')};
+        var values = {};
         for (var i = 0, elm; elm = elms[i]; ++i) {
           values[elm.name] = elm.value;
         }
-        self.ajax('POST', self.url + '/remote/password/', values, function (data) {
-          if (!self.errors(data)) {
-            self.event.emit('passwordupdate', data);
-            self.showProfile(data.responseText);
+        _self.ajax('POST', _self.url + '/remote/password/', values, function (data) {
+          if (!_self.errors(data)) {
+            _self.event.emit('passwordupdate', data);
+            _self.showProfile(data.responseText);
+          }
+        });
+        break;
+
+      case 'ppl-2step-btn':
+        var code = document.querySelector('#ppl-2step-block input');
+        if (code.value.length !== 6) {
+          return alert('A 6-digit code is required.');
+        }
+        var secret = document.querySelector('#qr-code code');
+
+        var values = {
+          secret: secret.value.split(' ').join(''),
+          code: code.value
+        };
+        _self.ajax('POST', _self.url + '/remote/twostep/', values, function (data) {
+          if (!_self.errors(data)) {
+            _self.event.emit('twostepupdate', data);
+            _self.hideBlock('ppl-2step-block');
           }
         });
         break;
 
       case 'ppl-user-avatar':
       case 'ppl-user-name':
-        self.showProfile();
+        _self.showProfile();
         break;
 
       case 'ppl-user-logout':
-        self.logout();
+        _self.logout();
         break;
     }
 
@@ -243,29 +262,29 @@ People.prototype.clickEvents = function () {
     if (classes.contains('ppl-social-login')) {
       var name = e.target.id.replace('ppl-login-', '');
       WinChan.open({
-          url: self.url + '/remote/register/' + name + '/',
-          relay_url: self.relayUrl(),
-          window_features: self.windowFeatures()
+          url: _self.url + '/remote/register/' + name + '/',
+          relay_url: _self.relayUrl(),
+          window_features: _self.windowFeatures()
         },
         function(err, r) {
           if (!err) {
-            self.login(r.data);
+            _self.login(r.data);
           }
         });
     }
     else if (classes.contains('ppl-to-login')) {
-      self.showLogin();
+      _self.showLogin();
     }
     else if (classes.contains('ppl-to-register')) {
-      self.showLogin({form: 'register'});
+      _self.showLogin({form: 'register'});
     }
     else if (classes.contains('ppl-to-forgot')) {
-      self.showLogin({form: 'forgot'});
+      _self.showLogin({form: 'forgot'});
     }
     else if (classes.contains('ppl-verify-email')) {
-      self.ajax('POST', self.url + '/remote/verify/', {}, function (data) {
+      _self.ajax('POST', _self.url + '/remote/verify/', {}, function (data) {
         var message = 'A verification mail sent to your email address.';
-        if (!self.errors(data, message)) {
+        if (!_self.errors(data, message)) {
           // Wait.
         }
       });
@@ -280,9 +299,9 @@ People.prototype.clickEvents = function () {
     }
     else if (classes.contains('ppl-connect-btn')) {
       WinChan.open({
-          url: self.url + e.target.getAttribute('data-href'),
-          relay_url: self.relayUrl(),
-          window_features: self.windowFeatures()
+          url: _self.url + e.target.getAttribute('data-href'),
+          relay_url: _self.relayUrl(),
+          window_features: _self.windowFeatures()
         },
         function(err, r) {
           if (!err) {
@@ -296,8 +315,8 @@ People.prototype.clickEvents = function () {
     else if (classes.contains('ppl-disconnect-btn')) {
       var url = e.target.getAttribute('data-href');
 
-      self.ajax('GET', self.url + url, {}, function (data) {
-        if (!self.errors(data, 'Disconnect successfully')) {
+      _self.ajax('GET', _self.url + url, {}, function (data) {
+        if (!_self.errors(data, 'Disconnect successfully')) {
           e.target.classList.remove('ppl-disconnect-btn');
           e.target.classList.add('ppl-connect-btn');
           e.target.setAttribute('data-href', e.target.getAttribute('data-href').replace('/disconnect/', '/connect/'));
@@ -305,7 +324,7 @@ People.prototype.clickEvents = function () {
         }
       });
     }
-  });
+  }, false);
 };
 
 /**
@@ -317,14 +336,17 @@ People.prototype.clickEvents = function () {
  * @returns {boolean}
  */
 People.prototype.ajax = function (method, url, data, next) {
-  var self = this;
-  self.addThrob();
+  var _self = this;
+  _self.addThrob();
 
   var xhr = new XMLHttpRequest(), body = '', query = '';
   if (!xhr) {
     return false;
   }
 
+  if (_self.getCookie('people.jwt')) {
+    data.jwt = this.getCookie('people.jwt');
+  }
   var str = [];
   for (var p in data) {
     if (data.hasOwnProperty(p)) {
@@ -339,16 +361,13 @@ People.prototype.ajax = function (method, url, data, next) {
   }
 
   xhr.open(method, url + query, true);
+  xhr.withCredentials = true;
+  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
   xhr.addEventListener('load', function(ev) {
-    self.removeThrob();
+    _self.removeThrob();
     next(xhr);
   }, false);
 
-  xhr.withCredentials = true;
-  if (self.getCookie('people.jwt')) {
-    xhr.setRequestHeader('Authorization','Bearer ' + this.getCookie('people.jwt'));
-  }
-  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
   xhr.send(body);
 };
 
@@ -376,8 +395,6 @@ People.prototype.addThrob = function () {
     throb.style.top = e.pageY + 'px';
   };
 };
-
-
 
 /**
  * Set Cookies.
@@ -501,7 +518,7 @@ People.prototype.login = function (data) {
   var payload = data.jwt.split('.')[1];
   payload = urlBase64Decode(payload);
   localStorage.setItem('people.user', payload);
-  this.hideLogin();
+  this.hideBlock('ppl-login-block');
   this.event.emit('login', data);
 };
 
@@ -512,7 +529,7 @@ People.prototype.logout = function () {
   this.eraseCookie('people.jwt');
   localStorage.removeItem('people.user');
   this.hideUser();
-  this.hideProfile();
+  this.hideBlock('ppl-profile-block');
   this.event.emit('logout');
 };
 
@@ -545,57 +562,114 @@ People.prototype.hideUser = function () {
 };
 
 /**
+ * Block.
+ * @param opt
+ * @returns {string}
+ */
+People.prototype.renderBlock = function (opt) {
+  var output = '';
+  output += '<div class="ppl-block" id="' + opt.id + '">';
+  output += '<div class="ppl-close-btn">&times</div>';
+  output += '<div class="ppl-alerts"></div>';
+  if (opt.title) {
+    output += '<h3 class="block-title">' + opt.title + '</h3>';
+  }
+  if (opt.body) {
+    output += '<div class="block-body">' + opt.body + '</div>';
+  }
+  if (opt.footer) {
+    output += '<div class="block-footer">' + opt.footer + '</div>';
+  }
+  output += '</div>';
+
+  return output;
+};
+
+/**
+ * Show Block
+ * @param opt
+ */
+People.prototype.showBlock = function (opt, element) {
+  this.hideBlock(opt.id);
+  if (typeof element !== 'undefined') {
+    element.innerHTML += this.renderBlock(opt);
+  }
+  else {
+    this.loginElement.innerHTML += this.renderBlock(opt);
+  }
+};
+
+/**
+ * Hide Block
+ * @param id
+ */
+People.prototype.hideBlock = function (id) {
+  var el = document.getElementById(id);
+  if (el) el.outerHTML = '';
+};
+
+/**
  * login/register block.
  */
 People.prototype.loginForm = function (socials) {
-  var output = '';
-  output += '<h3 class="title">Login</h3>';
-  output += '<form class="ppl-login-form">';
-  output += '<div class="ppl-form-field"><input id="ppl-login-name" type="textfield" placeholder="Name"></div>';
-  output += '<div class="ppl-form-field"><input id="ppl-login-pass" type="password" placeholder="Password"></div>';
-  output += '<a id="ppl-login-btn" class="submit" href="javascript:void(0)">Login</a> ';
-  output += '</form>';
+  var opt = {};
+  opt.id = 'ppl-login-block';
+  opt.title = 'Login';
+
+  opt.body = '';
+  opt.body += '<form class="ppl-login-form">';
+  opt.body += '<div class="ppl-form-field"><input id="ppl-login-name" type="textfield" placeholder="Name"></div>';
+  opt.body += '<div class="ppl-form-field"><input id="ppl-login-pass" type="password" placeholder="Password"></div>';
+  opt.body += '<a id="ppl-login-btn" class="submit" href="javascript:void(0)">Login</a> ';
+  opt.body += '</form>';
 
   if (socials && socials.length > 0) {
-    output += '<H4 class="or">OR</H4>';
+    opt.body += '<H4 class="or">OR</H4>';
     for (var i = 0, name; name = socials[i]; ++i) {
-      output += '<a class="ppl-social-login" id="ppl-login-' + name + '" href="javascript:void(0)"><i class="icon-' + name + '"></i>' + name.charAt(0).toUpperCase() + name.slice(1) + '</a> ';
+      opt.body += '<a class="ppl-social-login" id="ppl-login-' + name + '" href="javascript:void(0)"><i class="icon-' + name + '"></i>' + name.charAt(0).toUpperCase() + name.slice(1) + '</a> ';
     }
   }
 
-  output += '<div class="footer">';
-  output += '<a class="ppl-to-register" href="javascript:void(0)">Register</a>';
-  output += '<a class="ppl-to-forgot" href="javascript:void(0)">Forgot password</a>';
-  output += '</div>'
-  return output;
+  opt.footer = '';
+  opt.footer += '<div class="footer">';
+  opt.footer += '<a class="ppl-to-register" href="javascript:void(0)">Register</a>';
+  opt.footer += '<a class="ppl-to-forgot" href="javascript:void(0)">Forgot password</a>';
+  opt.footer += '</div>';
+
+  return opt;
 };
 
 /**
  * Register form.
  * @param socials
- * @returns {string}
+ * @returns {{}}
  */
 People.prototype.registerForm = function (socials) {
-  var output = '';
-  output += '<h3>Register</h3>';
-  output += '<form class="ppl-register-form">';
-  output += '<div class="ppl-form-field"><input id="ppl-register-name" type="textfield" placeholder="Name"></div>';
-  output += '<div class="ppl-form-field"><input id="ppl-register-email" type="textfield" placeholder="Email"></div>';
-  output += '<div class="ppl-form-field"><input id="ppl-register-pass" type="password" placeholder="Password"></div>';
-  output += '<a id="ppl-register-btn" class="submit" href="javascript:void(0)">Register</a> ';
-  output += '</form>';
+  var opt = {};
+  opt.id = 'ppl-login-block';
+  opt.title = 'Register';
+
+  opt.body = '';
+  opt.body += '<form class="ppl-register-form">';
+  opt.body += '<div class="ppl-form-field"><input id="ppl-register-name" type="textfield" placeholder="Name"></div>';
+  opt.body += '<div class="ppl-form-field"><input id="ppl-register-email" type="textfield" placeholder="Email"></div>';
+  opt.body += '<div class="ppl-form-field"><input id="ppl-register-pass" type="password" placeholder="Password"></div>';
+  opt.body += '<a id="ppl-register-btn" class="submit" href="javascript:void(0)">Register</a> ';
+  opt.body += '</form>';
 
   if (socials && socials.length > 0) {
-    output += '<H4 class="or">OR</H4>';
+    opt.body += '<H4 class="or">OR</H4>';
     for (var i = 0, name; name = socials[i]; ++i) {
-      output += '<a class="ppl-social-login" id="ppl-login-' + name + '" href="javascript:void(0)"><i class="icon-' + name + '"></i>' + name.charAt(0).toUpperCase() + name.slice(1) + '</a>';
+      opt.body += '<a class="ppl-social-login" id="ppl-login-' + name + '" href="javascript:void(0)"><i class="icon-' + name + '"></i>' + name.charAt(0).toUpperCase() + name.slice(1) + '</a>';
     }
   }
 
-  output += '<div class="footer">';
-  output += '<a class="ppl-to-login" href="javascript:void(0)">Login</a>';
-  output += '</div>'
-  return output;
+  opt.footer = '';
+  opt.footer += '<div class="footer">';
+  opt.footer += '<a class="ppl-to-login" href="javascript:void(0)">Login</a>';
+  opt.footer += '</div>'
+
+  return opt;
 };
 
 /**
@@ -603,41 +677,41 @@ People.prototype.registerForm = function (socials) {
  * @returns {string}
  */
 People.prototype.forgotForm = function () {
-  var output = '';
-  output += '<h3>Forgot Password</h3>'
-  output += '<form class="ppl-forgot-form">';
-  output += '<div class="ppl-form-field"><input id="ppl-forgot-email" type="email" placeholder="Email"></div>';
-  output += '<a id="ppl-forgot-btn" class="submit" href="javascript:void(0)">Send</a> ';
-  output += '</form>';
+  var opt = {};
+  opt.id = 'ppl-login-block';
+  opt.title = 'Forgot Password';
 
-  output += '<div class="footer">';
-  output += '<a class="ppl-to-login" href="javascript:void(0)">Back to login</a>';
-  output += '</div>'
-  return output;
+  opt.body = '';
+  opt.body += '<form class="ppl-forgot-form">';
+  opt.body += '<div class="ppl-form-field"><input id="ppl-forgot-email" type="email" placeholder="Email"></div>';
+  opt.body += '<a id="ppl-forgot-btn" class="submit" href="javascript:void(0)">Send</a> ';
+  opt.body += '</form>';
+
+  opt.footer = '';
+  opt.footer += '<div class="footer">';
+  opt.footer += '<a class="ppl-to-login" href="javascript:void(0)">Back to login</a>';
+  opt.footer += '</div>'
+
+  return opt;
 };
 
 /**
  * Reset forgot password form.
- * @returns {string}
+ * @returns {{}}
  */
 People.prototype.forgotResetForm = function () {
-  var output = '';
-  output += '<h3>Reset password</h3>';
-  output += '<form class="ppl-forgot-reset-form">';
-  output += '<div class="ppl-form-field"><textarea id="ppl-forgot-reset-token" placeholder="Verification Token"></textarea></div>';
-  output += '<div class="ppl-form-field"><input id="ppl-forgot-reset-pass" type="password" placeholder="New Password"></div>';
-  output += '<a id="ppl-forgot-reset-btn" class="submit" href="javascript:void(0)">Update Password</a> ';
-  output += '</form>';
+  var opt = {};
+  opt.id = 'ppl-login-block';
+  opt.title = 'Reset password';
 
-  return output;
-};
+  opt.body = '';
+  opt.body += '<form class="ppl-forgot-reset-form">';
+  opt.body += '<div class="ppl-form-field"><textarea id="ppl-forgot-reset-token" placeholder="Verification Token"></textarea></div>';
+  opt.body += '<div class="ppl-form-field"><input id="ppl-forgot-reset-pass" type="password" placeholder="New Password"></div>';
+  opt.body += '<a id="ppl-forgot-reset-btn" class="submit" href="javascript:void(0)">Update Password</a> ';
+  opt.body += '</form>';
 
-/**
- * Remove login block.
- */
-People.prototype.hideLogin = function () {
-  var el = document.getElementById('ppl-login-block');
-  if (el) el.outerHTML = '';
+  return opt;
 };
 
 /**
@@ -657,37 +731,33 @@ People.prototype.showLogin = function (options, callback) {
     var form = options.form || 'login';
     var info = this.getInfo();
     var socials = info ? info.socials : [];
-    var output = '';
-    output += '<div class="ppl-block" id="ppl-login-block">';
-    output += '<div class="ppl-close-btn">&times</div>';
-    output += '<div class="ppl-alerts"></div>';
+    var opt = {};
     switch (form) {
       case 'login':
-        output += this.loginForm(socials);
+        opt = this.loginForm(socials);
         this.event.on('login', function(e) {
           if (callback) callback.call(this, e);
         });
         break;
 
       case 'register':
-        output += this.registerForm(socials);
+        opt = this.registerForm(socials);
         this.event.on('login', function(e) {
           if (callback) callback.call(this, e);
         });
         break;
 
       case 'forgot':
-        output += this.forgotForm();
+        opt = this.forgotForm();
         break;
 
       case 'reset':
-        output += this.forgotResetForm();
+        opt = this.forgotResetForm();
         break;
     }
-    output += '</div>';
 
-    this.hideLogin();
-    if (this.loginElement) this.loginElement.innerHTML += output;
+    this.hideBlock(opt.id);
+    this.showBlock(opt);
   }
 };
 
@@ -696,13 +766,13 @@ People.prototype.showLogin = function (options, callback) {
  * @param profile
  */
 People.prototype.showProfile = function (profile) {
-  var self = this;
-  if (!this.isUser()) {
+  var _self = this;
+  if (!_self.isUser()) {
     return false;
   }
 
-  if (!profile) {
-    this.ajax('GET', this.url + '/remote/profile/', {jwt: this.getCookie('people.jwt')}, function (data) {
+  if (typeof profile === 'undefined') {
+    _self.ajax('GET', this.url + '/remote/profile/', {}, function (data) {
       profile = data.responseText;
       renderProfile();
     });
@@ -712,30 +782,53 @@ People.prototype.showProfile = function (profile) {
   }
 
   function renderProfile() {
-    var user = self.getUser();
+    var user = _self.getUser();
     if (user) {
       profile = JSON.parse(profile);
-      var output = '';
-      output += '<div class="ppl-block" id="ppl-profile-block">';
-      output += '<div class="ppl-close-btn">&times</div>';
-      output += '<div class="ppl-alerts"></div>';
+      var opt = {};
+      opt.id = 'ppl-profile-block';
+      opt.body = profile.html || '';
 
-      if (profile && profile.html) {
-        output += profile.html;
-      }
-
-      output += '</div>';
-
-      self.hideProfile();
-      if (self.profileElement) self.profileElement.innerHTML += output;
+      _self.showBlock(opt, _self.profileElement);
     }
   }
 };
 
 /**
- * Remove profile block.
+ * Generate 2-step key.
+ * @returns {string}
  */
-People.prototype.hideProfile = function () {
-  var el = document.getElementById('ppl-profile-block');
-  if (el) el.outerHTML = '';
+People.prototype.generateKey = function() {
+  var set = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'; // Base32
+  var key = '';
+  for (var i = 0; i < 16; i++) key += set.charAt(Math.floor(Math.random() * set.length));
+  return key;
+};
+
+/**
+ * Show 2-step block.
+ */
+People.prototype.show2step = function () {
+  var opt = {};
+  opt.id = 'ppl-2step-block';
+  opt.title = 'Enable two-step verification';
+
+  var info = this.getInfo();
+  this.key = this.generateKey();
+  var qrWidth = 160;
+  var qrHeight = 160;
+  var qrUrl = 'otpauth://totp' + encodeURIComponent(info.appName) + '?secret=' + this.key + '&issuer=People';
+
+  opt.body = '';
+  opt.body += '<p>Add an additional level of security to your account. <br>Whenever you log in, you\'ll be prompted to enter<br> a security code generated on your mobile device.</p>';
+  opt.body += '<p>Open your two-step application and add your account by scanning this QR code.</p>';
+  opt.body += '<div id="qr-code">';
+  opt.body += '<img src="https://chart.googleapis.com/chart?chs=' + qrWidth + 'x' + qrHeight + '&amp;cht=qr&amp;chl=' + qrUrl + '" alt="QR Code" width="' + qrWidth + '" height="' + qrHeight + '"/>';
+  opt.body += '<code>' + this.key.match(/..../g).join(' ') + '</code>';
+  opt.body += '<label>Enter the 6-digit code the application generates</label>';
+  opt.body += '<input type="text" name="code" placeholder="123456">';
+  opt.body += '</div>';
+  opt.body += '<a id="ppl-2step-btn" class="submit" href="javascript:void(0)">Enable</a> ';
+
+  this.showBlock(opt, document.body);
 };

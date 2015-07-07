@@ -49,3 +49,9 @@ div
                 span.help-block
             div.form-role
                 button#ppl-update-password-btn.submit(type='button') Update Password
+
+        form#ppl-2step
+            div.form-role
+                label.ppl-2step-click
+                    input.form-control(type='checkbox', name='2step', checked='#{data.record.totp}')
+                    | 2-Step Verification

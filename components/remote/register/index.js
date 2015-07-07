@@ -47,6 +47,7 @@ exports.info = function (req, res) {
     });
 
     workflow.outcome.info = {
+      appName: settings.projectName,
       socials: actives
     };
 

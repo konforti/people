@@ -9,26 +9,29 @@
 function authentication(req, res, next) {
   var settings = req.app.getSettings();
   var jwt = require('jsonwebtoken');
-  var token = null;
-  if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
-    token = req.headers.authorization.split(' ')[1];
-  }
+  if ((req.body && req.body.jwt) || (req.query && req.query.jwt)) {
+    var token = (req.body && req.body.jwt) || (req.query && req.query.jwt);
 
-  jwt.verify(token, settings.cryptoKey, function(err, decoded) {
-    if (err || !decoded) {
-      res.set('X-Auth-Required', 'true');
-      return next();
-    }
-
-    req.app.db.models.User.findById(decoded.id, function (err, user) {
-      if (err || !user) {
+    jwt.verify(token, settings.cryptoKey, function(err, decoded) {
+      if (err || !decoded) {
+        res.set('X-Auth-Required', 'true');
         return next();
       }
 
-      req.user = user;
-      return next();
+      req.app.db.models.User.findById(decoded.id, function (err, user) {
+        if (err || !user) {
+          return next();
+        }
+
+        req.user = user;
+        return next();
+      });
     });
-  });
+  }
+  else {
+    return next();
+  }
+
 }
 
 /**
@@ -83,6 +86,7 @@ exports = module.exports = function (app, passport) {
   // Authenticated users.
   app.all('/remote/profile*', ensureAuthenticated);
   app.all('/remote/password*', ensureAuthenticated);
+  app.all('/remote/twostepn*', ensureAuthenticated);
   app.all('/remote/verify*', ensureAuthenticated);
   app.all('/remote/connect*', ensureAuthenticated);
 
@@ -90,6 +94,9 @@ exports = module.exports = function (app, passport) {
   app.get('/remote/profile/', require('./profile/index').readProfile);
   app.post('/remote/profile/', require('./profile/index').updateProfile);
   app.post('/remote/password/', require('./profile/index').updatePassword);
+
+  // 2 step
+  app.post('/remote/twostepn/', require('./profile/index').twostep);
 
   // Email verification.
   app.post('/remote/verify/', require('./verify/index').verification);

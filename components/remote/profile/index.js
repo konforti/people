@@ -64,6 +64,7 @@ exports.readProfile = function (req, res, next) {
       }
     });
 
+    workflow.outcome.record.totp = (typeof workflow.outcome.record.totp !== 'undefined' && workflow.outcome.record.totp.length > 0) ? 1 : 0;
     if (req.xhr) {
       res.send(workflow.outcome.record);
     }
@@ -306,6 +307,49 @@ exports.updatePassword = function (req, res, next) {
 
   workflow.emit('validate');
 };
+
+/**
+ * Update 2 step.
+ * @param req
+ * @param res
+ * @param next
+ */
+exports.twostep = function (req, res, next) {
+  var workflow = req.app.utility.workflow(req, res);
+
+  workflow.on('validate', function () {
+    if (req.body.code.length !== 6) {
+      workflow.outcome.errfor.code = 'A 6-digit code is required.';
+    }
+
+    if (req.body.secret.length !== 16) {
+      workflow.outcome.error = 'Secret code is wrong.';
+    }
+
+    if (workflow.hasErrors()) {
+      return workflow.emit('response');
+    }
+
+    workflow.emit('patchUser');
+  });
+
+  workflow.on('patchUser', function () {
+    var fieldsToSet = {};
+    fieldsToSet.totp = req.body.secret;
+    req.app.db.models.User.findByIdAndUpdate(req.user.id, fieldsToSet, function (err, user) {
+      if (err) {
+        return workflow.emit('exception', err);
+      }
+
+      //workflow.outcome.record = user;
+      workflow.emit('response');
+    });
+  });
+
+  workflow.emit('validate');
+};
+
+
 
 exports.connectOauth = function (req, res, next) {
   var social = req.params.social;
