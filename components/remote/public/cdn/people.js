@@ -240,7 +240,7 @@ People.prototype.clickEvents = function () {
           code: code.value
         };
         _self.ajax('POST', _self.url + '/remote/twostep/', values, function (data) {
-          if (!_self.errors(data)) {
+          if (!_self.errors(data, '2-Step verification enabled.')) {
             _self.event.emit('twostepupdate', data);
             _self.hideBlock('ppl-2step-block');
           }
@@ -326,12 +326,13 @@ People.prototype.clickEvents = function () {
     }
     else if (classes.contains('ppl-2step-click')) {
       if (e.target.checked) {
+        e.target.checked = true;
         _self.show2step();
       }
       else {
         if (window.confirm("Do you really want to disable 2-Step Verification?")) {
           _self.ajax('POST', _self.url + '/remote/twostep/', {secret: null}, function (data) {
-            if (!_self.errors(data)) {
+            if (!_self.errors(data, '2-Step verification disabled.')) {
               _self.event.emit('twostepupdate', data);
             }
           });
@@ -412,8 +413,8 @@ People.prototype.addThrob = function () {
 
 /**
  * Set Cookies.
- * @param cname
- * @param cvalue
+ * @param name
+ * @param value
  * @param exdays
  */
 People.prototype.setCookie = function (name, value, exdays) {
@@ -425,7 +426,7 @@ People.prototype.setCookie = function (name, value, exdays) {
 
 /**
  * Get Cookies.
- * @param cname
+ * @param name
  * @returns {string}
  */
 People.prototype.getCookie = function (name) {
@@ -836,7 +837,7 @@ People.prototype.show2step = function () {
 
   opt.body = '';
   opt.body += '<p>Add an additional level of security to your account. <br>Whenever you log in, you\'ll be prompted to enter<br> a security code generated on your mobile device.</p>';
-  opt.body += '<p>Open your two-step application and add your account by scanning this QR code.</p>';
+  opt.body += '<p>Open your two-step application and add your <br>account by scanning this QR code.</p>';
   opt.body += '<div id="ppl-qr-code">';
   opt.body += '<img src="https://chart.googleapis.com/chart?chs=' + qrWidth + 'x' + qrHeight + '&amp;cht=qr&amp;chl=' + qrUrl + '" alt="QR Code" width="' + qrWidth + '" height="' + qrHeight + '"/>';
   opt.body += '<code id="ppl-manual-code">' + this.key.match(/..../g).join(' ') + '</code>';

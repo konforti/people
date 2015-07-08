@@ -64,7 +64,6 @@ exports.readProfile = function (req, res, next) {
       }
     });
 
-    workflow.outcome.record.totp = (typeof workflow.outcome.record.totp !== 'undefined' && workflow.outcome.record.totp.length > 0) ? 'checked' : '';
     if (req.xhr) {
       res.send(workflow.outcome.record);
     }
@@ -318,32 +317,33 @@ exports.twostep = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function () {
-    if (req.body.secret === null) {
+    if (req.body.secret === 'null') {
+      req.body.secret = null;
       workflow.emit('patchUser');
     }
+    else {
+      if (req.body.code && req.body.code.length !== 6) {
+        workflow.outcome.errfor.code = 'A 6-digit code is required.';
+      }
 
-    var notp = require('notp');
+      if (req.body.secret.length !== 16) {
+        workflow.outcome.errors.push('The secret is wrong.');
+      }
 
-    if (req.body.code.length !== 6) {
-      workflow.outcome.errfor.code = 'A 6-digit code is required.';
+      var notp = require('notp');
+      var b32 = require('thirty-two');
+      req.body.secret = b32.decode(req.body.secret);
+      var verified = notp.totp.verify(req.body.code, req.body.secret);
+      if(!verified) {
+        workflow.outcome.errors.push('Code is not verified.');
+      }
+
+      if (workflow.hasErrors()) {
+        return workflow.emit('response');
+      }
+
+      workflow.emit('patchUser');
     }
-    console.log(req.body.code);
-    console.log(req.body.secret);
-    if (req.body.secret.length !== 16) {
-      workflow.outcome.errors.push('The secret is wrong.');
-    }
-
-    var verified = notp.totp.verify(req.body.code, req.body.secret);
-    console.log(verified);
-    if(!verified) {
-      workflow.outcome.errors.push('Code is not verified.');
-    }
-
-    if (workflow.hasErrors()) {
-      return workflow.emit('response');
-    }
-
-    workflow.emit('patchUser');
   });
 
   workflow.on('patchUser', function () {
@@ -354,7 +354,6 @@ exports.twostep = function (req, res, next) {
         return workflow.emit('exception', err);
       }
 
-      workflow.outcome = 'Success';
       workflow.emit('response');
     });
   });

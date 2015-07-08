@@ -52,5 +52,8 @@ div
 
         form#ppl-2step
             div.form-role
-                input.ppl-2step-click.form-control(type='checkbox', name='2step', '#{data.record.totp}')
+                if data.record.totp && data.record.totp !== null
+                    input.ppl-2step-click.form-control(type='checkbox', name='2step', checked)
+                else
+                    input.ppl-2step-click.form-control(type='checkbox', name='2step')
                 small 2-Step Verification
