@@ -81,7 +81,6 @@ exports = module.exports = function (req, res, options) {
 
       var html = md.render(data);
       html = html.split('<img ').join('<img style="margin: 0 auto; display: block;" ');
-      console.log(html);
       options.html = '';
       options.html += '<table cellpadding="0" cellspacing="0" border="0" align="center"border-collapse:collapse"><tbody><tr><td width="600" valign="top" style="border-collapse:collapse;padding-top:0px;padding-bottom:10px">';
       options.html += html;

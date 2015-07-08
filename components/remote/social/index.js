@@ -174,7 +174,7 @@ var registerSocial = function (req, res, profile) {
       subject: 'Your ' + settings.projectName + ' Account',
       textPath: 'remote/register/email-text',
       htmlPath: 'remote/register/email-html',
-      markdownPath: 'remote/register/email-markdown',
+      markdownPath: 'components/remote/register/email-markdown',
       locals: {
         username: workflow.username,
         email: workflow.email,

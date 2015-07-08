@@ -81,7 +81,7 @@ exports.forgot = function (req, res, next) {
       subject: 'Reset your ' + settings.projectName + ' password',
       textPath: 'remote/forgot/email-text',
       htmlPath: 'remote/forgot/email-html',
-      markdownPath: 'remote/forgot/email-markdown',
+      markdownPath: 'components/remote/forgot/email-markdown',
       locals: {
         username: user.username,
         resetCode: token,

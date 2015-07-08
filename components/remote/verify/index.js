@@ -10,7 +10,7 @@ exports.sendVerificationEmail = function (req, res, options) {
     subject: 'Verify Your ' + settings.projectName + ' Account',
     textPath: 'remote/verify/email-text',
     htmlPath: 'remote/verify/email-html',
-    markdownPath: 'remote/verify/email-markdown',
+    markdownPath: 'components/remote/verify/email-markdown',
     locals: {
       verifyURL: req.protocol + '://' + req.headers.host + '/remote/verify/' + options.verificationToken + '/',
       projectName: settings.projectName
