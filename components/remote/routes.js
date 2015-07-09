@@ -9,6 +9,8 @@
 function authentication(req, res, next) {
   var settings = req.app.getSettings();
   var jwt = require('jsonwebtoken');
+  var moment = require('moment');
+  var crypto = require('crypto');
   var token = null;
   if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
     token = req.headers.authorization.split(' ')[1];
@@ -16,18 +18,51 @@ function authentication(req, res, next) {
 
   jwt.verify(token, settings.cryptoKey, function(err, decoded) {
     if (err || !decoded) {
-      res.set('X-Auth-Required', 'true');
+      res.status(401);
       return next();
     }
 
-    req.app.db.models.User.findById(decoded.id, function (err, user) {
-      if (err || !user) {
+    if (moment().utc().unix() >= decoded.iat + 60*60) {
+      if (moment().utc().unix() >= decoded.iat + 60*60*24) {
+        res.status(401);
         return next();
       }
+      else {
+        req.app.db.models.User.findById(decoded.id, function (err, user) {
+          if (err || !user) {
+            res.status(401);
+            return next();
+          }
 
-      req.user = user;
-      return next();
-    });
+          var settings = req.app.getSettings();
+          var gravatarHash = crypto.createHash('md5').update(req.email).digest('hex');
+
+          var payload = {
+            id: user.id,
+            email: user.email,
+            username: user.username,
+            avatar: 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g'
+          };
+
+          res.cookie(req.app.locals.webJwtName, jwt.sign(payload, settings.cryptoKey));
+
+          req.user = user;
+          return next();
+        });
+      }
+    }
+
+    else {
+      req.app.db.models.User.findById(decoded.id, function (err, user) {
+        if (err || !user) {
+          res.status(401);
+          return next();
+        }
+
+        req.user = user;
+        return next();
+      });
+    }
   });
 }
 

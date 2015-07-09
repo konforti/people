@@ -113,7 +113,7 @@ exports.login = function (req, res) {
           };
 
           var settings = req.app.getSettings();
-          res.cookie(req.app.locals.webJwtName, jwt.sign(payload, settings.cryptoKey, {expiresInMinutes: 60}));
+          res.cookie(req.app.locals.webJwtName, jwt.sign(payload, settings.cryptoKey));
 
           workflow.emit('response');
         });

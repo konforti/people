@@ -1,7 +1,5 @@
 'use strict';
 
-var signature = require('cookie-signature');
-
 /**
  * List all users.
  * @param req
