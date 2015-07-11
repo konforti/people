@@ -1,40 +1,6 @@
 'use strict';
 
 /**
- * authentication().
- * @param req
- * @param res
- * @param next
- */
-function authentication(req, res, next) {
-  var settings = req.app.getSettings();
-  var jwt = require('jsonwebtoken');
-  if ((req.body && req.body.jwt) || (req.query && req.query.jwt)) {
-    var token = (req.body && req.body.jwt) || (req.query && req.query.jwt);
-
-    jwt.verify(token, settings.cryptoKey, function(err, decoded) {
-      if (err || !decoded) {
-        res.set('X-Auth-Required', 'true');
-        return next();
-      }
-
-      req.app.db.models.User.findById(decoded.id, function (err, user) {
-        if (err || !user) {
-          return next();
-        }
-
-        req.user = user;
-        return next();
-      });
-    });
-  }
-  else {
-    return next();
-  }
-
-}
-
-/**
  * Ensure Authenticated.
  * @param req
  * @param res
@@ -45,8 +11,8 @@ function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
     return next();
   }
-
-  res.send({errors: ['403 Forbidden']});
+console.log('2');
+  return res.sendStatus(403);
 }
 
 /**
@@ -54,9 +20,6 @@ function ensureAuthenticated(req, res, next) {
  * @type {Function}
  */
 exports = module.exports = function (app, passport) {
-  // Authentication.
-  app.all('/remote*', authentication);
-
   // Remote info.
   app.get('/remote/info/', require('./register/index').info);
 

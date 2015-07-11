@@ -1,6 +1,5 @@
 'use strict';
 var crypto = require('crypto');
-var signature = require('cookie-signature');
 
 /**
  * Profile().

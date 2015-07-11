@@ -103,8 +103,8 @@ app.use(function(req, res, next) {
   if(app.appSettings.allowDomains.indexOf(req.headers.origin) > -1){
     res.header('Access-Control-Allow-Origin', req.headers.origin);
   }
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.header('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PUT');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.header('Access-Control-Allow-Credentials', 'true');
   next();
 });
@@ -120,6 +120,9 @@ app.use(function(req, res, next) {
   require('./rules/rules')(req, res, next);
   next();
 });
+
+// Auth.
+app.use(require('./util/auth')());
 
 // Setup passport.
 require('./util/passport')(app, passport);

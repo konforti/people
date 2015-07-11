@@ -29,6 +29,11 @@ EventEmitter.prototype = {
   }
 };
 
+/**
+ * getScript().
+ * @param url
+ * @param callback
+ */
 var getScript = function(url, callback) {
   var js = document.createElement('script');
   js.src = url;
@@ -47,6 +52,11 @@ Array.prototype.contains = function ( needle ) {
   return array.indexOf(needle) > -1;
 };
 
+/**
+ * urlBase64Decode().
+ * @param str
+ * @returns {string}
+ */
 var urlBase64Decode = function(str) {
   var output = str.replace(/-/g, '+').replace(/_/g, '/');
   switch (output.length % 4) {
@@ -77,7 +87,6 @@ var People = function(options) {
     });
   }
 
-
   if (!this.isUser()) {
     localStorage.removeItem('people.user');
   }
@@ -107,7 +116,6 @@ People.prototype.getInfo = function() {
   catch(e) {
     return false;
   }
-
 };
 
 /**
@@ -119,307 +127,14 @@ People.prototype.isUser = function() {
 };
 
 /**
- * Set ans app event emitter.
- * @type {EventEmitter}
- */
-People.prototype.event = new EventEmitter();
-
-/**
- * windowFeatures().
- */
-People.prototype.windowFeatures = function() {
-  var width = '750',
-    height = '350',
-    top = ((window.outerHeight - height) / 2).toString(),
-    left = ((window.outerWidth - width) / 2).toString();
-
-  return 'width=' + width + ',height=' + height + ',top=' + top + ',left=' + left + ',scrollbars=0';
-};
-
-People.prototype.relayUrl = function() {
-  return  this.url + '/cdn/relay.html';
-};
-
-/**
- * Register events.
- */
-People.prototype.clickEvents = function () {
-  var _self = this;
-  document.addEventListener('click', function (e) {
-
-    // Elements ID
-    switch (e.target.id) {
-      case 'ppl-login-btn':
-        _self.ajax('POST', _self.url + '/remote/login/', {
-          username: document.getElementById('ppl-login-name').value,
-          password: document.getElementById('ppl-login-pass').value
-        }, function (data) {
-          if (!_self.errors(data)) {
-            _self.login(JSON.parse(data.responseText));
-          }
-        });
-        break;
-
-      case 'ppl-register-btn':
-        _self.ajax('POST', _self.url + '/remote/register/', {
-          username: document.getElementById('register-name').value,
-          email: document.getElementById('ppl-register-email').value,
-          password: document.getElementById('ppl-register-pass').value
-        }, function (data) {
-          if (!_self.errors(data)) {
-            _self.login(JSON.parse(data.responseText));
-          }
-        });
-        break;
-
-      case 'ppl-forgot-btn':
-        _self.ajax('POST', _self.url + '/remote/forgot/', {
-          email: document.getElementById('ppl-forgot-email').value
-        }, function (data) {
-          if (!_self.errors(data)) {
-            _self.showLogin({form: 'reset'});
-          }
-        });
-        break;
-
-      case 'ppl-forgot-reset-btn':
-        _self.ajax('POST', _self.url + '/remote/forgot/reset/', {
-          token: document.getElementById('ppl-forgot-reset-token').value,
-          password: document.getElementById('ppl-forgot-reset-pass').value
-        }, function (data) {
-          if (!_self.errors(data)) {
-            _self.event.emit('passwordreset', data);
-            _self.showLogin();
-          }
-        });
-        break;
-
-      case 'ppl-update-profile-btn':
-        var elms = document.querySelectorAll('#ppl-profile-form input');
-        var values = {fields: {}};
-        for (var i = 0, elm; elm = elms[i]; ++i) {
-          if (elm.name === 'username' || elm.name === 'email') {
-            values[elm.name] = elm.value;
-          }
-          else {
-            values.fields[elm.name] = elm.value;
-          }
-        }
-        values.fields = JSON.stringify(values.fields);
-        _self.ajax('POST', _self.url + '/remote/profile/', values, function (data) {
-          if (!_self.errors(data)) {
-            _self.event.emit('profileupdate', data);
-            _self.showProfile(data.responseText);
-          }
-        });
-        break;
-
-      case 'ppl-update-password-btn':
-        var elms = document.querySelectorAll('#ppl-new-password input');
-        var values = {};
-        for (var i = 0, elm; elm = elms[i]; ++i) {
-          values[elm.name] = elm.value;
-        }
-        _self.ajax('POST', _self.url + '/remote/password/', values, function (data) {
-          if (!_self.errors(data)) {
-            _self.event.emit('passwordupdate', data);
-            _self.showProfile(data.responseText);
-          }
-        });
-        break;
-
-      case 'ppl-2step-btn':
-        var code = document.querySelector('#ppl-2step-block input');
-        if (code.value.length !== 6) {
-          return alert('A 6-digit code is required.');
-        }
-        var secret = document.querySelector('#ppl-manual-code');
-
-        var values = {
-          secret: secret.innerText.split(' ').join(''),
-          code: code.value
-        };
-        _self.ajax('POST', _self.url + '/remote/twostep/', values, function (data) {
-          if (!_self.errors(data, '2-Step verification enabled.')) {
-            _self.event.emit('twostepupdate', data);
-            _self.hideBlock('ppl-2step-block');
-          }
-        });
-        break;
-
-      case 'ppl-user-avatar':
-      case 'ppl-user-name':
-        _self.showProfile();
-        break;
-
-      case 'ppl-user-logout':
-        _self.logout();
-        break;
-    }
-
-    // Elements Class
-    var classes = e.target.classList;
-    if (classes.contains('ppl-social-login')) {
-      var name = e.target.id.replace('ppl-login-', '');
-      WinChan.open({
-          url: _self.url + '/remote/register/' + name + '/',
-          relay_url: _self.relayUrl(),
-          window_features: _self.windowFeatures()
-        },
-        function(err, r) {
-          if (!err) {
-            _self.login(r.data);
-          }
-        });
-    }
-    else if (classes.contains('ppl-to-login')) {
-      _self.showLogin();
-    }
-    else if (classes.contains('ppl-to-register')) {
-      _self.showLogin({form: 'register'});
-    }
-    else if (classes.contains('ppl-to-forgot')) {
-      _self.showLogin({form: 'forgot'});
-    }
-    else if (classes.contains('ppl-verify-email')) {
-      _self.ajax('POST', _self.url + '/remote/verify/', {}, function (data) {
-        var message = 'A verification mail sent to your email address.';
-        if (!_self.errors(data, message)) {
-          // Wait.
-        }
-      });
-    }
-    else if (classes.contains('ppl-close-btn')) {
-      var parent = e.target.parentNode;
-      if (parent) parent.outerHTML = '';
-    }
-    else if (classes.contains('ppl-change-password')) {
-      var el = document.getElementById('ppl-new-password');
-      if (el) el.classList.toggle('hidden');
-    }
-    else if (classes.contains('ppl-connect-btn')) {
-      WinChan.open({
-          url: _self.url + e.target.getAttribute('data-href'),
-          relay_url: _self.relayUrl(),
-          window_features: _self.windowFeatures()
-        },
-        function(err, r) {
-          if (!err) {
-            e.target.classList.remove('ppl-connect-btn');
-            e.target.classList.add('ppl-disconnect-btn');
-            e.target.setAttribute('data-href', e.target.getAttribute('data-href').replace('/connect/', '/disconnect/'));
-            e.target.innerHTML = e.target.innerHTML.replace('Connect', 'Disconnect');
-          }
-        });
-    }
-    else if (classes.contains('ppl-disconnect-btn')) {
-      var url = e.target.getAttribute('data-href');
-
-      _self.ajax('GET', _self.url + url, {}, function (data) {
-        if (!_self.errors(data, 'Disconnect successfully')) {
-          e.target.classList.remove('ppl-disconnect-btn');
-          e.target.classList.add('ppl-connect-btn');
-          e.target.setAttribute('data-href', e.target.getAttribute('data-href').replace('/disconnect/', '/connect/'));
-          e.target.innerHTML = e.target.innerHTML.replace('Disconnect', 'Connect');
-        }
-      });
-    }
-    else if (classes.contains('ppl-2step-click')) {
-      if (e.target.checked) {
-        e.target.checked = true;
-        _self.show2step();
-      }
-      else {
-        if (window.confirm("Do you really want to disable 2-Step Verification?")) {
-          _self.ajax('POST', _self.url + '/remote/twostep/', {secret: null}, function (data) {
-            if (!_self.errors(data, '2-Step verification disabled.')) {
-              _self.event.emit('twostepupdate', data);
-            }
-          });
-        }
-      }
-    }
-  }, false);
-};
-
-/**
- * Make AJAX request.
- * @param method
- * @param url
- * @param data
- * @param next
- * @returns {boolean}
- */
-People.prototype.ajax = function (method, url, data, next) {
-  var _self = this;
-  _self.addThrob();
-
-  var xhr = new XMLHttpRequest(), body = '', query = '';
-  if (!xhr) {
-    return false;
-  }
-
-  if (_self.getCookie('people.jwt')) {
-    data.jwt = this.getCookie('people.jwt');
-  }
-  var str = [];
-  for (var p in data) {
-    if (data.hasOwnProperty(p)) {
-      str.push(encodeURIComponent(p) + '=' + encodeURIComponent(data[p]));
-    }
-  }
-  if (method == 'GET') {
-    query = str.length > 0 ? '?' + str.join('&') : '';
-  }
-  else {
-    body = str.join('&');
-  }
-
-  xhr.open(method, url + query, true);
-  xhr.withCredentials = true;
-  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-  xhr.addEventListener('load', function(ev) {
-    _self.removeThrob();
-    next(xhr);
-  }, false);
-
-  xhr.send(body);
-};
-
-/**
- * removeThrob().
- */
-People.prototype.removeThrob = function () {
-  var throb = document.getElementById('throb');
-  if (throb) throb.parentNode.removeChild(throb);
-};
-
-/**
- * addThrob();
- */
-People.prototype.addThrob = function () {
-  this.removeThrob();
-  var throb  = document.createElement('img');
-  throb.id = 'throb';
-  throb.src = this.url + '/media/ajax-pulse.gif';
-  throb.style.position = 'absolute';
-  throb.style.zIndex = '9999';
-  document.body.appendChild(throb);
-  document.onmousemove = function(e) {
-    throb.style.left = e.pageX + 15 + 'px';
-    throb.style.top = e.pageY + 'px';
-  };
-};
-
-/**
  * Set Cookies.
  * @param name
  * @param value
  * @param exdays
  */
-People.prototype.setCookie = function (name, value, exdays) {
+People.prototype.setCookie = function (name, value, exsec) {
   var d = new Date();
-  d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+  d.setTime(d.getTime() + (exsec * 1000));
   var expires = 'expires=' + d.toUTCString();
   document.cookie = name + '=' + value + '; ' + expires;
 };
@@ -524,16 +239,116 @@ People.prototype.errors = function(data, messege) {
 };
 
 /**
+ * Set ans app event emitter.
+ * @type {EventEmitter}
+ */
+People.prototype.event = new EventEmitter();
+
+/**
+ * windowFeatures().
+ */
+People.prototype.windowFeatures = function() {
+  var width = '750',
+    height = '350',
+    top = ((window.outerHeight - height) / 2).toString(),
+    left = ((window.outerWidth - width) / 2).toString();
+
+  return 'width=' + width + ',height=' + height + ',top=' + top + ',left=' + left + ',scrollbars=0';
+};
+
+People.prototype.relayUrl = function() {
+  return  this.url + '/cdn/relay.html';
+};
+
+//::: AJAX ::://
+
+/**
+ * addThrob();
+ */
+People.prototype.addThrob = function () {
+  this.removeThrob();
+  var throb  = document.createElement('img');
+  throb.id = 'throb';
+  throb.src = this.url + '/media/ajax-pulse.gif';
+  throb.style.position = 'absolute';
+  throb.style.zIndex = '9999';
+  document.body.appendChild(throb);
+  document.onmousemove = function(e) {
+    throb.style.left = e.pageX + 15 + 'px';
+    throb.style.top = e.pageY + 'px';
+  };
+};
+
+/**
+ * removeThrob().
+ */
+People.prototype.removeThrob = function () {
+  var throb = document.getElementById('throb');
+  if (throb) throb.parentNode.removeChild(throb);
+};
+
+/**
+ * Make AJAX request.
+ * @param method
+ * @param url
+ * @param data
+ * @param next
+ * @returns {boolean}
+ */
+People.prototype.ajax = function (method, url, data, next) {
+  var _self = this;
+  _self.addThrob();
+
+  var xhr = new XMLHttpRequest(), body = '', query = '';
+  if (!xhr) {
+    return false;
+  }
+
+  var str = [];
+  for (var p in data) {
+    if (data.hasOwnProperty(p)) {
+      str.push(encodeURIComponent(p) + '=' + encodeURIComponent(data[p]));
+    }
+  }
+  if (method == 'GET') {
+    query = str.length > 0 ? '?' + str.join('&') : '';
+  }
+  else {
+    body = str.join('&');
+  }
+
+  xhr.open(method, url + query, true);
+  xhr.withCredentials = true;
+  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+  xhr.setRequestHeader('Authorization', 'Bearer ' + this.getCookie('people.jwt'));
+  xhr.addEventListener('load', function(ev) {
+    _self.removeThrob();
+    if (xhr.getResponseHeader('JWTRefresh')) {
+      var info = _self.getInfo();
+      console.log(xhr.getResponseHeader('JWTRefresh') === _self.getCookie('people.jwt'));
+      _self.setCookie('people.jwt', xhr.getResponseHeader('JWTRefresh'), info.sessionExp);
+    }
+
+    next(xhr);
+  }, false);
+
+  xhr.send(body);
+};
+
+//::: Login / Logout ::://
+
+/**
  * After user login process.
  */
 People.prototype.login = function (data) {
-  // Set cookies.
-  this.setCookie('people.jwt', data.jwt, 14);
-
   // Save Shallow user to local storage.
   var payload = data.jwt.split('.')[1];
   payload = urlBase64Decode(payload);
   localStorage.setItem('people.user', payload);
+
+  // Set cookies.
+  var info = this.getInfo();
+  this.setCookie('people.jwt', data.jwt, info.sessionExp);
   this.hideBlock('ppl-login-block');
   this.event.emit('login', data);
 };
@@ -548,6 +363,8 @@ People.prototype.logout = function () {
   this.hideBlock('ppl-profile-block');
   this.event.emit('logout');
 };
+
+//::: User Block ::://
 
 /**
  * Logged-in user block.
@@ -576,6 +393,8 @@ People.prototype.hideUser = function () {
   var el = document.getElementById('ppl-user-block');
   if (el) el.outerHTML = '';
 };
+
+//::: Block templates ::://
 
 /**
  * Block.
@@ -810,6 +629,8 @@ People.prototype.showProfile = function (profile) {
   }
 };
 
+//::: 2 Step ::://
+
 /**
  * Generate 2-step key.
  * @returns {string}
@@ -847,4 +668,208 @@ People.prototype.show2step = function () {
   opt.body += '<a id="ppl-2step-btn" class="submit" href="javascript:void(0)">Enable</a> ';
 
   this.showBlock(opt, document.body);
+};
+
+//::: Events ::://
+
+/**
+ * Register events.
+ */
+People.prototype.clickEvents = function () {
+  var _self = this;
+  document.addEventListener('click', function (e) {
+
+    // Elements ID
+    switch (e.target.id) {
+      case 'ppl-login-btn':
+        _self.ajax('POST', _self.url + '/remote/login/', {
+          username: document.getElementById('ppl-login-name').value,
+          password: document.getElementById('ppl-login-pass').value
+        }, function (data) {
+          if (!_self.errors(data)) {
+            _self.login(JSON.parse(data.responseText));
+          }
+        });
+        break;
+
+      case 'ppl-register-btn':
+        _self.ajax('POST', _self.url + '/remote/register/', {
+          username: document.getElementById('register-name').value,
+          email: document.getElementById('ppl-register-email').value,
+          password: document.getElementById('ppl-register-pass').value
+        }, function (data) {
+          if (!_self.errors(data)) {
+            _self.login(JSON.parse(data.responseText));
+          }
+        });
+        break;
+
+      case 'ppl-forgot-btn':
+        _self.ajax('POST', _self.url + '/remote/forgot/', {
+          email: document.getElementById('ppl-forgot-email').value
+        }, function (data) {
+          if (!_self.errors(data)) {
+            _self.showLogin({form: 'reset'});
+          }
+        });
+        break;
+
+      case 'ppl-forgot-reset-btn':
+        _self.ajax('POST', _self.url + '/remote/forgot/reset/', {
+          token: document.getElementById('ppl-forgot-reset-token').value,
+          password: document.getElementById('ppl-forgot-reset-pass').value
+        }, function (data) {
+          if (!_self.errors(data)) {
+            _self.event.emit('passwordreset', data);
+            _self.showLogin();
+          }
+        });
+        break;
+
+      case 'ppl-update-profile-btn':
+        var elms = document.querySelectorAll('#ppl-profile-form input');
+        var values = {fields: {}};
+        for (var i = 0, elm; elm = elms[i]; ++i) {
+          if (elm.name === 'username' || elm.name === 'email') {
+            values[elm.name] = elm.value;
+          }
+          else {
+            values.fields[elm.name] = elm.value;
+          }
+        }
+        values.fields = JSON.stringify(values.fields);
+        _self.ajax('POST', _self.url + '/remote/profile/', values, function (data) {
+          if (!_self.errors(data)) {
+            _self.event.emit('profileupdate', data);
+            _self.showProfile(data.responseText);
+          }
+        });
+        break;
+
+      case 'ppl-update-password-btn':
+        var elms = document.querySelectorAll('#ppl-new-password input');
+        var values = {};
+        for (var i = 0, elm; elm = elms[i]; ++i) {
+          values[elm.name] = elm.value;
+        }
+        _self.ajax('POST', _self.url + '/remote/password/', values, function (data) {
+          if (!_self.errors(data)) {
+            _self.event.emit('passwordupdate', data);
+            _self.showProfile(data.responseText);
+          }
+        });
+        break;
+
+      case 'ppl-2step-btn':
+        var code = document.querySelector('#ppl-2step-block input');
+        if (code.value.length !== 6) {
+          return alert('A 6-digit code is required.');
+        }
+        var secret = document.querySelector('#ppl-manual-code');
+
+        var values = {
+          secret: secret.innerText.split(' ').join(''),
+          code: code.value
+        };
+        _self.ajax('POST', _self.url + '/remote/twostep/', values, function (data) {
+          if (!_self.errors(data, '2-Step verification enabled.')) {
+            _self.event.emit('twostepupdate', data);
+            _self.hideBlock('ppl-2step-block');
+          }
+        });
+        break;
+
+      case 'ppl-user-avatar':
+      case 'ppl-user-name':
+        _self.showProfile();
+        break;
+
+      case 'ppl-user-logout':
+        _self.logout();
+        break;
+    }
+
+    // Elements Class
+    var classes = e.target.classList;
+    if (classes.contains('ppl-social-login')) {
+      var name = e.target.id.replace('ppl-login-', '');
+      WinChan.open({
+          url: _self.url + '/remote/register/' + name + '/',
+          relay_url: _self.relayUrl(),
+          window_features: _self.windowFeatures()
+        },
+        function(err, r) {
+          if (!err) {
+            _self.login(r.data);
+          }
+        });
+    }
+    else if (classes.contains('ppl-to-login')) {
+      _self.showLogin();
+    }
+    else if (classes.contains('ppl-to-register')) {
+      _self.showLogin({form: 'register'});
+    }
+    else if (classes.contains('ppl-to-forgot')) {
+      _self.showLogin({form: 'forgot'});
+    }
+    else if (classes.contains('ppl-verify-email')) {
+      _self.ajax('POST', _self.url + '/remote/verify/', {}, function (data) {
+        var message = 'A verification mail sent to your email address.';
+        if (!_self.errors(data, message)) {
+          // Wait.
+        }
+      });
+    }
+    else if (classes.contains('ppl-close-btn')) {
+      var parent = e.target.parentNode;
+      if (parent) parent.outerHTML = '';
+    }
+    else if (classes.contains('ppl-change-password')) {
+      var el = document.getElementById('ppl-new-password');
+      if (el) el.classList.toggle('hidden');
+    }
+    else if (classes.contains('ppl-connect-btn')) {
+      WinChan.open({
+          url: _self.url + e.target.getAttribute('data-href'),
+          relay_url: _self.relayUrl(),
+          window_features: _self.windowFeatures()
+        },
+        function(err, r) {
+          if (!err) {
+            e.target.classList.remove('ppl-connect-btn');
+            e.target.classList.add('ppl-disconnect-btn');
+            e.target.setAttribute('data-href', e.target.getAttribute('data-href').replace('/connect/', '/disconnect/'));
+            e.target.innerHTML = e.target.innerHTML.replace('Connect', 'Disconnect');
+          }
+        });
+    }
+    else if (classes.contains('ppl-disconnect-btn')) {
+      var url = e.target.getAttribute('data-href');
+
+      _self.ajax('GET', _self.url + url, {}, function (data) {
+        if (!_self.errors(data, 'Disconnect successfully')) {
+          e.target.classList.remove('ppl-disconnect-btn');
+          e.target.classList.add('ppl-connect-btn');
+          e.target.setAttribute('data-href', e.target.getAttribute('data-href').replace('/disconnect/', '/connect/'));
+          e.target.innerHTML = e.target.innerHTML.replace('Disconnect', 'Connect');
+        }
+      });
+    }
+    else if (classes.contains('ppl-2step-click')) {
+      if (e.target.checked) {
+        e.target.checked = true;
+        _self.show2step();
+      }
+      else {
+        if (window.confirm("Do you really want to disable 2-Step Verification?")) {
+          _self.ajax('POST', _self.url + '/remote/twostep/', {secret: null}, function (data) {
+            if (!_self.errors(data, '2-Step verification disabled.')) {
+              _self.event.emit('twostepupdate', data);
+            }
+          });
+        }
+      }
+    }
+  }, false);
 };

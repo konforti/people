@@ -3,6 +3,7 @@
   "systemEmail": "yourname@email.com",
   "webhooksURL": ["http://example.com/webhooks"],
   "allowDomains": ["http://example.com"],
+  "sessionExp": "36000",
   "loginAttemptsForIp": "50",
   "loginAttemptsForIpAndUser": "7",
   "loginAttemptsLogExpiration": "20m",

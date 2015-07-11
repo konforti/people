@@ -1,6 +1,5 @@
 'use strict';
 var crypto = require('crypto');
-var signature = require('cookie-signature');
 var jwt = require('jsonwebtoken');
 
 var sendWelcomeEmail = function (req, res, options) {
@@ -49,6 +48,7 @@ exports.info = function (req, res) {
     workflow.outcome.info = {
       appName: settings.projectName,
       appEmail: settings.systemEmail,
+      sessionExp: settings.sessionExp,
       socials: actives
     };
 
@@ -207,7 +207,7 @@ exports.register = function (req, res, next) {
             avatar: 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g'
           };
 
-          workflow.outcome.jwt = jwt.sign(payload, settings.cryptoKey, {expiresInMinutes: 60});
+          workflow.outcome.jwt = jwt.sign(payload, settings.cryptoKey);
 
           req.hooks.emit('userLogin', user);
           workflow.emit('response');
@@ -317,7 +317,7 @@ exports.login = function (req, res, next) {
             avatar: 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g'
           };
 
-          workflow.outcome.jwt = jwt.sign(payload, settings.cryptoKey, {expiresInMinutes: 60});
+          workflow.outcome.jwt = jwt.sign(payload, settings.cryptoKey);
 
           req.hooks.emit('userLogin', user);
           workflow.emit('response');
