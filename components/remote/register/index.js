@@ -204,7 +204,8 @@ exports.register = function (req, res, next) {
             id: user.id,
             email: user.email,
             username: user.username,
-            avatar: 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g'
+            avatar: 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g',
+            twostep: (typeof user.totp !== 'undefined' && user.totp !== null)
           };
 
           workflow.outcome.jwt = jwt.sign(payload, settings.cryptoKey);
@@ -314,7 +315,8 @@ exports.login = function (req, res, next) {
             id: user.id,
             email: user.email,
             username: user.username,
-            avatar: 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g'
+            avatar: 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g',
+            twostep: (typeof user.totp !== 'undefined' && user.totp !== null)
           };
 
           workflow.outcome.jwt = jwt.sign(payload, settings.cryptoKey);
