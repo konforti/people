@@ -325,7 +325,6 @@ People.prototype.ajax = function (method, url, data, next) {
     _self.removeThrob();
     if (xhr.getResponseHeader('JWTRefresh')) {
       var info = _self.getInfo();
-      console.log(xhr.getResponseHeader('JWTRefresh') === _self.getCookie('people.jwt'));
       _self.setCookie('people.jwt', xhr.getResponseHeader('JWTRefresh'), info.sessionExp);
     }
 

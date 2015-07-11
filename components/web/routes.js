@@ -1,42 +1,6 @@
 'use strict';
 
 /**
- * authentication().
- * @param method
- * @returns {Function}
- */
-function authentication(method) {
-  return function(req, res, next) {
-    var settings = req.app.getSettings();
-    var jwt = require('jsonwebtoken');
-    var token = null;
-    if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
-      token = req.headers.authorization.split(' ')[1];
-    }
-    else if (method == 'get' && req.cookies && req.cookies[req.app.locals.webJwtName]) {
-      token = req.cookies[req.app.locals.webJwtName];
-    }
-
-    jwt.verify(token, settings.cryptoKey, function(err, decoded) {
-      if (err || !decoded) {console.log(err);
-        res.set('X-Auth-Required', 'true');
-        return next();
-      }
-
-      req.app.db.models.User.findById(decoded.id, function (err, user) {
-        if (err || !user) {
-          return next();
-        }
-
-        req.user = user;
-        return next();
-      });
-    });
-  }
-
-}
-
-/**
  * Ensure Authenticated.
  * @param req
  * @param res
@@ -71,12 +35,6 @@ function ensureAdmin(req, res, next) {
  * @type {Function}
  */
 exports = module.exports = function (app, passport) {
-  // Authentication.
-  app.get('/*', authentication('get'));
-  app.post('/*', authentication('post'));
-  app.put('/*', authentication('post'));
-  app.delete('/*', authentication('post'));
-
   // Front end.
   app.get('/', require('./index').init);
   app.get('/about/', require('./about/index').init);

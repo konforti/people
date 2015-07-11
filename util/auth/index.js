@@ -21,26 +21,36 @@ exports = module.exports = function() {
     });
 
     workflow.on('CheckJwtExist', function () {
-      if (!req.headers || !req.headers.authorization) {
+      var token;
+
+      if (req.headers && req.headers.authorization) {
+        var parts = req.headers.authorization.split(' ');
+        if (parts.length === 2) {
+          var scheme = parts[0];
+          var creds = parts[1];
+          if (/^Bearer$/i.test(scheme)) {
+            token = creds;
+          }
+        }
+      }
+      else if (
+        req.method === 'GET' &&
+        req.cookies &&
+        (req.cookies[req.app.locals.webJwtName] ||
+        req.cookies[req.app.locals.remoteJwtName])
+      ) {
+        token = req.cookies[req.app.locals.webJwtName];
+      }
+
+      if (!token) {
         return next();
       }
 
-      var parts = req.headers.authorization.split(' ');
-      if (parts.length !== 2) {
-        return next();
-      }
-
-      var scheme = parts[0];
-      var credentials = parts[1];
-      if (!/^Bearer$/i.test(scheme)) {
-        return next();
-      }
-
-      workflow.emit('verifyJwt', credentials);
+      workflow.emit('verifyJwt', token);
     });
 
-    workflow.on('verifyJwt', function (credentials) {
-      jwt.verify(credentials, settings.cryptoKey, function(err, decoded) {
+    workflow.on('verifyJwt', function (token) {
+      jwt.verify(token, settings.cryptoKey, function(err, decoded) {
         if (err ) {
           return next(err);
         }
@@ -53,7 +63,7 @@ exports = module.exports = function() {
         if (moment().utc().unix() >= iat + (exp / 10)) {
           if (moment().utc().unix() >= iat + exp) {
             // Expire.
-            return next('JWT Expire.');
+            return next();
           }
           else {
             // Verify + Need refresh.

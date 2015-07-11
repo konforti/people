@@ -35,7 +35,11 @@ var getForm = function() {
         description: 'http://yourdomain.com'
       }
     },
-    loginAttempts: {
+    login: {
+      sessionExp: {
+        name: 'Token (Session) Expiration',
+        type: 'number'
+      },
       loginAttemptsForIp: {
         name: 'Login Attempts For Ip',
         type: 'number'
@@ -44,7 +48,7 @@ var getForm = function() {
         name: 'Login Attempts For Ip And User',
         type: 'number'
       },
-      loginAttemptsLogExpiration: {
+      loginAttemptsExp: {
         name: 'Login Attempts Log Expiration',
         type: 'text'
       }

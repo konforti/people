@@ -48,7 +48,7 @@ exports.registerOauth = function (req, res, next) {
             provider: info.profile.provider
 
           };
-          var token = jwt.sign(payload, settings.cryptoKey, {expiresInMinutes: 60});
+          var token = jwt.sign(payload, settings.cryptoKey);
           res.cookie('need_mail', token);
           res.render('./need-mail', {email: ''});
         }
@@ -230,7 +230,7 @@ var loginSocial = function (req, res, workflow) {
     };
 
     var settings = req.app.getSettings();
-    workflow.outcome.jwt = jwt.sign(payload, settings.cryptoKey, {expiresInMinutes: 60});
+    workflow.outcome.jwt = jwt.sign(payload, settings.cryptoKey);
 
     if (!req.body.email) {
       res.render('remote/social/success', {data: JSON.stringify(workflow.outcome)});

@@ -11,7 +11,7 @@ function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
     return next();
   }
-console.log('2');
+
   return res.sendStatus(403);
 }
 
