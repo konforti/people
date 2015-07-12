@@ -39,6 +39,7 @@ exports = module.exports = function() {
         (req.cookies[req.app.locals.webJwtName] ||
         req.cookies[req.app.locals.remoteJwtName])
       ) {
+        // Web links.
         token = req.cookies[req.app.locals.webJwtName];
       }
 
@@ -56,6 +57,11 @@ exports = module.exports = function() {
         }
         if (!decoded) {
           return next('Not verify.');
+        }
+
+        if (decoded.twostep === 'on') {
+          req.twostepUser = decoded.id;
+          return next();
         }
 
         var iat = parseInt(decoded.iat);
@@ -96,7 +102,10 @@ exports = module.exports = function() {
             avatar: 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g'
           };
 
+          // Remote.
           res.set('JWTRefresh', jwt.sign(payload, settings.cryptoKey));
+          // Web.
+          res.cookie('people.token', jwt.sign(payload, settings.cryptoKey));
         }
 
         req.user = user;

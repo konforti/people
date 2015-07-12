@@ -16,7 +16,7 @@ exports.http500 = function (err, req, res, next) {
   var data = {err: {}};
   if (req.app.get('env') === 'development') {
     data.err = err;
-    console.log(err.stack);
+    console.log('err: ' + err);
   }
 
   if (req.xhr || req.url.indexOf('/api/') === 0 || req.url.indexOf('/remote/') === 0) {

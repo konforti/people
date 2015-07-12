@@ -3,9 +3,7 @@
 var jwt = require('jsonwebtoken');
 
 exports.init = function (req, res) {
-  var payload = {};
-  var settings = req.app.getSettings();
-  res.cookie(req.app.locals.webJwtName, jwt.sign(payload, settings.cryptoKey));
+  res.cookie(req.app.locals.webJwtName, null, {expires: new Date(Date.now() - 1)});
 
   req.logout();
   res.redirect('/');

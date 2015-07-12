@@ -29,6 +29,9 @@ exports = module.exports = function (app, passport) {
   // Remote login.
   app.post('/remote/login/', require('./register/index').login);
 
+  // Two Step.
+  app.post('/remote/twostep-login', require('./register/index').twostep);
+
   // Remote forgot.
   app.post('/remote/forgot/', require('./forgot/index').forgot);
 

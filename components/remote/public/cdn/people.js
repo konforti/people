@@ -82,13 +82,13 @@ var People = function(options) {
     this.ajax('GET', this.url + '/remote/info/', {}, function (data) {
       var data = JSON.parse(data.responseText);
       if (data.success === true) {
-        localStorage.setItem('people.info', JSON.stringify(data.info));
+        sessionStorage.setItem('people.info', JSON.stringify(data.info));
       }
     });
   }
 
   if (!this.isUser()) {
-    localStorage.removeItem('people.user');
+    sessionStorage.removeItem('people.user');
   }
 
   this.clickEvents();
@@ -99,7 +99,7 @@ var People = function(options) {
  */
 People.prototype.getUser = function() {
   try {
-    return JSON.parse(localStorage.getItem('people.user'));
+    return JSON.parse(sessionStorage.getItem('people.user'));
   }
   catch(e) {
     return false;
@@ -111,7 +111,7 @@ People.prototype.getUser = function() {
  */
 People.prototype.getInfo = function() {
   try {
-    return JSON.parse(localStorage.getItem('people.info'));
+    return JSON.parse(sessionStorage.getItem('people.info'));
   }
   catch(e) {
     return false;
@@ -343,13 +343,20 @@ People.prototype.login = function (data) {
   // Save Shallow user to local storage.
   var payload = data.jwt.split('.')[1];
   payload = urlBase64Decode(payload);
-  localStorage.setItem('people.user', payload);
+  payload = JSON.parse(payload);
+  if (payload.twostep === 'on') {
+    this.showLogin({form: 'twostep'});
+    this.setCookie('people.jwt', data.jwt, 60*60);
+  }
+  else {
+    sessionStorage.setItem('people.user', payload);
 
-  // Set cookies.
-  var info = this.getInfo();
-  this.setCookie('people.jwt', data.jwt, info.sessionExp);
-  this.hideBlock('ppl-login-block');
-  this.event.emit('login', data);
+    // Set cookies.
+    var info = this.getInfo();
+    this.setCookie('people.jwt', data.jwt, info.sessionExp);
+    this.hideBlock('ppl-login-block');
+    this.event.emit('login', data);
+  }
 };
 
 /**
@@ -357,7 +364,7 @@ People.prototype.login = function (data) {
  */
 People.prototype.logout = function () {
   this.eraseCookie('people.jwt');
-  localStorage.removeItem('people.user');
+  sessionStorage.removeItem('people.user');
   this.hideUser();
   this.hideBlock('ppl-profile-block');
   this.event.emit('logout');
@@ -549,6 +556,24 @@ People.prototype.forgotResetForm = function () {
 };
 
 /**
+ * Reset forgot password form.
+ * @returns {{}}
+ */
+People.prototype.twostepLoginForm = function () {
+  var opt = {};
+  opt.id = 'ppl-login-block';
+  opt.title = '2 Step Verification';
+
+  opt.body = '';
+  opt.body += '<form class="ppl-twostep-login-form">';
+  opt.body += '<div class="ppl-form-field"><input id="ppl-twostep-login-code" type="password" placeholder="Verification Code"></div>';
+  opt.body += '<a id="ppl-twostep-login-btn" class="submit" href="javascript:void(0)">Login</a> ';
+  opt.body += '</form>';
+
+  return opt;
+};
+
+/**
  * Display login block.
  * @param options
  */
@@ -587,6 +612,10 @@ People.prototype.showLogin = function (options, callback) {
 
       case 'reset':
         opt = this.forgotResetForm();
+        break;
+
+      case 'twostep':
+        opt = this.twostepLoginForm();
         break;
     }
 
@@ -721,6 +750,17 @@ People.prototype.clickEvents = function () {
           if (!_self.errors(data)) {
             _self.event.emit('passwordreset', data);
             _self.showLogin();
+          }
+        });
+        break;
+
+      case 'ppl-twostep-login-btn':
+        _self.ajax('POST', _self.url + '/remote/twostep-login/', {
+          code: document.getElementById('ppl-twostep-login-code').value
+        }, function (data) {
+          if (!_self.errors(data)) {
+            _self.event.emit('twostep', data);
+            _self.login(data);
           }
         });
         break;

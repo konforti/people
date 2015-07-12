@@ -40,7 +40,7 @@ exports.read = function (req, res, next) {
     }
   }
   catch(e) {
-    console.log(e);
+    console.log('err: ' + e);
   }
 
 
