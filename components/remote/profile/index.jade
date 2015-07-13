@@ -52,7 +52,7 @@ div
 
         form#ppl-2step
             div.form-role
-                if data.record.totp && data.record.totp !== null
+                if data.record.totp && Object.keys(data.record.totp).length > 0
                     input.ppl-2step-click.form-control(type='checkbox', name='2step', checked)
                 else
                     input.ppl-2step-click.form-control(type='checkbox', name='2step')

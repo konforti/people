@@ -198,10 +198,10 @@ People.prototype.errors = function(data, messege) {
 
   function ele() {
     var wrp = document.querySelectorAll('.ppl-alerts');
-    var last = wrp.length - 1;
+    var n = 0;//wrp.length - 1;
     if (wrp) {
-      wrp[last].innerHTML = '<div class="ppl-alert"><div class="ppl-close-btn">&times</div></div>';
-      return wrp[last].querySelector('.ppl-alert');
+      wrp[n].innerHTML = '<div class="ppl-alert"><div class="ppl-close-btn">&times</div></div>';
+      return wrp[n].querySelector('.ppl-alert');
     }
 
     return false;
@@ -810,7 +810,7 @@ People.prototype.clickEvents = function () {
           secret: secret.innerText.split(' ').join(''),
           code: code.value
         };
-        _self.ajax('POST', _self.url + '/remote/twostep/', values, function (data) {
+        _self.ajax('POST', _self.url + '/remote/2step/', values, function (data) {
           if (!_self.errors(data, '2-Step verification enabled.')) {
             _self.event.emit('twostepupdate', data);
             _self.hideBlock('ppl-2step-block');
@@ -902,7 +902,7 @@ People.prototype.clickEvents = function () {
       }
       else {
         if (window.confirm("Do you really want to disable 2-Step Verification?")) {
-          _self.ajax('POST', _self.url + '/remote/twostep/', {secret: null}, function (data) {
+          _self.ajax('POST', _self.url + '/remote/2step/', {secret: null}, function (data) {
             if (!_self.errors(data, '2-Step verification disabled.')) {
               _self.event.emit('twostepupdate', data);
             }

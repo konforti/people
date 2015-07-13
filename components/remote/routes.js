@@ -62,7 +62,7 @@ exports = module.exports = function (app, passport) {
   app.post('/remote/password/', require('./profile/index').updatePassword);
 
   // 2 step
-  app.post('/remote/twostep/', require('./profile/index').twostep);
+  app.post('/remote/2step/', require('./profile/index').twostep);
 
   // Email verification.
   app.post('/remote/verify/', require('./verify/index').verification);

@@ -317,7 +317,7 @@ exports.twostep = function (req, res, next) {
 
   workflow.on('validate', function () {
     if (req.body.secret === 'null') {
-      req.body.secret = null;
+      req.body.secret = {};
       workflow.emit('patchUser');
     }
     else {
@@ -331,7 +331,6 @@ exports.twostep = function (req, res, next) {
 
       var notp = require('notp');
       var b32 = require('thirty-two');
-      console.log(req.body.secret);
       req.body.secret = b32.decode(req.body.secret);
       var verified = notp.totp.verify(req.body.code, req.body.secret);
       if(!verified) {
@@ -348,7 +347,6 @@ exports.twostep = function (req, res, next) {
 
   workflow.on('patchUser', function () {
     var fieldsToSet = {};
-    console.log(req.body.secret);
     fieldsToSet.totp = req.body.secret;
     req.app.db.models.User.findByIdAndUpdate(req.user.id, fieldsToSet, function (err, user) {
       if (err) {

@@ -205,7 +205,7 @@ exports.register = function (req, res, next) {
             email: user.email,
             username: user.username,
             avatar: 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g',
-            twostep: (typeof user.totp !== 'undefined' && user.totp !== null)
+            twostep: (typeof user.totp !== 'undefined' && Object.keys(user.totp).length > 0)
           };
 
           workflow.outcome.jwt = jwt.sign(payload, settings.cryptoKey);
@@ -303,7 +303,7 @@ exports.login = function (req, res, next) {
           return workflow.emit('response');
         });
       }
-      else if (typeof user.totp !== 'undefined' && user.totp !== null) {
+      else if (typeof user.totp !== 'undefined' && Object.keys(user.totp).length > 0) {
         var payload = {
           id: user.id,
           twostep: 'on'
@@ -371,9 +371,6 @@ exports.twostep = function (req, res, next) {
 
       var notp = require('notp');
       var verify = notp.totp.verify(req.body.code, user.totp);
-      console.log('code: ' + req.body.code);
-      console.log('secret: ' + user.totp);
-      console.log(verify);
       if (!verify) {
         return workflow.emit('exception', 'Token invalid');
       }
