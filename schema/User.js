@@ -19,7 +19,7 @@ exports = module.exports = function(app, mongoose) {
     timeCreated: { type: Date, default: Date.now },
     resetPasswordToken: String,
     resetPasswordExpires: Date,
-    totp: String,
+    totp: Buffer,
     twitter: {},
     github: {},
     facebook: {},

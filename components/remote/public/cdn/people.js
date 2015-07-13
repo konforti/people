@@ -343,8 +343,8 @@ People.prototype.login = function (data) {
   // Save Shallow user to local storage.
   var payload = data.jwt.split('.')[1];
   payload = urlBase64Decode(payload);
-  payload = JSON.parse(payload);
-  if (payload.twostep === 'on') {
+  var obj = JSON.parse(payload);
+  if (obj.twostep === 'on') {
     this.showLogin({form: 'twostep'});
     this.setCookie('people.jwt', data.jwt, 60*60);
   }
@@ -664,9 +664,9 @@ People.prototype.showProfile = function (profile) {
  * @returns {string}
  */
 People.prototype.generateKey = function() {
-  var set = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'; // Base32
+  var s = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'; // Base32
   var key = '';
-  for (var i = 0; i < 16; i++) key += set.charAt(Math.floor(Math.random() * set.length));
+  for (var i = 0; i < 16; i++) key += s.charAt(Math.floor(Math.random() * s.length));
   return key;
 };
 
@@ -758,9 +758,9 @@ People.prototype.clickEvents = function () {
         _self.ajax('POST', _self.url + '/remote/twostep-login/', {
           code: document.getElementById('ppl-twostep-login-code').value
         }, function (data) {
-          if (!_self.errors(data)) {
+          if (!_self.errors(data, 'Verified successfully')) {
             _self.event.emit('twostep', data);
-            _self.login(data);
+            _self.login(JSON.parse(data.responseText));
           }
         });
         break;

@@ -371,6 +371,9 @@ exports.twostep = function (req, res, next) {
 
       var notp = require('notp');
       var verify = notp.totp.verify(req.body.code, user.totp);
+      console.log('code: ' + req.body.code);
+      console.log('secret: ' + user.totp);
+      console.log(verify);
       if (!verify) {
         return workflow.emit('exception', 'Token invalid');
       }
