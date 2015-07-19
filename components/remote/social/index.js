@@ -1,7 +1,8 @@
 'use strict';
 var crypto = require('crypto');
-var signature = require('cookie-signature');
 var jwt = require('jsonwebtoken');
+var methods = require('../methods');
+
 
 /**
  *
@@ -33,7 +34,7 @@ exports.registerOauth = function (req, res, next) {
         return workflow.emit('exception', err);
       }
 
-      info.profile.avatar = info.profile._json.profile_image_url || info.profile._json.avatar_url || info.profile._json.image.url + '?sz=100' || '';
+      info.profile.avatar = info.profile._json.profile_image_url || info.profile._json.avatar_url || info.profile._json.image ? info.profile._json.image.url + '?sz=100' : '';
       workflow.profile = info.profile;
 
       if (!user) {
@@ -49,11 +50,11 @@ exports.registerOauth = function (req, res, next) {
 
           };
           var token = jwt.sign(payload, settings.cryptoKey);
-          res.cookie('need_mail', token);
+          res.cookie('needmail', token);
           res.render('./need-mail', {email: ''});
         }
         else {
-          registerSocial(req, res, next);
+          registerSocial(req, res, info.profile);
         }
       }
       else {
@@ -66,9 +67,9 @@ exports.registerOauth = function (req, res, next) {
 };
 
 exports.registerSocial = function (req, res, next) {
-  if (req.cookies && req.cookies['need_mail']) {
+  if (req.cookies && req.cookies['needmail']) {
     var settings = req.app.getSettings();
-    var token = req.cookies['need_mail'];
+    var token = req.cookies['needmail'];
     jwt.verify(token, settings.cryptoKey, function(err, decoded) {
       decoded.email = req.body.email;
       registerSocial(req, res, decoded);
@@ -93,7 +94,7 @@ var registerSocial = function (req, res, profile) {
 
   workflow.on('validate', function () {
     if (req.body.email) {
-      if (!/^[a-zA-Z0-9\-\_\.\+]+@[a-zA-Z0-9\-\_\.]+\.[a-zA-Z0-9\-\_]+$/.test(req.body.email)) {
+      if (!/^[a-zA-Z0-9\-\_\.\+]+@[a-zA-Z0-9\-\_\.]+\.[a-zA-Z0-9\-\_]+$/.test(workflow.email)) {
         workflow.outcome.errfor.email = 'invalid email format';
       }
     }
@@ -219,24 +220,22 @@ var loginSocial = function (req, res, workflow) {
       workflow.user.avatar = 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g';
     }
 
-    workflow.outcome.success = !workflow.hasErrors();
-    req.hooks.emit('userLogin', workflow.user);
-
-    var payload = {
-      id: workflow.user.id,
-      email: workflow.user.email,
-      username: workflow.user.username,
-      avatar: workflow.user.avatar
-    };
-
     var settings = req.app.getSettings();
-    workflow.outcome.jwt = jwt.sign(payload, settings.cryptoKey);
+    workflow.outcome.success = !workflow.hasErrors();
+    workflow.outcome.jwt = methods.setJwt(workflow.user, settings.cryptoKey);
 
-    if (!req.body.email) {
-      res.render('remote/social/success', {data: JSON.stringify(workflow.outcome)});
-    }
-    else {
-      workflow.emit('response');
-    }
+    methods.setSession(req, workflow.outcome.jwt, function(err) {
+      if (err) {
+        return workflow.emit('exception', err);
+      }
+
+      req.hooks.emit('userLogin', workflow.user);
+      if (!req.body.email) {
+        res.render('remote/social/success', {data: JSON.stringify(workflow.outcome)});
+      }
+      else {
+        workflow.emit('response');
+      }
+    });
   });
 };

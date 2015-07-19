@@ -51,65 +51,93 @@ exports = module.exports = function() {
     });
 
     workflow.on('verifyJwt', function (token) {
-      jwt.verify(token, settings.cryptoKey, function(err, decoded) {
-        if (err ) {
+      req.app.db.models.JwtSession.findOne({_id: token}, function (err, sess) {
+        if (err) {
           return next(err);
         }
-        if (!decoded) {
-          return next('Not verify.');
+
+        if (!sess) {
+          return next('Invalid session');
         }
 
-        if (decoded.twostep === 'on') {
-          req.twostepUser = decoded.id;
-          return next();
-        }
+        jwt.verify(token, settings.cryptoKey, function(err, decoded) {
+          if (err ) {
+            return next(err);
+          }
+          if (!decoded) {
+            return next('Not verify.');
+          }
 
-        var iat = parseInt(decoded.iat);
-        var exp = parseInt(settings.sessionExp);
-        if (moment().utc().unix() >= iat + (exp / 10)) {
-          if (moment().utc().unix() >= iat + exp) {
-            // Expire.
+          if (decoded.twostep === 'on') {
+            req.twostepUser = decoded.id;
             return next();
           }
-          else {
-            // Verify + Need refresh.
-            workflow.emit('loadUser', decoded, true);
+
+          var iat = parseInt(decoded.iat);
+          var exp = parseInt(settings.sessionExp);
+          if (moment().utc().unix() >= iat + (exp / 10)) {
+            if (moment().utc().unix() >= iat + exp) {
+              // Expire.
+              return next();
+            }
+            else {
+              // Verify + Need refresh.
+              workflow.emit('loadUser', decoded, sess);
+            }
           }
-        }
-        else {
-          // Verify.
-          workflow.emit('loadUser', decoded);
-        }
+          else {
+            // Verify.
+            workflow.emit('loadUser', decoded);
+          }
+        });
       });
     });
 
-    workflow.on('loadUser', function (decoded, refreshJwt) {
+    workflow.on('loadUser', function (decoded, sess) {
       req.app.db.models.User.findById(decoded.id, function (err, user) {
         if (err) {
           return next(err);
         }
-        if (!user) {
+        else if (!user) {
           return next('No User.');
         }
 
-        if (refreshJwt) {
-          var gravatarHash = crypto.createHash('md5').update(user.email).digest('hex');
-
+        else if (!sess) {
+          // Good to go!
+          req.user = user;
+          return next();
+        }
+        else {
+          // Need refresh.
           var payload = {
-            id: user.id,
-            email: user.email,
-            username: user.username,
-            avatar: 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g'
+            id: decoded.id,
+            email: decoded.email,
+            username: decoded.username,
+            avatar: decoded.avatar
           };
 
-          // Remote.
-          res.set('JWTRefresh', jwt.sign(payload, settings.cryptoKey));
-          // Web.
-          res.cookie('people.token', jwt.sign(payload, settings.cryptoKey));
-        }
+          var newJwt = jwt.sign(payload, settings.cryptoKey);
+          var fieldsToSet = {
+            _id: newJwt,
+            user: decoded.id,
+            ua: sess.ua
+          };
 
-        req.user = user;
-        return next();
+          req.app.db.models.JwtSession.remove({_id: sess.id});
+          req.app.db.models.JwtSession.create(fieldsToSet, function (err, session) {
+            if (err) {
+              return next(err);
+            }
+
+            // Remote.
+            res.set('JWTRefresh', jwt.sign(payload, settings.cryptoKey));
+            // Web.
+            res.cookie('people.token', jwt.sign(payload, settings.cryptoKey));
+
+            req.user = user;
+            return next();
+          });
+        }
       });
     });
 

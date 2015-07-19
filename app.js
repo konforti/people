@@ -68,12 +68,20 @@ app.use(serveStatic(path.join(__dirname, 'components/remote/public'), {
   }
 }));
 app.use(serveStatic(path.join(__dirname, 'components/web/public')));
-app.use(session({
-  resave: false,
-  saveUninitialized: false,
-  secret: app.appSettings.cryptoKey,
-  store: new mongoStore({ url: config.mongodb.uri })
-}));
+app.use(function(req, res, next) {
+  if (req.headers.authorization || req.method === 'OPTIONS') {
+    return next();
+  }
+  else {
+    return session({
+      resave: false,
+      saveUninitialized: false,
+      secret: app.appSettings.cryptoKey,
+      store: new mongoStore({ url: config.mongodb.uri })
+    })(req, res, next);
+  }
+});
+app.use(require('./util/auth')());
 app.use(require('method-override')());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -120,9 +128,6 @@ app.use(function(req, res, next) {
   require('./rules/rules')(req, res, next);
   next();
 });
-
-// Auth.
-app.use(require('./util/auth')());
 
 // Setup passport.
 require('./util/passport')(app, passport);

@@ -1,6 +1,6 @@
 'use strict';
 var crypto = require('crypto');
-var jwt = require('jsonwebtoken');
+var methods = require('../methods');
 
 var sendWelcomeEmail = function (req, res, options) {
   var settings = req.app.getSettings();
@@ -199,19 +199,18 @@ exports.register = function (req, res, next) {
 
           var settings = req.app.getSettings();
           var gravatarHash = crypto.createHash('md5').update(req.email).digest('hex');
+          user.avatar = 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g';
+          user.twostep = 'off';
+          workflow.outcome.jwt = methods.setJwt(user, settings.cryptoKey);
 
-          var payload = {
-            id: user.id,
-            email: user.email,
-            username: user.username,
-            avatar: 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g',
-            twostep: (typeof user.totp !== 'undefined' && Object.keys(user.totp).length > 0)
-          };
+          methods.setSession(req, workflow.outcome.jwt, function(err) {
+            if (err) {
+              return workflow.emit('exception', err);
+            }
 
-          workflow.outcome.jwt = jwt.sign(payload, settings.cryptoKey);
-
-          req.hooks.emit('userLogin', user);
-          workflow.emit('response');
+            req.hooks.emit('userLogin', user);
+            workflow.emit('response');
+          });
         });
       }
     })(req, res);
@@ -308,7 +307,7 @@ exports.login = function (req, res, next) {
           id: user.id,
           twostep: 'on'
         };
-
+        var jwt = require('jsonwebtoken');
         workflow.outcome.jwt = jwt.sign(payload, settings.cryptoKey);
         workflow.emit('response');
       }
@@ -319,19 +318,18 @@ exports.login = function (req, res, next) {
           }
 
           var gravatarHash = crypto.createHash('md5').update(user.email).digest('hex');
+          user.avatar = 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g';
+          user.twostep = 'off';
+          workflow.outcome.jwt = methods.setJwt(user, settings.cryptoKey);
 
-          var payload = {
-            id: user.id,
-            email: user.email,
-            username: user.username,
-            avatar: 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g',
-            twostep: 'off'
-          };
+          methods.setSession(req, workflow.outcome.jwt, function(err) {
+            if (err) {
+              return workflow.emit('exception', err);
+            }
 
-          workflow.outcome.jwt = jwt.sign(payload, settings.cryptoKey);
-
-          req.hooks.emit('userLogin', user);
-          workflow.emit('response');
+            req.hooks.emit('userLogin', user);
+            workflow.emit('response');
+          });
         });
       }
     })(req, res);
@@ -342,7 +340,6 @@ exports.login = function (req, res, next) {
 
 exports.twostep = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
-  var settings = req.app.getSettings();
 
   workflow.on('validate', function () {
     if (!req.body.code) {
@@ -384,20 +381,20 @@ exports.twostep = function (req, res, next) {
           return workflow.emit('exception', err);
         }
 
+        var settings = req.app.getSettings();
         var gravatarHash = crypto.createHash('md5').update(user.email).digest('hex');
+        user.avatar = 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g';
+        user.twostep = 'verified';
+        workflow.outcome.jwt = methods.setJwt(user, settings.cryptoKey);
 
-        var payload = {
-          id: user.id,
-          email: user.email,
-          username: user.username,
-          avatar: 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g',
-          twostep: 'verified'
-        };
+        methods.setSession(req, workflow.outcome.jwt, function(err) {
+          if (err) {
+            return workflow.emit('exception', err);
+          }
 
-        workflow.outcome.jwt = jwt.sign(payload, settings.cryptoKey);
-
-        req.hooks.emit('userLogin', user);
-        workflow.emit('response');
+          req.hooks.emit('userLogin', user);
+          workflow.emit('response');
+        });
       });
     });
 
