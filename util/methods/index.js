@@ -11,8 +11,9 @@ exports.setSession = function(req, jwt, callback) {
   var fieldsToSet = {
     _id: jwt,
     user: req.user.id,
+    ip: req.ip,
     ua: {
-      family: ua.family,
+      browser: ua.family,
       os: ua.os.family,
       device: ua.device.family
     }
@@ -38,8 +39,8 @@ exports.setJwt = function(user, key) {
     id: user.id,
     email: user.email,
     username: user.username,
-    avatar: user.avatar,
-    twostep: user.twostep
+    avatar: user.avatar || '',
+    twostep: user.twostep || 'off'
   };
 
   return jwt.sign(payload, key);

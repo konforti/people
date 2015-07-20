@@ -1,7 +1,7 @@
 div.title
     h2 Profile
 div
-    if data.socials.length > 0
+    if Object.keys(data.socials).length > 0
         div.left
             div#ppl-connect
                 for social, i in data.socials
@@ -57,3 +57,18 @@ div
                 else
                     input.ppl-2step-click.form-control(type='checkbox', name='2step')
                 small 2-Step Verification
+
+     div.footer
+         div#ppl-sessions
+             span.name Name
+             span.ip IP
+             span.time Last activity
+             ol
+                 for session, i in data.sessions
+                     li
+                        span.name #{session.name}
+                        span.ip #{session.ip}
+                        span.time #{session.time}
+                        if (!session.current)
+                            span.remove
+                                a.session-remove(href='javascript:void(0)', data-id='#{session.id}') &times;

@@ -1,11 +1,9 @@
 'use strict';
 var crypto = require('crypto');
 var jwt = require('jsonwebtoken');
-var methods = require('../methods');
-
 
 /**
- *
+ * registerOauth().
  * @param req
  * @param res
  * @param next
@@ -50,7 +48,7 @@ exports.registerOauth = function (req, res, next) {
 
           };
           var token = jwt.sign(payload, settings.cryptoKey);
-          res.cookie('needmail', token);
+          res.cookie('need.mail', token);
           res.render('./need-mail', {email: ''});
         }
         else {
@@ -67,9 +65,9 @@ exports.registerOauth = function (req, res, next) {
 };
 
 exports.registerSocial = function (req, res, next) {
-  if (req.cookies && req.cookies['needmail']) {
+  if (req.cookies && req.cookies['need.mail']) {
     var settings = req.app.getSettings();
-    var token = req.cookies['needmail'];
+    var token = req.cookies['need.mail'];
     jwt.verify(token, settings.cryptoKey, function(err, decoded) {
       decoded.email = req.body.email;
       registerSocial(req, res, decoded);
@@ -222,6 +220,7 @@ var loginSocial = function (req, res, workflow) {
 
     var settings = req.app.getSettings();
     workflow.outcome.success = !workflow.hasErrors();
+    var methods = req.app.utility.methods;
     workflow.outcome.jwt = methods.setJwt(workflow.user, settings.cryptoKey);
 
     methods.setSession(req, workflow.outcome.jwt, function(err) {

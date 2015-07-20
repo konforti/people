@@ -5,6 +5,7 @@ exports = module.exports = function(app, mongoose) {
   var jwtSession = new mongoose.Schema({
     _id: {type: String},
     user: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+    ip: {type: String},
     ua: {type: mongoose.Schema.Types.Mixed, default: ''},
     time: {type: Date, default: Date.now, expires: parseInt(settings.sessionExp)}
   });

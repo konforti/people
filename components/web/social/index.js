@@ -49,7 +49,7 @@ exports.registerOauth = function (req, res, next) {
 
           };
           var token = jwt.sign(payload, settings.cryptoKey);
-          res.cookie('need_mail', token);
+          res.cookie('need.mail', token);
           res.render('web/social/need-mail', {email: ''});
         }
         else {
@@ -67,9 +67,9 @@ exports.registerOauth = function (req, res, next) {
 
 exports.registerSocial = function (req, res, next) {
   registerSocial(req, res, req.session.socialProfile);
-  if (req.cookies && req.cookies['need_mail']) {
+  if (req.cookies && req.cookies['need.mail']) {
     var settings = req.app.getSettings();
-    var token = req.cookies['need_mail'];
+    var token = req.cookies['need.mail'];
     jwt.verify(token, settings.cryptoKey, function(err, decoded) {
       decoded.email = req.body.email;
       registerSocial(req, res, decoded);
@@ -226,16 +226,22 @@ var loginSocial = function (req, res, workflow) {
       avatar: workflow.user.avatar
     };
 
-    var payload = {
-      id: workflow.user.id,
-      email: workflow.user.email,
-      username: workflow.user.username
-    };
-
-    var settings = req.app.getSettings();
-    res.cookie(req.app.locals.webJwtName, jwt.sign(payload, settings.cryptoKey));
-
     req.hooks.emit('userLogin', workflow.outcome.user);
     res.redirect(req.user.defaultReturnUrl());
+
+    var settings = req.app.getSettings();
+    var methods = req.app.utility.methods;
+    var token = methods.setJwt(workflow.user, settings.cryptoKey);
+
+    methods.setSession(req, token, function(err) {
+      if (err) {
+        return workflow.emit('exception', err);
+      }
+
+      req.hooks.emit('userLogin', workflow.user);
+      res.cookie(req.app.locals.webJwtName, token);
+      workflow.outcome.defaultReturnUrl = workflow.user.defaultReturnUrl();
+      workflow.emit('response');
+    });
   });
 };

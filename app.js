@@ -77,11 +77,10 @@ app.use(function(req, res, next) {
       resave: false,
       saveUninitialized: false,
       secret: app.appSettings.cryptoKey,
-      store: new mongoStore({ url: config.mongodb.uri })
+      store: new mongoStore({url: config.mongodb.uri, ttl: 60*60})
     })(req, res, next);
   }
 });
-app.use(require('./util/auth')());
 app.use(require('method-override')());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -117,6 +116,8 @@ app.use(function(req, res, next) {
   next();
 });
 
+app.use(require('./util/auth')());
+
 // Hooks middleware.
 app.use(function(req, res, next) {
   req.hooks = require('./util/hooks')(req, res, next);
@@ -145,6 +146,7 @@ app.utility = {};
 app.utility.sendmail = require('./util/sendmail');
 app.utility.slugify = require('./util/slugify');
 app.utility.workflow = require('./util/workflow');
+app.utility.methods = require('./util/methods');
 
 // Listen up.
 app.server.listen(app.config.port, app.config.ip, function() {

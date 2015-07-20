@@ -1,6 +1,5 @@
 'use strict';
 var crypto = require('crypto');
-var methods = require('../methods');
 
 var sendWelcomeEmail = function (req, res, options) {
   var settings = req.app.getSettings();
@@ -201,6 +200,7 @@ exports.register = function (req, res, next) {
           var gravatarHash = crypto.createHash('md5').update(req.email).digest('hex');
           user.avatar = 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g';
           user.twostep = 'off';
+          var methods = req.app.utility.methods;
           workflow.outcome.jwt = methods.setJwt(user, settings.cryptoKey);
 
           methods.setSession(req, workflow.outcome.jwt, function(err) {
@@ -320,6 +320,7 @@ exports.login = function (req, res, next) {
           var gravatarHash = crypto.createHash('md5').update(user.email).digest('hex');
           user.avatar = 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g';
           user.twostep = 'off';
+          var methods = req.app.utility.methods;
           workflow.outcome.jwt = methods.setJwt(user, settings.cryptoKey);
 
           methods.setSession(req, workflow.outcome.jwt, function(err) {
@@ -385,6 +386,7 @@ exports.twostep = function (req, res, next) {
         var gravatarHash = crypto.createHash('md5').update(user.email).digest('hex');
         user.avatar = 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g';
         user.twostep = 'verified';
+        var methods = req.app.utility.methods;
         workflow.outcome.jwt = methods.setJwt(user, settings.cryptoKey);
 
         methods.setSession(req, workflow.outcome.jwt, function(err) {

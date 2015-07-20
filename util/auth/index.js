@@ -53,19 +53,19 @@ exports = module.exports = function() {
     workflow.on('verifyJwt', function (token) {
       req.app.db.models.JwtSession.findOne({_id: token}, function (err, sess) {
         if (err) {
-          return next(err);
+          return workflow.emit('exception', err);
         }
 
         if (!sess) {
-          return next('Invalid session');
+          return next();
         }
 
         jwt.verify(token, settings.cryptoKey, function(err, decoded) {
-          if (err ) {
-            return next(err);
+          if (err) {
+            return workflow.emit('exception', err);
           }
           if (!decoded) {
-            return next('Not verify.');
+            return next();
           }
 
           if (decoded.twostep === 'on') {
@@ -82,28 +82,29 @@ exports = module.exports = function() {
             }
             else {
               // Verify + Need refresh.
-              workflow.emit('loadUser', decoded, sess);
+              workflow.emit('loadUser', decoded, sess, true);
             }
           }
           else {
             // Verify.
-            workflow.emit('loadUser', decoded);
+            workflow.emit('loadUser', decoded, sess);
           }
         });
       });
     });
 
-    workflow.on('loadUser', function (decoded, sess) {
+    workflow.on('loadUser', function (decoded, sess, needRefresh) {
       req.app.db.models.User.findById(decoded.id, function (err, user) {
         if (err) {
-          return next(err);
+          return workflow.emit('exception', err);
         }
         else if (!user) {
-          return next('No User.');
+          return next();
         }
 
-        else if (!sess) {
+        else if (!needRefresh) {
           // Good to go!
+          user.jwtSession = sess.id;
           req.user = user;
           return next();
         }
@@ -126,14 +127,15 @@ exports = module.exports = function() {
           req.app.db.models.JwtSession.remove({_id: sess.id});
           req.app.db.models.JwtSession.create(fieldsToSet, function (err, session) {
             if (err) {
-              return next(err);
+              return workflow.emit('exception', err);
             }
 
             // Remote.
-            res.set('JWTRefresh', jwt.sign(payload, settings.cryptoKey));
+            res.set('JWTRefresh', newJwt);
             // Web.
-            res.cookie('people.token', jwt.sign(payload, settings.cryptoKey));
+            res.cookie('people.token', newJwt);
 
+            user.jwtSession = newJwt;
             req.user = user;
             return next();
           });

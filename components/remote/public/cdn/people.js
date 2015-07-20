@@ -910,5 +910,15 @@ People.prototype.clickEvents = function () {
         }
       }
     }
+    else if (classes.contains('session-remove')) {
+      var sid = e.target.getAttribute('data-id');
+      _self.ajax('POST', _self.url + '/remote/session/remove', {sid: sid}, function (data) {
+        if (!_self.errors(data, 'Session removed.')) {
+          e.target.parentElement.parentElement.outerHTML = '';
+          _self.event.emit('sessionremove', data);
+        }
+      });
+
+    }
   }, false);
 };

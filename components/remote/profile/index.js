@@ -12,7 +12,7 @@ exports.readProfile = function (req, res, next) {
   var getRecord = function (callback) {
     req.app.db.models.User.findById(req.user.id).exec(function (err, record) {
       if (err) {
-        return next(err);
+        callback(err, null);
       }
 
       workflow.outcome.record = record;
@@ -46,6 +46,33 @@ exports.readProfile = function (req, res, next) {
     callback(null);
   };
 
+  var getSessions = function(callback) {
+    var settings = req.app.getSettings();
+    var moment = require('moment');
+    workflow.outcome.sessions = [];
+
+    req.app.db.models.JwtSession.find({user: req.user.id}, function (err, sessions) {
+      if (err) {
+        callback(err, null);
+      }
+
+      sessions.forEach(function(session, index, arr) {
+        var name = session.ua.device !== 'Other' ? session.ua.device : session.ua.browser + ' on ' + session.ua.os;
+        var sess = {
+          id: session.id,
+          name: name,
+          ip: session.ip,
+          time: moment(session.time).format('MMM Do YY h:mm a'),
+          current: session.id === req.user.jwtSession
+        };
+
+        workflow.outcome.sessions.push(sess);
+      });
+
+      callback(null);
+    });
+  };
+
   var asyncFinally = function (err, results) {
     if (err) {
       return next(err);
@@ -71,7 +98,8 @@ exports.readProfile = function (req, res, next) {
         data: {
           record: workflow.outcome.record,
           fields: workflow.outcome.fields,
-          socials: workflow.outcome.socials
+          socials: workflow.outcome.socials,
+          sessions: workflow.outcome.sessions
         }
       }, function (err, html) {
         workflow.outcome.html = html;
@@ -80,7 +108,7 @@ exports.readProfile = function (req, res, next) {
     }
   };
 
-  require('async').series([getFields, getRecord, getSocial], asyncFinally);
+  require('async').series([getFields, getRecord, getSocial, getSessions], asyncFinally);
 };
 
 /**
@@ -402,11 +430,27 @@ exports.connectOauth = function (req, res, next) {
 exports.disconnectOauth = function (req, res, next) {
   var social = req.params.social;
   var workflow = req.app.utility.workflow(req, res);
-  var cond = {};
-  cond[social] = {id: undefined};
-  req.app.db.models.User.findByIdAndUpdate(req.user.id, cond, function (err, user) {
+  var update = {};
+  update[social] = {id: undefined};
+  req.app.db.models.User.findByIdAndUpdate(req.user.id, update, function (err, user) {
     if (err) {
       return workflow.emit('exception', err);
+    }
+
+    workflow.emit('response');
+  });
+};
+
+exports.removeSession = function (req, res, next) {
+  var workflow = req.app.utility.workflow(req, res);
+  var cond = {_id: req.body.sid, user: req.user.id};
+  req.app.db.models.JwtSession.findOneAndRemove(cond, function (err, session) {
+    if (err) {
+      return workflow.emit('exception', err);
+      console.log(err);
+    }
+    if (!session) {
+      return workflow.emit('exception', 'Session not found.');
     }
 
     workflow.emit('response');

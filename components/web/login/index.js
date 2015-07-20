@@ -1,7 +1,5 @@
 'use strict';
 
-var jwt = require('jsonwebtoken');
-
 var getSocials = function(req) {
   var settings = req.app.getSettings();
   var ret = [];
@@ -106,16 +104,20 @@ exports.login = function (req, res) {
             return workflow.emit('exception', err);
           }
 
-          var payload = {
-            id: user.id,
-            email: user.email,
-            username: user.username
-          };
-
           var settings = req.app.getSettings();
-          res.cookie(req.app.locals.webJwtName, jwt.sign(payload, settings.cryptoKey));
+          var methods = req.app.utility.methods;
+          var token = methods.setJwt(user, settings.cryptoKey);
 
-          workflow.emit('response');
+          methods.setSession(req, token, function(err) {
+            if (err) {
+              return workflow.emit('exception', err);
+            }
+
+            req.hooks.emit('userLogin', user);
+            res.cookie(req.app.locals.webJwtName, token);
+            workflow.outcome.defaultReturnUrl = user.defaultReturnUrl();
+            workflow.emit('response');
+          });
         });
       }
     })(req, res);
