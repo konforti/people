@@ -94,28 +94,11 @@
 
 /** User Profile **/
 #ppl-profile-block {
-
-  .left {
-    display: inline-block;
-    padding: 0 20px 0 0;
-    border-right: 1px solid #ccc;
-    vertical-align: top;
-    min-height: 220px;
-  }
-
-  .right {
-    display: inline-block;
-    padding: 0 0 0 20px;
-  }
-
-  .footer {
-    border-top: 1px solid #ccc;
-  }
+  width: 360px;
 
   .ppl-change-password {
     cursor: pointer;
     display: block;
-    text-align: right;
   }
 
   input {
@@ -168,7 +151,13 @@
     }
   }
 
+  #ppl-2step {
+    color: #999;
+  }
+
   #ppl-sessions {
+    border-top: 1px solid #ccc;
+
     span {
       color: #999;
       display: inline-block;
@@ -204,6 +193,48 @@
           color: initial;
         }
       }
+    }
+  }
+
+  .tabs {
+    .tab {
+      float: left;
+
+      .tab-label {
+        background: #eee;
+        padding: 10px;
+        border: 1px solid #ccc;
+        margin-left: -1px;
+        position: relative;
+        left: 1px;
+      }
+
+      .tab-radio {
+        display: none;
+
+        &:checked ~ .tab-label {
+          background: white;
+          border-bottom: 1px solid white;
+          z-index: 2;
+        }
+        &:checked ~ .tab-label ~ .tab-content {
+          display: table;
+        }
+      }
+    }
+
+    .tab-content {
+      position: absolute;
+      width: 442px;
+      display: none;
+      box-sizing: border-box;
+      left: 50%;
+      transform: translate(-50%, 3px);
+      background: white;
+      padding: 20px 40px;
+      border: 1px solid #ccc;
+      border-bottom-left-radius: 5px;
+      border-bottom-right-radius: 5px;
     }
   }
 }

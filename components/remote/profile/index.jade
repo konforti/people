@@ -1,8 +1,75 @@
 div.title
     h2 Profile
-div
-    if Object.keys(data.socials).length > 0
-        div.left
+
+div.tabs
+    div.tab
+        input#tab-1.tab-radio(type="radio" name="tab-group-1" checked)
+        label.tab-label(for="tab-1") Account
+        div.tab-content
+            form#ppl-profile-form
+                div.form-role
+                    label Username:
+                    input.form-control(type='text', name='username', value!='#{data.record.username}')
+                    span.help-block
+                div.form-role
+                    label Email:
+                    input.form-control(type='text', name='email', value!='#{data.record.email}')
+                    if !data.record.isVerified || data.record.isVerified === 'no'
+                        span.ppl-verify-email Verify
+                    span.help-block
+
+                for field in data.fields
+                    div.form-role
+                        label #{field.name}:
+                        input.form-control(type='text', name='#{field._id}', value!='#{field.value}')
+                        span.help-block
+
+                div.form-role
+                    button#ppl-update-profile-btn.submit(type='button') Update profile
+
+    div.tab
+        input#tab-2.tab-radio(type="radio" name="tab-group-1")
+        label.tab-label(for="tab-2") Security
+        div.tab-content
+            a.ppl-change-password(href="javascript:void(0)") Change Password
+            form#ppl-new-password.hidden
+                div.form-role
+                    label New Password:
+                    input.form-control(type='password', name='newPassword', value!='')
+                    span.help-block
+                div.form-role
+                    label Confirm new Password:
+                    input.form-control(type='password', name='confirm', value!='')
+                    span.help-block
+                div.form-role
+                    button#ppl-update-password-btn.submit(type='button') Update Password
+
+            form#ppl-2step
+                div.form-role
+                    if data.record.totp && Object.keys(data.record.totp).length > 0
+                        input.ppl-2step-click.form-control(type='checkbox', name='2step', checked)
+                    else
+                        input.ppl-2step-click.form-control(type='checkbox', name='2step')
+                        span 2-Step Verification
+
+            div#ppl-sessions
+                span.name Name
+                span.ip IP
+                span.time Last activity
+                ol
+                    for session, i in data.sessions
+                        li
+                            span.name #{session.name}
+                            span.ip #{session.ip}
+                            span.time #{session.time}
+                            if (!session.current)
+                                span.remove
+                                    a.session-remove(href='javascript:void(0)', data-id='#{session.id}') &times;
+
+    div.tab
+        input#tab-3.tab-radio(type="radio" name="tab-group-1")
+        label.tab-label(for="tab-3") Connect
+        div.tab-content
             div#ppl-connect
                 for social, i in data.socials
                     if social.key
@@ -15,60 +82,3 @@ div
                                 i(class="icon-#{i}")
                                 | #{i.charAt(0).toUpperCase() + i.slice(1)}
 
-    div.right
-        form#ppl-profile-form
-            div.form-role
-                label Username:
-                input.form-control(type='text', name='username', value!='#{data.record.username}')
-                span.help-block
-            div.form-role
-                label Email:
-                input.form-control(type='text', name='email', value!='#{data.record.email}')
-                if !data.record.isVerified || data.record.isVerified === 'no'
-                    span.ppl-verify-email Verify
-                span.help-block
-
-            for field in data.fields
-                div.form-role
-                    label #{field.name}:
-                    input.form-control(type='text', name='#{field._id}', value!='#{field.value}')
-                    span.help-block
-
-            div.form-role
-                button#ppl-update-profile-btn.submit(type='button') Update profile
-
-        a.ppl-change-password(href="javascript:void(0)") Change Password
-        form#ppl-new-password.hidden
-            div.form-role
-                label New Password:
-                input.form-control(type='password', name='newPassword', value!='')
-                span.help-block
-            div.form-role
-                label Confirm new Password:
-                input.form-control(type='password', name='confirm', value!='')
-                span.help-block
-            div.form-role
-                button#ppl-update-password-btn.submit(type='button') Update Password
-
-        form#ppl-2step
-            div.form-role
-                if data.record.totp && Object.keys(data.record.totp).length > 0
-                    input.ppl-2step-click.form-control(type='checkbox', name='2step', checked)
-                else
-                    input.ppl-2step-click.form-control(type='checkbox', name='2step')
-                small 2-Step Verification
-
-     div.footer
-         div#ppl-sessions
-             span.name Name
-             span.ip IP
-             span.time Last activity
-             ol
-                 for session, i in data.sessions
-                     li
-                        span.name #{session.name}
-                        span.ip #{session.ip}
-                        span.time #{session.time}
-                        if (!session.current)
-                            span.remove
-                                a.session-remove(href='javascript:void(0)', data-id='#{session.id}') &times;
