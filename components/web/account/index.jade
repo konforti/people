@@ -2,6 +2,7 @@ extends ./../layouts/default
 
 block head
     title Account Settings
+    link(rel='stylesheet', href='/views/account/index.min.css?#{cacheBreaker}')
 
 block feet
     script(src='/views/account/index.min.js?#{cacheBreaker}')
@@ -11,14 +12,14 @@ block body
         div.col-xs-12
             div#header
     div.row
-        div.col-sm-9
+        div.col-sm-7
             fieldset
                 div#identity
             fieldset
                 div#password
             fieldset
                 div#delete
-        div.col-sm-3
+        div.col-sm-5
             for social, i in data.socials
                 if social.key
                     if social.active
@@ -29,6 +30,22 @@ block body
                         a.btn.btn-block.btn-default(href='/account/#{i}/')
                             i.fa.fa-lg(class="fa-#{i}")
                             |  Connect #{i.charAt(0).toUpperCase() + i.slice(1)}
+
+            div#sessions
+                h3 Sessions
+                span.name Name
+                span.ip IP
+                span.time Last activity
+                ol
+                    for session, i in data.sessions
+                        li
+                            span.name #{session.name}
+                            span.ip #{session.ip}
+                            span.time #{session.time}
+                            if (!session.current)
+                                span.remove
+                                    a.session-remove(href='javascript:void(0)', data-id='#{session.id}') &times;
+
 
     script(type='text/template', id='tmpl-header')
         div.page-header

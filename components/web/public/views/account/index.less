@@ -1,1 +1,42 @@
 @import "../../vendor/bootstrap/less/mixins.less";
+
+#sessions {
+  border-top: 1px solid #ccc;
+
+  span {
+    color: #999;
+    display: inline-block;
+
+    &.name {
+      width: 40%;
+    }
+    &.ip {
+      width: 25%
+    }
+    &.time {
+      width: 30%;
+    }
+    &.remove {
+      width: 5%;
+      text-align: right;
+
+      a {
+        text-decoration: none;
+      }
+    }
+  }
+
+  ol {
+    margin: 0;
+    padding: 0;
+
+    li {
+      list-style-type: none;
+
+      span {
+        font-size: 80%;
+        color: initial;
+      }
+    }
+  }
+}

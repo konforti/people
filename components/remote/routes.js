@@ -55,6 +55,7 @@ exports = module.exports = function (app, passport) {
   app.all('/remote/twostep*', ensureAuthenticated);
   app.all('/remote/verify*', ensureAuthenticated);
   app.all('/remote/connect*', ensureAuthenticated);
+  app.all('/remote/session*', ensureAuthenticated);
 
   // Profile form.
   app.get('/remote/profile/', require('./profile/index').readProfile);

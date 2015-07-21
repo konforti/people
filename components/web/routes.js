@@ -151,6 +151,9 @@ exports = module.exports = function (app, passport) {
   app.post('/account/verify/', require('./account/verify/index').resendVerification);
   app.get('/account/verify/:token/', require('./account/verify/index').verify);
 
+  app.put('/account/session/remove/', require('./account/index').removeSession);
+  app.post('/account/session/remove/', require('./account/index').removeSession);
+
   // Route not found.
   app.all('*', require('./http/index').http404);
 };

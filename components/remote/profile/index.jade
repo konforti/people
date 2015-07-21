@@ -31,6 +31,14 @@ div.tabs
         input#tab-2.tab-radio(type="radio" name="tab-group-1")
         label.tab-label(for="tab-2") Security
         div.tab-content
+            form#ppl-2step
+                div.form-role
+                    if data.record.totp && Object.keys(data.record.totp).length > 0
+                        input.ppl-2step-click.form-control(type='checkbox', name='2step', checked)
+                    else
+                        input.ppl-2step-click.form-control(type='checkbox', name='2step')
+                        span 2-Step Verification
+
             a.ppl-change-password(href="javascript:void(0)") Change Password
             form#ppl-new-password.hidden
                 div.form-role
@@ -43,14 +51,6 @@ div.tabs
                     span.help-block
                 div.form-role
                     button#ppl-update-password-btn.submit(type='button') Update Password
-
-            form#ppl-2step
-                div.form-role
-                    if data.record.totp && Object.keys(data.record.totp).length > 0
-                        input.ppl-2step-click.form-control(type='checkbox', name='2step', checked)
-                    else
-                        input.ppl-2step-click.form-control(type='checkbox', name='2step')
-                        span 2-Step Verification
 
             div#ppl-sessions
                 span.name Name

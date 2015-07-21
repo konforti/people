@@ -47,7 +47,6 @@ exports.readProfile = function (req, res, next) {
   };
 
   var getSessions = function(callback) {
-    var settings = req.app.getSettings();
     var moment = require('moment');
     workflow.outcome.sessions = [];
 

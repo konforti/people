@@ -194,6 +194,26 @@
     }
   });
 
+  app.SessionsView = Backbone.View.extend({
+    el: '#sessions',
+    events: {
+      'click .session-remove': 'sessionRemove'
+    },
+    sessionRemove: function(e) {
+      this.row = e.target.getAttribute('data-id');
+      Backbone.ajax({
+        type: 'POST',
+        url: '/account/session/remove/',
+        data: {cid: this.row},
+        success: function(data) {
+          if (data.success === true) {
+            $(e.target).parents('li').remove();
+          }
+        }
+      });
+    }
+  });
+
   app.MainView = Backbone.View.extend({
     el: '.page .container',
     initialize: function() {
@@ -204,6 +224,7 @@
       app.identityView = new app.IdentityView();
       app.passwordView = new app.PasswordView();
       app.deleteView = new app.DeleteView();
+      app.sessionsView = new app.SessionsView();
     }
   });
 

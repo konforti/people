@@ -26,16 +26,44 @@ var renderSettings = function (req, res, next, oauthMessage) {
   };
 
   var getSocial = function (callback) {
-    var actives = [];
+    outcome.socials = {};
     var settings = req.app.getSettings();
     req.app.config.socials.forEach(function(social, index, arr) {
-      if (settings[social + 'Key']) {
-        actives.push(social);
+      if (!!settings[social + 'Key']) {
+        outcome.socials[social] = {
+          key: !!settings[social + 'Key'],
+          active: outcome.record[social] ? !!outcome.record[social].id : false
+        };
       }
     });
 
-    outcome.socials = actives;
     return callback(null, 'done');
+  };
+
+  var getSessions = function(callback) {
+    var moment = require('moment');
+    outcome.sessions = [];
+
+    req.app.db.models.JwtSession.find({user: req.user.id}, function (err, sessions) {
+      if (err) {
+        callback(err, null);
+      }
+
+      sessions.forEach(function(session, index, arr) {
+        var name = session.ua.device !== 'Other' ? session.ua.device : session.ua.browser + ' on ' + session.ua.os;
+        var sess = {
+          id: session.id,
+          name: name,
+          ip: session.ip,
+          time: moment(session.time).format('MMM Do YY h:mm a'),
+          current: session.id === req.user.jwtSession
+        };
+
+        outcome.sessions.push(sess);
+      });
+
+      callback(null);
+    });
   };
 
   var asyncFinally = function (err, results) {
@@ -58,12 +86,13 @@ var renderSettings = function (req, res, next, oauthMessage) {
       data: {
         record: escape(JSON.stringify(outcome.record)),
         fields: outcome.fields,
-        socials: outcome.socials
+        socials: outcome.socials,
+        sessions: outcome.sessions
       }
     });
   };
 
-  require('async').series([getAccount, getFields, getSocial], asyncFinally);
+  require('async').series([getAccount, getFields, getSocial, getSessions], asyncFinally);
 };
 
 exports.init = function (req, res, next) {
@@ -270,7 +299,7 @@ exports.delete = function (req, res, next) {
       return workflow.emit('response');
     }
 
-    if (req.user._id.toString() === req.user.id) {
+    if (req.body._id.toString() === req.user.id) {
       workflow.outcome.errors.push('You may not delete yourself from user.');
       return workflow.emit('response');
     }
@@ -279,7 +308,7 @@ exports.delete = function (req, res, next) {
   });
 
   workflow.on('deleteUser', function (err) {
-    req.app.db.models.User.findByIdAndRemove(req.user.id, function (err, user) {
+    req.app.db.models.User.findByIdAndRemove(req.body._id.toString(), function (err, user) {
       if (err) {
         return workflow.emit('exception', err);
       }
@@ -289,4 +318,19 @@ exports.delete = function (req, res, next) {
   });
 
   workflow.emit('validate');
+};
+
+exports.removeSession = function (req, res, next) {console.log(req.body);
+  var workflow = req.app.utility.workflow(req, res);
+  var cond = {_id: req.body.cid, user: req.user.id};
+  req.app.db.models.JwtSession.findOneAndRemove(cond, function (err, session) {
+    if (err) {
+      return workflow.emit('exception', err);
+    }
+    if (!session) {
+      return workflow.emit('exception', 'Session not found.');
+    }
+
+    workflow.emit('response');
+  });
 };
