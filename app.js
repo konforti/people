@@ -88,20 +88,11 @@ app.use(cookieParser(app.appSettings.cryptoKey));
 app.use(passport.initialize());
 app.use(helmet());
 
-// Response locals.
-app.use(function(req, res, next) {
-  res.locals.user = {};
-  res.locals.user.defaultReturnUrl = req.user && req.user.defaultReturnUrl();
-  res.locals.user.username = req.user && req.user.username;
-  next();
-});
-
 // Global locals.
 app.locals.projectName = app.appSettings.projectName;
 app.locals.copyrightName = app.appSettings.projectName;
 app.locals.webJwtName = 'people.token';
 app.locals.remoteJwtName = 'people.jwt';
-
 app.locals.copyrightYear = new Date().getFullYear();
 app.locals.cacheBreaker = 'br34k-01';
 
@@ -116,19 +107,23 @@ app.use(function(req, res, next) {
   next();
 });
 
+// Authentication middleware
 app.use(require('./util/auth')());
 
-// Hooks middleware.
+// Response locals.
 app.use(function(req, res, next) {
-  req.hooks = require('./util/hooks')(req, res, next);
+  res.locals.user = {
+    defaultReturnUrl: req.user && req.user.defaultReturnUrl(),
+    username: req.user && req.user.username
+  };
   next();
 });
 
+// Hooks middleware.
+app.use(require('./util/hooks')());
+
 // Rules middleware.
-app.use(function(req, res, next) {
-  require('./rules/rules')(req, res, next);
-  next();
-});
+app.use(require('./rules')());
 
 // Setup passport.
 require('./util/passport')(app, passport);
@@ -142,11 +137,12 @@ require('./components/web/routes')(app, passport);
 app.use(require('./components/web/http/index').http500);
 
 // Setup utilities.
-app.utility = {};
-app.utility.sendmail = require('./util/sendmail');
-app.utility.slugify = require('./util/slugify');
-app.utility.workflow = require('./util/workflow');
-app.utility.methods = require('./util/methods');
+app.utility = {
+  sendmail: require('./util/sendmail'),
+  slugify: require('./util/slugify'),
+  workflow: require('./util/workflow'),
+  methods: require('./util/methods')
+};
 
 // Listen up.
 app.server.listen(app.config.port, app.config.ip, function() {

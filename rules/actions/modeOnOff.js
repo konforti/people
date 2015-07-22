@@ -1,46 +1,38 @@
-exports = module.exports = function(req, op, action, user) {
-  require('async').series([
-    /**
-     * verify
-     * @param callback
-     */
-    function(callback) {
-      if (!action.value) {
-        console.log('There is no value.');
-        return;
-      }
+exports = module.exports = function(req, res, opts) {
+  var workflow = req.app.utility.workflow(req, res);
 
-      if (user._id === req.app.config.uid1) {
-        console.log('You\'re not allowed to change this user roles.');
-        return;
-      }
-
-      if (user.isMemberOf('root')) {
-        console.log('You may not change this role memberships.');
-        return;
-      }
-
-      callback(null);
-    },
-
-    /**
-     * Patch mode
-     * @param callback
-     */
-    function(callback) {
-      var fieldsToSet = {
-        mode: op
-      };
-
-      req.app.db.models.User.findByIdAndUpdate(user.id, fieldsToSet, function (err, updatedUser) {
-        if (err) {
-          return console.log(err);
-        }
-
-        callback(null, updatedUser);
-      });
+  workflow.on('validate', function () {
+    if (!opts.action.value) {
+      console.log('There is no value.');
+      return;
     }
-  ], function (err, result) {
-    return {user: result};
+
+    if (opts.user._id === req.app.config.uid1) {
+      console.log('You\'re not allowed to change this user roles.');
+      return;
+    }
+
+    if (opts.user.isMemberOf('root')) {
+      console.log('You may not change this role memberships.');
+      return;
+    }
+
+    workflow.emit('patchMode');
   });
+
+  workflow.on('patchMode', function () {
+    var fieldsToSet = {
+      mode: opts.op
+    };
+
+    req.app.db.models.User.findByIdAndUpdate(opts.user.id, fieldsToSet, function (err, updatedUser) {
+      if (err) {
+        return console.log(err);
+      }
+
+      return {user: updatedUser};
+    });
+  });
+
+  workflow.emit('validate');
 };

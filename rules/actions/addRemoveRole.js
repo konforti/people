@@ -1,87 +1,75 @@
-exports = module.exports = function(req, op, action, user) {
-  require('async').waterfall([
-    /**
-     * verify
-     * @param callback
-     */
-    function(callback) {
-      if (!action.value || action.value.length < 1) {
-        console.log('There is no value.');
-        return;
-      }
+exports = module.exports = function(req, res, opts) {
+  var workflow = req.app.utility.workflow(req, res);
 
-      if (user._id === req.app.config.uid1) {
-        console.log('You\'re not allowed to change this user roles.');
-        return;
-      }
+  workflow.on('validate', function () {
+    if (!opts.action.value || opts.action.value.length < 1) {
+      console.log('There is no value.');
+      return;
+    }
 
-      if (user.isMemberOf('root')) {
-        console.log('You may not change this role memberships.');
-        return;
-      }
+    if (opts.user._id === req.app.config.uid1) {
+      console.log('You\'re not allowed to change this user roles.');
+      return;
+    }
 
-      callback(null);
-    },
+    if (opts.user.isMemberOf('root')) {
+      console.log('You may not change this role memberships.');
+      return;
+    }
 
-    /**
-     * Set roles
-     * @param callback
-     */
-    function(callback) {
-      var roles = user.roles;
+    workflow.emit('setRoles');
+  });
 
-      if (op === 'remove') {
-        roles.forEach(function(role, i, arr) {
-          var index = action.value.indexOf(role);
-          if (index > -1) {
-            roles.splice(index, 1);
-          }
-        });
+  workflow.on('setRoles', function () {
+    var roles = opts.user.roles;
 
-        callback(null, roles);
-      }
+    if (opts.op === 'remove') {
+      roles.forEach(function(role, i, arr) {
+        var index = action.value.indexOf(role);
+        if (index > -1) {
+          roles.splice(index, 1);
+        }
+      });
 
-      else if (op === 'add') {
-        req.app.db.models.Role.find().exec(function (err, allRoles) {
-          if (err) {
-            return console.log(err);
-          }
+      workflow.emit('patchMode', roles);
+    }
 
-          allRoles.forEach(function(roleItem, i, arr) {
-            if (action.value.indexOf(roleItem._id) > -1) {
-              roles.push(action.value);
-            }
-          });
-
-          callback(null, roles);
-        });
-      }
-    },
-
-    /**
-     * Patch roles
-     * @param callback
-     */
-    function(roles, callback) {
-      var fieldsToSet = {
-        roles: roles
-      };
-
-      req.app.db.models.User.findByIdAndUpdate(user.id, fieldsToSet, function (err, updatedUser) {
+    else if (opts.op === 'add') {
+      req.app.db.models.Role.find().exec(function (err, allRoles) {
         if (err) {
           return console.log(err);
         }
 
-        updatedUser.populate('roles', 'name', function (err, updatedUser) {
-          if (err) {
-            return console.log(err);
+        allRoles.forEach(function(roleItem, i, arr) {
+          if (opts.action.value.indexOf(roleItem._id) > -1) {
+            roles.push(opts.action.value);
           }
-
-          callback(null, updatedUser);
         });
+
+        workflow.emit('patchMode', roles);
       });
     }
-  ], function (err, result) {
-    return {user: result};
   });
+
+  workflow.on('patchMode', function (roles) {
+    var fieldsToSet = {
+      roles: roles
+    };
+
+    req.app.db.models.User.findByIdAndUpdate(user.id, fieldsToSet, function (err, updatedUser) {
+      if (err) {
+        return console.log(err);
+      }
+
+      updatedUser.populate('roles', 'name', function (err, updatedUser) {
+        if (err) {
+          return console.log(err);
+        }
+
+        return {user: updatedUser};
+      });
+    });
+  });
+
+  workflow.emit('validate');
 };
