@@ -320,7 +320,7 @@ exports.delete = function (req, res, next) {
   workflow.emit('validate');
 };
 
-exports.removeSession = function (req, res, next) {console.log(req.body);
+exports.removeSession = function (req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
   var cond = {_id: req.body.cid, user: req.user.id};
   req.app.db.models.JwtSession.findOneAndRemove(cond, function (err, session) {
