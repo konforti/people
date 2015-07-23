@@ -1,8 +1,31 @@
-# People - Remote Users Management
+# People - Remote Identity Management
 
 [![Build Status](https://travis-ci.org/konforti/people.svg?branch=master)](https://travis-ci.org/konforti/people)
 [![Dependency Status](https://david-dm.org/konforti/people.svg?theme=shields.io)](https://david-dm.org/konforti/people)
 [![devDependency Status](https://david-dm.org/konforti/people/dev-status.svg?theme=shields.io)](https://david-dm.org/konforti/people#info=devDependencies)
+
+## Features
+
+| Remote login | Management 
+| --- | ---
+| Register / Login | Custom account fields
+| Forgot password | Roles / Permissions
+| Social login | Email templates
+| Verify email  | Rules / Webhooks
+| Profile settings | App settings
+| Social connect | API
+| Token based authentication (JWT)
+| Sessions control
+
+
+
+Management
+  Custom account fields
+  Roles / Permissions
+  Email templates
+  Rules / Webhooks
+  App settings
+  API
 
 ## Wiki
 
