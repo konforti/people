@@ -8,6 +8,27 @@ html, body {
     color: #fff;
     height: calc(100% - 50px);
 }
+#header #buttons a {
+    padding: 10px 20px;
+    color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin: 5px;
+    text-decoration: none;
+    display: inline-block;
+}
+#header #page-title-wrp {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -100%);
+    text-align: center;
+}
+#header h1#page-title {
+    margin: 0;
+    font-size: 8em;
+    font-family: serif;
+}
 #page {
     max-width: 1000px;
     margin: 0 auto;
@@ -16,66 +37,61 @@ html, body {
     font-family: sans-serif;
     font-size: 20px;
 }
-#buttons a {
-    padding: 10px 20px;
-    color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    margin: 5px;
-    text-decoration: none;
-}
-#page-title-wrp {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -100%);
-    text-align: center;
-}
-h1#page-title {
-    margin: 0;
-    font-size: 8em;
-    font-family: serif;
-}
-h2#section {
-    color: #999;
-}
-#ppl-user-block {
-    position: absolute;
-    right: 130px;
-    top: 10px;
-}
-#ppl-user-avatar {
-    width: 40px;
-    border-radius: 100%;
-    vertical-align: middle;
-    margin-right: 10px;
-}
-#ppl-user-block a {
+#page h2#section {
+    color: #ccc;
+    background-color: #333;
     display: inline-block;
-    color: #fff;
-    text-decoration: none;
+    padding: 0 20px;
 }
-#footer {
+#page #footer {
     border-top: 1px solid #ccc;
     margin-top: 70px;
+    padding: 70px 0;
+    color: #999;
+    text-align: center;
 }
-h3 {
+#page h3, h4 {
+    margin: 10px 0;
     font-weight: normal;
-    font-size: 36px;
+    display: inline-block;
 }
-h4 {
-    font-weight: normal;
+#page h3 {
+    font-size: 44px;
+    font-family: serif;
+    color: #999;
+    font-style: italic;
+}
+#page h4 {
     font-size: 32px;
-    margin-bottom: 10px;
 }
-ul, p {
+#page h3:hover + .icon-link,
+#page h4:hover + .icon-link {
+    color: #ccc;
+}
+#page ul {
     margin-top: 0;
 }
-p {
-
+#page ul > li {
+    list-style-type: none;
 }
-em {
+#page p {
+    margin: 10px 0;
+}
+#page em {
     color: #777;
+}
+#page code {
+    background-color: #f1f1f1;
+    padding: 0 4px;
+    color: rgb(148, 10, 10);
+}
+#page .icon-link {
+    display: inline-block;
+    color: #fff;
+    vertical-align: super;
+}
+#page .icon-link:hover {
+    color: #999;
 }
 #page .gist .gist-file,
 #page .gist .gist-data {
@@ -90,4 +106,20 @@ em {
     background: #f8f8f8;
     font-size: 20px;
     padding: 20px;
+}
+#ppl-user-block {
+    position: absolute;
+    right: 130px;
+    top: 10px;
+}
+#ppl-user-block a {
+    display: inline-block;
+    color: #fff;
+    text-decoration: none;
+}
+#ppl-user-avatar {
+    width: 40px;
+    border-radius: 100%;
+    vertical-align: middle;
+    margin-right: 10px;
 }
