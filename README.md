@@ -14,8 +14,8 @@
 | Verify email  | Rules / Webhooks
 | Profile settings | App settings
 | Social connect | API
-| Token based authentication (JWT)
-| Sessions control
+| Token based authentication (JWT) |
+| Sessions control |
 
 
 
