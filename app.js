@@ -60,14 +60,13 @@ app.set('view engine', 'jade');
 // Middleware.
 app.use(require('morgan')('dev'));
 app.use(require('compression')());
-app.use(serveStatic(path.join(__dirname, 'components/remote/public'), {
+app.use(serveStatic(path.join(__dirname, 'public'), {
   setHeaders: function(res, path) {
     if (app.appSettings.allowDomains.indexOf(res.req.headers.origin) > -1) {
       res.setHeader("Access-Control-Allow-Origin", res.req.headers.origin);
     }
   }
 }));
-app.use(serveStatic(path.join(__dirname, 'components/web/public')));
 app.use(function(req, res, next) {
   if (req.headers.authorization || req.method === 'OPTIONS') {
     return next();

@@ -1,5 +1,8 @@
 bower_components/*
-public/vendor/*
+public/cdn*
+public/layouts*
+public/vendor*
+public/views*
 node_modules/*
 *.min.js
 *.min.js.map
