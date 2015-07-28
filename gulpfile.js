@@ -34,7 +34,7 @@ gulp.task('copy', function () {
   gulp.src([
     './node_modules/font-awesome/fonts/*'
   ])
-    .pipe(gulp.dest('./public/vendors/fonts'));
+    .pipe(gulp.dest('./public/fonts'));
 });
 
 gulp.task('nodemon', function () {
