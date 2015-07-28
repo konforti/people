@@ -3,7 +3,7 @@ html
     head
         title Email Verification
         meta(name='viewport', content='width=device-width, initial-scale=1.0')
-        link(rel='stylesheet', href='/layouts/core.min.css?#{cacheBreaker}')
+        link(rel='stylesheet', href='/views/core.min.css?#{cacheBreaker}')
 
     body
         div.page
@@ -16,7 +16,7 @@ html
 
             script(type='application/json', id='data-record') !{data}
 
-        script(src='/layouts/core.min.js?#{cacheBreaker}')
+        script(src='/views/core.min.js?#{cacheBreaker}')
         script(src='/register/success.js?#{cacheBreaker}')
 
 

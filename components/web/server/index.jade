@@ -1,0 +1,15 @@
+doctype html
+html
+    head
+        block head
+            title #{title}
+            meta(name='viewport', content='width=device-width, initial-scale=1.0')
+            link(rel='stylesheet', href='/views/vendors.min.css?#{cacheBreaker}')
+            link(rel='stylesheet', href='/views/main.min.css?#{cacheBreaker}')
+            link(rel='stylesheet', href='/vendors/bootstrap.min.css')
+            link(rel='stylesheet', href='/vendors/font-awesome.min.css')
+    body
+        div#page
+
+        script(src='/views/layouts.min.js?#{cacheBreaker}')
+        script(src='/views/views.min.js?#{cacheBreaker}')
