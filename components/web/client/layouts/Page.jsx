@@ -8,6 +8,7 @@ var Component = React.createClass({
       <div>
         <NavBar activeTab={this.props.activeTab} appName="People"/>
         <div className="container">
+          <h1 className="page-header">{this.props.title}</h1>
           {this.props.children}
         </div>
         <Footer appName="People"/>

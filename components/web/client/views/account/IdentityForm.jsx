@@ -12,7 +12,6 @@ var Component = React.createClass({
     return {};
   },
   componentWillReceiveProps: function (nextProps) {
-
     if (!this.state.hydrated) {
       this.setState({
         username: nextProps.data.username,
@@ -21,7 +20,6 @@ var Component = React.createClass({
     }
   },
   handleSubmit: function (event) {
-
     event.preventDefault();
     event.stopPropagation();
 
@@ -50,7 +48,6 @@ var Component = React.createClass({
         Loading data...
       </div>;
     }
-
 
     var identity =
       <div id="identity">

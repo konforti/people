@@ -15,7 +15,6 @@ var Component = React.createClass({
     router: React.PropTypes.func
   },
   getInitialState: function () {
-
     UserStore.resetIdentity();
     UserStore.resetPassword();
     UserStore.resetDelete();
@@ -29,15 +28,12 @@ var Component = React.createClass({
     };
   },
   componentDidMount: function () {
-
     UserStore.addChangeListener(this.onStoreChange);
   },
   componentWillUnmount: function () {
-
     UserStore.removeChangeListener(this.onStoreChange);
   },
   onStoreChange: function () {
-
     this.setState({
       identity: UserStore.getIdentity(),
       password: UserStore.getPassword(),
@@ -45,22 +41,26 @@ var Component = React.createClass({
     });
   },
   render: function () {
+    var alerts = [];
+    if (this.state.success) {
+      alerts.push(<div key="success" className="alert alert-success">
+        Success. Redirecting...
+      </div>);
+    }
+    else if (this.state.error) {
+      alerts.push(<div key="danger" className="alert alert-danger">
+        {this.state.error}
+      </div>);
+    }
+
     return (
       <Layout title="Account" activeTab="account">
         <section className="section-user-details container">
-          <h1 className="page-header">
-          </h1>
           <div className="row">
             <div className="col-sm-6">
               <IdentityForm data={this.state.identity} />
-              <PasswordForm
-                data={this.state.password}
-                identity={this.state.identity}
-                />
-              <DeleteForm
-                data={this.state.delete}
-                details={this.state.identity}
-                />
+              <PasswordForm data={this.state.password} identity={this.state.identity} />
+              <DeleteForm data={this.state.delete} details={this.state.identity} />
             </div>
           </div>
         </section>

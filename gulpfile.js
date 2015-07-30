@@ -13,10 +13,6 @@ var glob = require('glob');
 var UglifyJsPlugin = webpack.optimize.UglifyJsPlugin;
 var executionCount = 0;
 
-gulp.doneCallback = function (err) {
-  process.exit(err ? 1 : 0);
-};
-
 gulp.task('default', ['watch', 'build', 'nodemon']);
 
 gulp.task('build', ['copy', 'less', 'webpack']);
@@ -95,13 +91,6 @@ gulp.task('webpack', function (callback) {
     watch: global.isWatching,
     entry: {
       routs: clientPath + '/views/Routes.jsx'
-      //layouts: glob.sync(clientPath + '/layouts/**/*.js').concat(
-      //  glob.sync(clientPath + '/layouts/**/*.jsx')
-      //),
-      //views:
-      //  glob.sync(clientPath + '/views/**/*.js').concat(
-      //    glob.sync(clientPath + '/views/**/*.jsx')
-      //  )
     },
     output: {
       path: './public/views',

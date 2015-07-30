@@ -1,4 +1,6 @@
 var React = require('react/addons');
+var Router = require('react-router');
+var Link = Router.Link;
 var ClassNames = require('classnames');
 
 
@@ -13,28 +15,28 @@ var Component = React.createClass({
             <div className="navbar navbar-default navbar-fixed-top">
                 <div className="container">
                     <div className="navbar-header">
-                        <a className="navbar-brand" href="/">
+                        <Link to="/" className="navbar-brand">
                             <img
                                 className="navbar-logo"
                                 src="/media/logo-symbol-32x32.png"
                             />
                             <span className="navbar-brand-label">{this.props.appName}</span>
-                        </a>
+                        </Link>
                     </div>
                     <div>
                         <ul className="nav navbar-nav">
                             <li className={this.tabClass('home')}>
-                                <a href="/">Home</a>
+                                <Link to="/">Home</Link>
                             </li>
                             <li className={this.tabClass('about')}>
-                                <a href="/about">About</a>
+                                <Link to="/about">About</Link>
                             </li>
                         </ul>
                         <ul className="nav navbar-nav navbar-right">
                             <li className={this.tabClass('login')}>
-                                <a href="/login">
+                                <Link to="/login">
                                     <i className="fa fa-user">Login</i>
-                                </a>
+                                </Link>
                             </li>
                         </ul>
                     </div>
