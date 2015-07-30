@@ -1,5 +1,3 @@
-'use strict';
-
 var React = require('react/addons');
 var ClassNames = require('classnames');
 
@@ -18,12 +16,12 @@ var Component = React.createClass({
                         <a className="navbar-brand" href="/">
                             <img
                                 className="navbar-logo"
-                                src="/public/media/logo-symbol-32x32.png"
+                                src="/media/logo-symbol-32x32.png"
                             />
                             <span className="navbar-brand-label">{this.props.appName}</span>
                         </a>
                     </div>
-                    <div className="navbar-collapse my-navbar-collapse collapse">
+                    <div>
                         <ul className="nav navbar-nav">
                             <li className={this.tabClass('home')}>
                                 <a href="/">Home</a>

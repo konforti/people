@@ -13,6 +13,10 @@ var glob = require('glob');
 var UglifyJsPlugin = webpack.optimize.UglifyJsPlugin;
 var executionCount = 0;
 
+gulp.doneCallback = function (err) {
+  process.exit(err ? 1 : 0);
+};
+
 gulp.task('default', ['watch', 'build', 'nodemon']);
 
 gulp.task('build', ['copy', 'less', 'webpack']);
@@ -45,7 +49,7 @@ gulp.task('nodemon', function () {
 
   nodemon({
     script: 'server.js',
-    ext: 'js',
+    ext: 'js jsx',
     ignore: [
       'public/**/*',
       'node_modules/**/*'
@@ -59,10 +63,18 @@ gulp.task('nodemon', function () {
 
 gulp.task('less', function () {
   var bundleConfigs = [{
-    entries: './components/web/client/**/*.less',
+    entries: './components/web/client/views/**/*.less',
     dest: './public/views',
-    outputName: 'main.min.css'
-  }, {
+    outputName: 'views.min.css'
+  },{
+    entries: './components/web/client/layouts/**/*.less',
+    dest: './public/views',
+    outputName: 'layouts.min.css'
+  },{
+    entries: './components/web/client/admin/**/*.less',
+    dest: './public/views',
+    outputName: 'admin.min.css'
+  },{
     entries: './components/remote/client/cdn/themes/less/people-basic.less',
     dest: './public/cdn/themes',
     outputName: 'people-basic.min.css'
@@ -78,38 +90,41 @@ gulp.task('less', function () {
 });
 
 gulp.task('webpack', function (callback) {
-  webpack({
-      watch: global.isWatching,
-      entry: {
-        about: ['./components/web/client/views/about/index'],
-        layouts: glob.sync('./components/web/client/layouts/**/*.js').concat(
-          glob.sync('./components/web/client/layouts/**/*.jsx')
-        ),
-        views:
-          glob.sync('./components/web/client/views/**/*.js').concat(
-            glob.sync('./components/web/client/views/**/*.jsx')
-          )
-      },
-      output: {
-        path: './public/views',
-        filename: '[name].min.js',
-        sourceMapFilename: '[name].map.js'
-      },
-      resolve: {
-        extensions: ['', '.js', '.jsx']
-      },
-      module: {
-        loaders: [
-          {test: /\.jsx$/, exclude: /node_modules/, loader: 'babel-loader'}
-        ]
-      },
-      devtool: 'source-map',
-      plugins: [
-        //new webpack.optimize.CommonsChunkPlugin('../views/core.min.js', undefined, 2),
-        //new UglifyJsPlugin({compress: {warnings: false}})
+  var clientPath = path.join(__dirname, '/components/web/client');
+  var config = {
+    watch: global.isWatching,
+    entry: {
+      routs: clientPath + '/views/Routes.jsx'
+      //layouts: glob.sync(clientPath + '/layouts/**/*.js').concat(
+      //  glob.sync(clientPath + '/layouts/**/*.jsx')
+      //),
+      //views:
+      //  glob.sync(clientPath + '/views/**/*.js').concat(
+      //    glob.sync(clientPath + '/views/**/*.jsx')
+      //  )
+    },
+    output: {
+      path: './public/views',
+      filename: '[name].min.js',
+      sourceMapFilename: '[name].map.js'
+    },
+    resolve: {
+      alias: {CLIENT_PATH: clientPath},
+      extensions: ['', '.js', '.jsx']
+    },
+    module: {
+      loaders: [
+        {test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader'},
+        {test: /\.jsx$/, exclude: /node_modules/, loader: 'babel-loader'}
       ]
     },
-    function (err, stats) {
+    devtool: 'source-map',
+    plugins: [
+      //new webpack.optimize.CommonsChunkPlugin('./views.min.js', undefined, 2),
+      new UglifyJsPlugin({compress: {warnings: false}})
+    ]
+  };
+  webpack(config, function (err, stats) {
       if (err) {
         throw new gutil.PluginError('webpack', err);
       }
