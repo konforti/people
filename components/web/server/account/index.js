@@ -1,7 +1,7 @@
 'use strict';
 
 var renderSettings = function (req, res, next, oauthMessage) {
-  var outcome = {};
+  var workflow = req.app.utility.workflow(req, res);
 
   var getAccount = function (callback) {
     req.app.db.models.User.findById(req.user.id).exec(function (err, record) {
@@ -9,7 +9,7 @@ var renderSettings = function (req, res, next, oauthMessage) {
         callback(err, null);
       }
 
-      outcome.record = record;
+      workflow.outcome.record = record;
       return callback(null, 'done');
     });
   };
@@ -20,19 +20,19 @@ var renderSettings = function (req, res, next, oauthMessage) {
         return callback(err, null);
       }
 
-      outcome.fields = fields;
+      workflow.outcome.fields = fields;
       return callback(null, 'done');
     });
   };
 
   var getSocial = function (callback) {
-    outcome.socials = {};
+    workflow.outcome.socials = {};
     var settings = req.app.getSettings();
     req.app.config.socials.forEach(function(social, index, arr) {
       if (!!settings[social + 'Key']) {
-        outcome.socials[social] = {
+        workflow.outcome.socials[social] = {
           key: !!settings[social + 'Key'],
-          active: outcome.record[social] ? !!outcome.record[social].id : false
+          active: workflow.outcome.record[social] ? !!workflow.outcome.record[social].id : false
         };
       }
     });
@@ -42,7 +42,7 @@ var renderSettings = function (req, res, next, oauthMessage) {
 
   var getSessions = function(callback) {
     var moment = require('moment');
-    outcome.sessions = [];
+    workflow.outcome.sessions = [];
 
     req.app.db.models.JwtSession.find({user: req.user.id}, function (err, sessions) {
       if (err) {
@@ -59,7 +59,7 @@ var renderSettings = function (req, res, next, oauthMessage) {
           current: session.id === req.user.jwtSession
         };
 
-        outcome.sessions.push(sess);
+        workflow.outcome.sessions.push(sess);
       });
 
       callback(null);
@@ -71,25 +71,26 @@ var renderSettings = function (req, res, next, oauthMessage) {
       return next(err);
     }
 
-    outcome.fields.forEach(function(field, index, array) {
+    workflow.outcome.fields.forEach(function(field, index, array) {
       field.value = '';
-      for(var key in outcome.record.fields) {
-        if (outcome.record.fields.hasOwnProperty(key)) {
+      for(var key in workflow.outcome.record.fields) {
+        if (workflow.outcome.record.fields.hasOwnProperty(key)) {
           if (field._id === key) {
-            field.value = outcome.record.fields[key];
+            field.value = workflow.outcome.record.fields[key];
           }
         }
       }
     });
 
-    res.render('web/server/account/index', {
-      data: {
-        record: escape(JSON.stringify(outcome.record)),
-        fields: outcome.fields,
-        socials: outcome.socials,
-        sessions: outcome.sessions
-      }
-    });
+    workflow.emit('response;');
+    //res.render('web/server/account/index', {
+    //  data: {
+    //    record: escape(JSON.stringify(outcome.record)),
+    //    fields: outcome.fields,
+    //    socials: outcome.socials,
+    //    sessions: outcome.sessions
+    //  }
+    //});
   };
 
   require('async').series([getAccount, getFields, getSocial, getSessions], asyncFinally);

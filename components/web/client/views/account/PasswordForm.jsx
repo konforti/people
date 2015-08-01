@@ -54,7 +54,6 @@ var Component = React.createClass({
                         type="password"
                         //hasError={this.props.data.hasError.password}
                         valueLink={this.linkState('password')}
-                        //help={this.props.data.help.password}
                         //disabled={this.props.data.loading}
                     />
                     <TextControl
@@ -63,7 +62,6 @@ var Component = React.createClass({
                         type="password"
                         //hasError={this.props.data.hasError.passwordConfirm}
                         valueLink={this.linkState('passwordConfirm')}
-                        //help={this.props.data.help.passwordConfirm}
                         //disabled={this.props.data.loading}
                     />
                     <ControlGroup hideLabel={true} hideHelp={true}>

@@ -11,9 +11,8 @@ var Store = FluxStore.extend({
     defaultState: {
         loading: false,
         success: false,
-        error: undefined,
+        errors: [],
         hasError: {},
-        help: {}
     },
     getState: function () {
         return this.state;
@@ -27,20 +26,16 @@ var Store = FluxStore.extend({
         if (ActionTypes.LOGIN === action.type) {
             this.state.loading = true;
             this.state.success = false;
-            this.state.error = undefined;
+            this.state.errors = [];
             this.state.hasError = {};
-            this.state.help = {};
             this.emitChange();
         }
 
         if (ActionTypes.LOGIN_RESPONSE === action.type) {
-            var validation = ParseValidation(action.data.validation, action.data.message);
-
             this.state.loading = false;
             this.state.success = action.data.success;
-            this.state.hasError = validation.hasError;
-            this.state.help = validation.help;
-            this.state.error = validation.error;
+            this.state.hasError = action.data.errfor;
+            this.state.errors = action.data.errors;
 
             this.emitChange();
         }

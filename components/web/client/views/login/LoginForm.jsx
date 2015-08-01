@@ -6,10 +6,12 @@ var Spinner = require('CLIENT_PATH/components/form/Spinner.jsx');
 var Actions = require('CLIENT_PATH/views/login/Actions.js');
 var ReactRouter = require('react-router');
 var Link = ReactRouter.Link;
-var LinkedState = React.addons.LinkedStateMixin;
 
 var Component = React.createClass({
-  mixins: [LinkedState],
+  mixins: [React.addons.LinkedStateMixin],
+  getInitialState: function () {
+    return {};
+  },
   componentWillReceiveProps: function (nextProps) {
     if (!this.state.hydrated) {
       this.setState(nextProps.data);
@@ -26,47 +28,45 @@ var Component = React.createClass({
   },
   render: function () {
     var alerts = [];
-    if (this.state.success) {
+    if (this.props.data.success) {
       alerts.push(<div key="success" className="alert alert-success">
         Success. Redirecting...
       </div>);
     }
-    else if (this.state.error) {
+    else if (this.props.data.error) {
       alerts.push(<div key="danger" className="alert alert-danger">
-        {this.state.error}
+        {this.props.data.error}
       </div>);
     }
 
     var formElements;
-    if (!this.state.success) {
+    if (!this.props.data.success) {
       formElements =
         <fieldset>
           <TextControl
             name="username"
             label="Username or email"
             ref="username"
-            hasError={this.state.hasError.username}
-            //valueLink={this.linkState('username')}
-            help={this.state.help.username}
-            disabled={this.state.loading}
+            hasError={this.props.data.hasError.username}
+            valueLink={this.linkState('username')}
+            disabled={this.props.data.loading}
             />
           <TextControl
             name="password"
             label="Password"
             type="password"
-            hasError={this.state.hasError.password}
-            //valueLink={this.linkState('password')}
-            help={this.state.help.password}
-            disabled={this.state.loading}
+            hasError={this.props.data.hasError.password}
+            valueLink={this.linkState('password')}
+            disabled={this.props.data.loading}
             />
           <ControlGroup hideLabel={true} hideHelp={true}>
             <Button
               type="submit"
               inputClasses={{ 'btn-primary': true }}
-              disabled={this.state.loading}>
+              disabled={this.props.data.loading}>
 
               Login
-              <Spinner space="left" show={this.state.loading} />
+              <Spinner space="left" show={this.props.data.loading} />
             </Button>
           </ControlGroup>
         </fieldset>;

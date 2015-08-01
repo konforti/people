@@ -58,7 +58,6 @@ var Component = React.createClass({
           label="Username"
           hasError={this.props.data.hasError.username}
           valueLink={this.linkState('username')}
-          help={this.props.data.help.username}
           disabled={this.props.data.loading}
           />
         <TextControl
@@ -66,7 +65,6 @@ var Component = React.createClass({
           label="Email"
           hasError={this.props.data.hasError.email}
           valueLink={this.linkState('email')}
-          help={this.props.data.help.email}
           disabled={this.props.data.loading}
           />
       </div>;
@@ -78,7 +76,6 @@ var Component = React.createClass({
           label={field.name}
           hasError={field.props.data.hasError.field.id}
           valueLink={field.linkState(field.id)}
-          help={field.props.data.help.field.id}
           disabled={field.props.data.loading}
           />
       });

@@ -17,7 +17,6 @@ var Store = FluxStore.extend({
       success: false,
       error: undefined,
       hasError: {},
-      help: {},
       _id: undefined,
       username: '',
       email: '',

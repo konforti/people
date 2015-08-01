@@ -1,5 +1,6 @@
 var Dispatcher = require('flux-dispatcher');
 var Constants = require('CLIENT_PATH/views/login/Constants.js');
+var Cookie = require('cookie');
 var Ajax = require('reqwest');
 
 var VIEW_ACTION = Constants.PayloadSources.VIEW_ACTION;
@@ -19,9 +20,17 @@ var Actions = {
       error: function (err) {
       },
       success: function (res) {
-        if (!err) {
-          window.location.href = '/account';
-          res.success = true;
+        console.log(res);
+        if (res.success) {
+          var cookies = Cookie.parse(document.cookie);
+          if (cookies['people.token']) {
+            var payload = data.jwt.split('.')[1];
+            payload = urlBase64Decode(payload);
+            sessionStorage.setItem('people.user', payload);
+
+            window.location.href = '/account';
+            res.success = true;
+          }
         }
         dispatch(SERVER_ACTION, Types.LOGIN_RESPONSE, res);
       }
