@@ -12,10 +12,7 @@ var glob = require('glob');
 
 var UglifyJsPlugin = webpack.optimize.UglifyJsPlugin;
 var executionCount = 0;
-
-gulp.doneCallback = function (err) {
-  process.exit(err ? 1 : 0);
-};
+var clientPath = path.join(__dirname, '/components/web/client');
 
 gulp.task('default', ['watch', 'build', 'nodemon']);
 
@@ -23,9 +20,8 @@ gulp.task('build', ['copy', 'less', 'webpack']);
 
 gulp.task('watch', function () {
   global.isWatching = true;
-  gulp.watch('./components/web/client/views/**/*.less', ['less']);
-  gulp.watch('./components/web/client/layouts/**/*.less', ['less']);
-  gulp.watch('./components/remote/client/cdn/**/**/*.less', ['less']);
+  gulp.watch('./components/web/client/**/*.less', ['less']);
+  gulp.watch('./components/remote/client/**/**/*.less', ['less']);
 });
 
 gulp.task('copy', function () {
@@ -35,10 +31,11 @@ gulp.task('copy', function () {
   ])
     .pipe(gulp.dest('./public/vendors'));
 
-  gulp.src([
-    './node_modules/font-awesome/fonts/*'
-  ])
+  gulp.src(['./node_modules/font-awesome/fonts/**'])
     .pipe(gulp.dest('./public/fonts'));
+
+  gulp.src([clientPath + '/media/**/*'])
+    .pipe(gulp.dest('./public/media'));
 });
 
 gulp.task('nodemon', function () {
@@ -52,6 +49,7 @@ gulp.task('nodemon', function () {
     ext: 'js jsx',
     ignore: [
       'public/**/*',
+      clientPath + '/**/*',
       'node_modules/**/*'
     ],
     nodeArgs: nodeArgs
@@ -63,21 +61,21 @@ gulp.task('nodemon', function () {
 
 gulp.task('less', function () {
   var bundleConfigs = [{
-    entries: './components/web/client/views/**/*.less',
-    dest: './public/views',
-    outputName: 'views.min.css'
-  },{
-    entries: './components/web/client/layouts/**/*.less',
-    dest: './public/views',
-    outputName: 'layouts.min.css'
-  },{
-    entries: './components/web/client/admin/**/*.less',
-    dest: './public/views',
+    entries: clientPath + '/layouts/default.less',
+    dest: './public/layouts',
+    outputName: 'default.min.css'
+  }, {
+    entries: clientPath + '/pages/account/index.less',
+    dest: './public/pages',
+    outputName: 'account.min.css'
+  }, {
+    entries: clientPath + '/pages/admin/index.less',
+    dest: './public/pages',
     outputName: 'admin.min.css'
-  },{
-    entries: './components/remote/client/cdn/themes/less/people-basic.less',
-    dest: './public/cdn/themes',
-    outputName: 'people-basic.min.css'
+  }, {
+    entries: clientPath +'/pages/home/index.less',
+    dest: './public/pages',
+    outputName: 'home.min.css'
   }];
 
   return bundleConfigs.map(function (bundleConfig) {
@@ -90,46 +88,48 @@ gulp.task('less', function () {
 });
 
 gulp.task('webpack', function (callback) {
-  var clientPath = path.join(__dirname, '/components/web/client');
   var config = {
     watch: global.isWatching,
     entry: {
-      routs: clientPath + '/views/Routes.jsx'
+      account: clientPath + '/pages/account/index',
+      admin: clientPath + '/pages/admin/index',
+      contact: clientPath + '/pages/contact/index',
+      login: clientPath + '/pages/login/index',
+      signup: clientPath + '/pages/signup/index'
     },
     output: {
-      path: './public/views',
+      path: './public/pages',
       filename: '[name].min.js',
       sourceMapFilename: '[name].map.js'
     },
     resolve: {
-      alias: {CLIENT_PATH: clientPath},
       extensions: ['', '.js', '.jsx']
     },
     module: {
       loaders: [
-        {test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader'},
-        {test: /\.jsx$/, exclude: /node_modules/, loader: 'babel-loader'}
+        { test: /\.jsx$/, exclude: /node_modules/, loader: 'babel-loader' }
       ]
     },
     devtool: 'source-map',
     plugins: [
-      //new webpack.optimize.CommonsChunkPlugin('./views.min.js', undefined, 2),
-      new UglifyJsPlugin({compress: {warnings: false}})
+      new webpack.optimize.CommonsChunkPlugin('../core.min.js', undefined, 2),
+      new UglifyJsPlugin({ compress: { warnings: false } })
     ]
   };
+
   webpack(config, function (err, stats) {
-      if (err) {
-        throw new gutil.PluginError('webpack', err);
-      }
+    if (err) {
+      throw new gutil.PluginError('webpack', err);
+    }
 
-      gutil.log('[webpack]', stats.toString({
-        colors: true,
-        chunkModules: false
-      }));
+    gutil.log('[webpack]', stats.toString({
+      colors: true,
+      chunkModules: false
+    }));
 
-      if (executionCount === 0) {
-        callback();
-      }
-      executionCount += 1;
-    });
+    if (executionCount === 0) {
+      callback();
+    }
+    executionCount += 1;
+  });
 });

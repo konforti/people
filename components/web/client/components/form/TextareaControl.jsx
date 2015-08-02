@@ -1,6 +1,6 @@
 var React = require('react/addons');
 var ObjectAssign = require('object-assign');
-var ControlGroup = require('CLIENT_PATH/components/form/ControlGroup');
+var ControlGroup = require('../../components/form/ControlGroup');
 var ClassNames = require('classnames');
 
 

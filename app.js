@@ -55,7 +55,8 @@ require('./schema/models')(app, mongoose);
 app.disable('x-powered-by');
 app.set('port', config.port);
 app.set('views', path.join(__dirname, 'components'));
-app.set('view engine', 'jade');
+app.set('view engine', 'jsx');
+app.engine('jsx', require('express-react-views').createEngine({ beautify: true }));
 
 // Middleware.
 app.use(require('morgan')('dev'));

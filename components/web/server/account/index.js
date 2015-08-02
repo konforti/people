@@ -83,14 +83,14 @@ var renderSettings = function (req, res, next, oauthMessage) {
     });
 
     workflow.emit('response;');
-    //res.render('web/server/account/index', {
-    //  data: {
-    //    record: escape(JSON.stringify(outcome.record)),
-    //    fields: outcome.fields,
-    //    socials: outcome.socials,
-    //    sessions: outcome.sessions
-    //  }
-    //});
+    res.render('web/server/account/index', {
+      data: {
+        record: escape(JSON.stringify(outcome.record)),
+        fields: outcome.fields,
+        socials: outcome.socials,
+        sessions: outcome.sessions
+      }
+    });
   };
 
   require('async').series([getAccount, getFields, getSocial, getSessions], asyncFinally);

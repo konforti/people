@@ -1,5 +1,6 @@
 'use strict';
 
 exports.init = function (req, res) {
-  res.render('web/server/server/index');
+  var settings = req.app.getSettings();
+  res.render('web/server/index', {appName: settings.projectName});
 };

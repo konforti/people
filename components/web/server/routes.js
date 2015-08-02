@@ -35,9 +35,9 @@ function ensureAdmin(req, res, next) {
  * @type {Function}
  */
 exports = module.exports = function (app, passport) {
-  app.get('*', function (req, res) {
-    res.render('web/server/index');
-  });
+  //app.get('*', function (req, res) {
+  //  res.render('web/server/index');
+  //});
 
   // Front end.
   app.get('/', require('./index').init);
