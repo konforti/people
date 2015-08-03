@@ -11,6 +11,7 @@ var Store = FluxStore.extend({
   state: {},
   defaultState: {
     identity: {
+      action: undefined,
       hydrated: false,
       fetchFailure: false,
       loading: false,
@@ -20,7 +21,10 @@ var Store = FluxStore.extend({
       _id: undefined,
       username: '',
       email: '',
-      fields: []
+      fields: [],
+      fieldsData: [],
+      sessions: [],
+      socials: {}
     },
     delete: {
       loading: false,
@@ -68,13 +72,18 @@ var Store = FluxStore.extend({
         break;
 
       case ActionTypes.GET_IDENTITY_RESPONSE:
+        this.state.identity.action = action.type;
         this.state.identity.loading = false;
         this.state.identity.hydrated = true;
         this.state.identity.fetchFailure = action.data.fetchFailure;
         this.state.identity.success = action.data.success;
-        this.state.identity._id = action.data._id;
-        this.state.identity.name = action.data.name;
-        this.state.identity.user = action.data.user;
+        this.state.identity._id = action.data.record._id;
+        this.state.identity.username = action.data.record.username;
+        this.state.identity.email = action.data.record.email;
+        this.state.identity.fields = action.data.fields;
+        this.state.identity.fieldsData = action.data.record.fields;
+        this.state.identity.sessions = action.data.sessions;
+        this.state.identity.socials = action.data.socials;
         this.emitChange();
         break;
 
@@ -83,6 +92,7 @@ var Store = FluxStore.extend({
         this.emitChange();
 
       case ActionTypes.SAVE_IDENTITY_RESPONSE:
+        this.state.identity.action = action.type;
         this.state.identity.loading = false;
         this.state.identity.success = action.data.success;
 
@@ -92,8 +102,6 @@ var Store = FluxStore.extend({
             this.state.identity.success = undefined;
             this.emitChange();
           }.bind(this), 2500);
-
-          this.state.identity.name = action.data.name;
         }
 
         this.emitChange();
@@ -105,6 +113,7 @@ var Store = FluxStore.extend({
         break;
 
       case ActionTypes.DELETE_RESPONSE:
+        this.state.delete.action = action.type;
         this.state.delete.loading = false;
 
         if (action.data.success) {

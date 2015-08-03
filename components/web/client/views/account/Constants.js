@@ -8,7 +8,7 @@ module.exports = {
   ActionTypes: FluxConstant.set([
     'GET_IDENTITY',
     'GET_IDENTITY_RESPONSE',
-    'SAVE_IDENTITY_SETTINGS',
+    'SAVE_IDENTITY',
     'SAVE_IDENTITY_RESPONSE',
     'SAVE_PASSWORD',
     'SAVE_PASSWORD_RESPONSE'

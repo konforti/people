@@ -13,21 +13,38 @@ var Component = React.createClass({
   },
   componentWillReceiveProps: function (nextProps) {
     if (!this.state.hydrated) {
-      this.setState({
-        username: nextProps.data.username,
-        email: nextProps.data.email
+      var rows = {};
+      nextProps.data.fieldsData.forEach(function(fd) {
+        for(var key in fd) {
+          if (fd.hasOwnProperty(key)) {
+            rows[key] = fd[key];
+          }
+        }
       });
+
+      rows.username = nextProps.data.username;
+      rows.email = nextProps.data.email;
+
+      this.setState(rows);
     }
   },
   handleSubmit: function (event) {
     event.preventDefault();
     event.stopPropagation();
 
-    Actions.saveIdentity({
-      id: this.props.data._id,
-      username: this.state.username,
-      email: this.state.email
+    var _self = this;
+    var save = {fields: []};
+    this.props.data.fields.forEach(function(field) {
+      var row = {};
+      row[field._id] = _self.state[field._id] || '';
+      save.fields.push(row);
     });
+
+    save.id = this.props.data._id;
+    save.username = this.state.username;
+    save.email = this.state.email;
+
+    Actions.saveIdentity(save);
   },
   render: function () {
     var alerts = [];
@@ -69,16 +86,18 @@ var Component = React.createClass({
           />
       </div>;
 
-    var fields =
-      this.props.data.fields.forEach(function(field, idx, arr) {
-        return <TextControl
-          name={field.id}
-          label={field.name}
-          hasError={field.props.data.hasError.field.id}
-          valueLink={field.linkState(field.id)}
-          disabled={field.props.data.loading}
-          />
-      });
+    var _self = this;
+    var fields = [];
+    this.props.data.fields.forEach(function(field) {
+      fields.push(<TextControl
+        key={field._id}
+        name={field._id}
+        label={field.name}
+        hasError={_self.props.data.hasError[field.id]}
+        valueLink={_self.linkState(field._id)}
+        disabled={_self.props.data.loading}
+        />)
+    });
 
     var submit =
       <ControlGroup hideLabel={true} hideHelp={true}>
@@ -98,7 +117,6 @@ var Component = React.createClass({
 
       formElements =
         <div>
-          {alerts}
           {identity}
           {fields}
           {submit}

@@ -1,6 +1,6 @@
 var Dispatcher = require('flux-dispatcher');
 var Constants = require('CLIENT_PATH/views/account/Constants.js');
-var Ajax = require('reqwest');
+var $ = require('jquery');
 
 var VIEW_ACTION = Constants.PayloadSources.VIEW_ACTION;
 var SERVER_ACTION = Constants.PayloadSources.SERVER_ACTION;
@@ -10,7 +10,7 @@ var dispatch = Dispatcher.handleAction;
 var Actions = {
   getIdentity: function (data) {
     dispatch(VIEW_ACTION, Types.GET_IDENTITY, data);
-    Ajax({
+    $.ajax({
       method: 'GET',
       url: '/account',
       data: data,
@@ -22,17 +22,17 @@ var Actions = {
     });
   },
   saveIdentity: function (data) {
-    dispatch(VIEW_ACTION, Types.GET_IDENTITY, data);
-    Ajax({
+    dispatch(VIEW_ACTION, Types.SAVE_IDENTITY, data);
+    $.ajax({
       method: 'PUT',
-      url: '/accounts',
+      url: '/account',
       data: data,
       error: function (err) {},
       success: function (res) {
-        if (!err) {
-          response.success = true;
+        if (res.success) {
+          res.success = true;
         }
-        dispatch(SERVER_ACTION, Types.GET_IDENTITY_RESPONSE, res);
+        dispatch(SERVER_ACTION, Types.SAVE_IDENTITY_RESPONSE, res);
       }
     });
   },
@@ -46,7 +46,7 @@ var Actions = {
     }
 
     delete data.passwordConfirm;
-    Ajax({
+    $.ajax({
       method: 'PUT',
       url: '/account/password',
       data: data,

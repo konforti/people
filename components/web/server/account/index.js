@@ -9,7 +9,13 @@ var renderSettings = function (req, res, next, oauthMessage) {
         callback(err, null);
       }
 
-      workflow.outcome.record = record;
+      workflow.outcome.record = {
+        _id: record._id,
+        username: record.username,
+        email: record.email,
+        isVerified: record.isVerified,
+        fields: record.fields
+      };
       return callback(null, 'done');
     });
   };
@@ -82,7 +88,7 @@ var renderSettings = function (req, res, next, oauthMessage) {
       }
     });
 
-    workflow.emit('response;');
+    workflow.emit('response');
     //res.render('web/server/account/index', {
     //  data: {
     //    record: escape(JSON.stringify(outcome.record)),

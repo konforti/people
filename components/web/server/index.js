@@ -1,5 +1,5 @@
 'use strict';
 
 exports.init = function (req, res) {
-  res.render('web/server/server/index');
+  res.render('web/server/index');
 };

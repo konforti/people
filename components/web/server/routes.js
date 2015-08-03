@@ -29,15 +29,21 @@ function ensureAdmin(req, res, next) {
   res.redirect('/');
 }
 
+function baseRoute(req, res, next) {
+  if (!req.xhr) {
+    res.render('web/server/index');
+  }
+  else {
+    next();
+  }
+}
 
 /**
  * Web router.
  * @type {Function}
  */
 exports = module.exports = function (app, passport) {
-  app.get('*', function (req, res) {
-    res.render('web/server/index');
-  });
+  app.get('*', baseRoute);
 
   // Front end.
   app.get('/', require('./index').init);
