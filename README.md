@@ -20,12 +20,12 @@
 
 
 Management
-  Custom account fields
-  Roles / Permissions
-  Email templates
-  Rules / Webhooks
-  App settings
-  API
+ * Custom account fields
+ * Roles / Permissions
+ * Email templates
+ * Rules / Webhooks
+ * App settings
+ * API
 
 ## Wiki
 
