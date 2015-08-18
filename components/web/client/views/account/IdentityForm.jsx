@@ -4,6 +4,7 @@ var TextControl = require('CLIENT_PATH/components/form/TextControl.jsx');
 var SelectControl = require('CLIENT_PATH/components/form/SelectControl.jsx');
 var Button = require('CLIENT_PATH/components/form/Button.jsx');
 var Spinner = require('CLIENT_PATH/components/form/Spinner.jsx');
+var Message = require('CLIENT_PATH/components/Message.jsx');
 var Actions = require('CLIENT_PATH/views/account/Actions.js');
 
 var Component = React.createClass({
@@ -47,40 +48,29 @@ var Component = React.createClass({
     Actions.saveIdentity(save);
   },
   render: function () {
-    var alerts = [];
+    var message;
     if (this.props.data.success) {
-      alerts.push(<div key="success" className="alert alert-success">
-        Success. Changes have been saved.
-      </div>);
+      message = <Message type='success' message={this.props.data.successMessage} />;
     }
     else if (this.props.data.error) {
-      alerts.push(<div key="danger" className="alert alert-danger">
-        {this.props.data.error}
-      </div>);
-    }
-
-    var notice;
-    if (!this.props.data.hydrated) {
-      notice = <div className="alert alert-info">
-        Loading data...
-      </div>;
+      message = <Message type='danger' message={this.props.data.error} />;
     }
 
     var identity =
       <div id="identity">
         <legend>Identity</legend>
-        {alerts}
+
         <TextControl
           name="username"
           label="Username"
-          hasError={this.props.data.hasError.username}
+          help={this.props.data.help && this.props.data.help.username}
           valueLink={this.linkState('username')}
           disabled={this.props.data.loading}
           />
         <TextControl
           name="email"
           label="Email"
-          hasError={this.props.data.hasError.email}
+          help={this.props.data.help && this.props.data.help.email}
           valueLink={this.linkState('email')}
           disabled={this.props.data.loading}
           />
@@ -93,7 +83,7 @@ var Component = React.createClass({
         key={field._id}
         name={field._id}
         label={field.name}
-        hasError={_self.props.data.hasError[field.id]}
+        help={_self.props.data.help && _self.props.data.help[field.id]}
         valueLink={_self.linkState(field._id)}
         disabled={_self.props.data.loading}
         />)
@@ -125,7 +115,7 @@ var Component = React.createClass({
 
     return (
       <form onSubmit={this.handleSubmit}>
-        {notice}
+        {message}
         {formElements}
       </form>
     );

@@ -18,6 +18,7 @@ var routes = (
 
         <Route path="about" name="about" handler={About} />
         <Route path="login" name="login" handler={Login} />
+        <Route path="logout" name="login" handler={Logout} />
         <Route path="account" name="account" handler={Account} />
 
         <NotFoundRoute name="notFound" handler={NotFound} />

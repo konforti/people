@@ -11,7 +11,7 @@ var Component = React.createClass({
                     <ul className="links">
                         <li><a href="/">Home</a></li>
                         <li><a href="/admin">Admin</a></li>
-                        <li><a href="/logout">Sign out</a></li>
+                        <li><a href="/logout">Logout</a></li>
                     </ul>
                 </div>
             </div>

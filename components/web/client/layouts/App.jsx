@@ -2,14 +2,19 @@ var React = require('react/addons');
 var ReactRouter = require('react-router');
 var NavBar = require('./NavBar');
 var Footer = require('./Footer');
-var Cookie = require('cookie');
+var Cookies = require('js-cookie');
 var $ = require('jquery');
 
 $.ajaxSetup({
   beforeSend: function (xhr) {
-    var cookie = Cookie.parse(document.cookie);
-    if (cookie['people.token']) {
-      xhr.setRequestHeader('Authorization','Bearer ' + cookie['people.token']);
+    var cookie = Cookies.get('people.token');
+    if (cookie) {
+      xhr.setRequestHeader('Authorization','Bearer ' + cookie);
+    }
+  },
+  statusCode: {
+    403: function() {
+      location.href = '/login';
     }
   }
 });

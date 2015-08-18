@@ -2,6 +2,7 @@ var React = require('react/addons');
 var Router = require('react-router');
 var Link = Router.Link;
 var ClassNames = require('classnames');
+var User = require('CLIENT_PATH/utils/user.js');
 
 
 var Component = React.createClass({
@@ -11,6 +12,21 @@ var Component = React.createClass({
         });
     },
     render: function () {
+        var userBlock;
+        var user = User.isUser();
+        if (!user) {
+            userBlock =
+              <Link to="/login">
+                <i className="fa fa-user">Login</i>
+              </Link>
+        }
+        else {
+            userBlock =
+              <Link to="/account">
+                  <i className="fa fa-user">{user.username}</i>
+              </Link>
+        }
+
         return (
             <div className="navbar navbar-default navbar-fixed-top">
                 <div className="container">
@@ -34,9 +50,7 @@ var Component = React.createClass({
                         </ul>
                         <ul className="nav navbar-nav navbar-right">
                             <li className={this.tabClass('login')}>
-                                <Link to="/login">
-                                    <i className="fa fa-user">Login</i>
-                                </Link>
+                                {userBlock}
                             </li>
                         </ul>
                     </div>

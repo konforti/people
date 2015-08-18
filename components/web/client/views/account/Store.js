@@ -13,11 +13,10 @@ var Store = FluxStore.extend({
     identity: {
       action: undefined,
       hydrated: false,
-      fetchFailure: false,
       loading: false,
       success: false,
-      error: undefined,
-      hasError: {},
+      error: [],
+      help: {},
       _id: undefined,
       username: '',
       email: '',
@@ -75,8 +74,9 @@ var Store = FluxStore.extend({
         this.state.identity.action = action.type;
         this.state.identity.loading = false;
         this.state.identity.hydrated = true;
-        this.state.identity.fetchFailure = action.data.fetchFailure;
         this.state.identity.success = action.data.success;
+        this.state.identity.help = action.data.errfor;
+        this.state.identity.errors = action.data.errors;
         this.state.identity._id = action.data.record._id;
         this.state.identity.username = action.data.record.username;
         this.state.identity.email = action.data.record.email;
@@ -95,6 +95,9 @@ var Store = FluxStore.extend({
         this.state.identity.action = action.type;
         this.state.identity.loading = false;
         this.state.identity.success = action.data.success;
+        this.state.identity.successMessage = 'Success. Changes have been saved.';
+        this.state.identity.help = action.data.errfor;
+        this.state.identity.errors = action.data.errors;
 
         if (action.data.success) {
           setTimeout(function () {
@@ -116,11 +119,8 @@ var Store = FluxStore.extend({
         this.state.delete.action = action.type;
         this.state.delete.loading = false;
 
-        if (action.data.success) {
-        }
-        else {
+        if (!action.data.success) {
           setTimeout(function () {
-
             this.state.delete.error = undefined;
             this.emitChange();
           }.bind(this), 2500);

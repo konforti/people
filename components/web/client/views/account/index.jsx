@@ -54,7 +54,9 @@ var Component = React.createClass({
     }
 
     return (
-      <Layout title="Account" activeTab="account">
+      <Layout
+        title="Account"
+        activeTab="account">
         <section className="section-user-details container">
           <div className="row">
             <div className="col-sm-6">

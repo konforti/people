@@ -1,6 +1,6 @@
 var Dispatcher = require('flux-dispatcher');
 var Constants = require('CLIENT_PATH/views/login/Constants.js');
-var Cookie = require('cookie');
+var Cookie = require('js-cookie');
 var Ajax = require('reqwest');
 var Base64 = require('base-64');
 
@@ -22,9 +22,9 @@ var Actions = {
       },
       success: function (res) {
         if (res.success) {
-          var cookie = Cookie.parse(document.cookie);
-          if (cookie['people.token']) {
-            var payload = cookie['people.token'].split('.')[1];
+          var cookie = Cookie.get('people.token');
+          if (cookie) {
+            var payload = cookie.split('.')[1];
             payload = Base64.decode(payload);
             sessionStorage.setItem('people.user', payload);
 

@@ -13,28 +13,29 @@ var Actions = {
     $.ajax({
       method: 'GET',
       url: '/account',
-      data: data,
-      error: function (err) {
-      },
-      success: function (res) {
+      data: data
+    })
+      .done(function(res) {
         dispatch(SERVER_ACTION, Types.GET_IDENTITY_RESPONSE, res);
-      }
-    });
+      })
+      .fail(function(err) {
+      });
   },
   saveIdentity: function (data) {
     dispatch(VIEW_ACTION, Types.SAVE_IDENTITY, data);
     $.ajax({
       method: 'PUT',
       url: '/account',
-      data: data,
-      error: function (err) {},
-      success: function (res) {
+      data: data
+    })
+      .done(function(res) {
         if (res.success) {
           res.success = true;
         }
         dispatch(SERVER_ACTION, Types.SAVE_IDENTITY_RESPONSE, res);
-      }
-    });
+    })
+      .fail(function(err) {
+      });
   },
   savePassword: function (data) {
     dispatch(VIEW_ACTION, Types.SAVE_PASSWORD, data);
@@ -49,13 +50,14 @@ var Actions = {
     $.ajax({
       method: 'PUT',
       url: '/account/password',
-      data: data,
-    }, function (err, response) {
-      if (!err) {
-        response.success = true;
-      }
-      dispatch(SERVER_ACTION, Types.SAVE_PASSWORD_RESPONSE, response);
-    });
+      data: data
+    })
+      .done(function(res) {
+        if (!err) {
+          response.success = true;
+        }
+        dispatch(SERVER_ACTION, Types.SAVE_PASSWORD_RESPONSE, res);
+      });
   }
 };
 

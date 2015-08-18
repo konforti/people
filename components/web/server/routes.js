@@ -12,7 +12,8 @@ function ensureAuthenticated(req, res, next) {
     return next();
   }
   res.set('X-Auth-Required', 'true');
-  res.redirect('/login/');
+  //res.redirect('/login/');
+  res.sendStatus(403);
 }
 
 /**
@@ -26,7 +27,8 @@ function ensureAdmin(req, res, next) {
   if (req.user.isMemberOf('root')) {
     return next();
   }
-  res.redirect('/');
+  res.sendStatus(403);
+  //res.redirect('/');
 }
 
 function baseRoute(req, res, next) {
