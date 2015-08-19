@@ -154,6 +154,11 @@ exports = module.exports = function (app, passport) {
   app.put('/account/session/remove/', require('./account/index').removeSession);
   app.post('/account/session/remove/', require('./account/index').removeSession);
 
+  // File.
+  app.all('*.*', function(req, res) {
+    res.sendFile(req.url, {root: './'});
+  });
+
   // Route not found.
   app.all('*', require('./http/index').http404);
 };

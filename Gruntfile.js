@@ -125,7 +125,7 @@ module.exports = function(grunt) {
             'public/vendor/bootstrap/js/tab.js',
             'public/vendor/bootstrap/js/transition.js',
             'public/vendor/momentjs/moment.js',
-            'public/layouts/core.js'
+            'components/web/client/layouts/core.js'
           ],
           'public/layouts/ie-sucks.min.js': [
             'public/vendor/html5shiv/html5shiv.js',
