@@ -76,7 +76,7 @@ app.use(function(req, res, next) {
       resave: false,
       saveUninitialized: false,
       secret: app.appSettings.cryptoKey,
-      store: new mongoStore({url: config.mongodb.uri, ttl: 60*60})
+      store: new mongoStore({url: 'mongodb://' + config.mongodb.uri, ttl: 60*60})
     })(req, res, next);
   }
 });

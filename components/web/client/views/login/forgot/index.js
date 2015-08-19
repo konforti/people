@@ -3,7 +3,7 @@
 (function() {
   'use strict';
 
-  app = app || {};
+  var app = app || {};
 
   app.Forgot = Backbone.Model.extend({
     url: '/login/forgot/',

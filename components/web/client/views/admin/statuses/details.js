@@ -3,7 +3,7 @@
 (function() {
   'use strict';
 
-  app = app || {};
+  var app = app || {};
 
   app.Status = Backbone.Model.extend({
     idAttribute: '_id',

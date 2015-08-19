@@ -3,7 +3,7 @@
 (function() {
   'use strict';
 
-  app = app || {};
+  var app = app || {};
 
   app.Role = Backbone.Model.extend({
     idAttribute: '_id',

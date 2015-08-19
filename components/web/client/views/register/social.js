@@ -3,7 +3,7 @@
 (function() {
   'use strict';
 
-  app = app || {};
+  var app = app || {};
 
   app.Register = Backbone.Model.extend({
     url: '/register/social/',
