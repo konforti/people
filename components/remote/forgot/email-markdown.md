@@ -1,4 +1,4 @@
-![Logo here](https://raw.githubusercontent.com/konforti/people/master/components/web/public/media/logo-symbol-64x64.png)
+![Logo here](https://raw.githubusercontent.com/konforti/people/master/public/media/logo-symbol-64x64.png)
 
 ### Forgot your password?
 

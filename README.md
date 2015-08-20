@@ -40,7 +40,7 @@ Management
 Live demo and People.js API <br>
 http://www.konforti.net/people
 
-![client](https://github.com/konforti/people/blob/master/components/web/public/media/g13.png)
+![client](https://github.com/konforti/people/blob/master/public/media/g13.png)
 
 ## User management
 User management admin demo
@@ -49,7 +49,7 @@ User management admin demo
 | ---------------------------------------- | -------- | -------- |
 |https://people-razkonforti.rhcloud.com/   | admin    | rrg2st   |
 
-![server](https://github.com/konforti/people/blob/master/components/web/public/media/g12.png)
+![server](https://github.com/konforti/people/blob/master/public/media/g12.png)
 
 ## API
 Server side API reference<br>
