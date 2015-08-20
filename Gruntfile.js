@@ -7,44 +7,12 @@ module.exports = function(grunt) {
       vendor: {
         files: [
           {
-            expand: true, cwd: 'bower_components/bootstrap/',
-            src: ['js/**', 'less/**'], dest: 'public/vendor/bootstrap/'
-          },
-          {
-            expand: true, cwd: 'bower_components/backbone/',
-            src: ['backbone.js'], dest: 'public/vendor/backbone/'
-          },
-          {
             expand: true, cwd: 'bower_components/codemirror/',
             src: ['addon/**', 'lib/**', 'mode/**'], dest: 'public/vendor/codemirror/'
           },
           {
             expand: true, cwd: 'bower_components/font-awesome/',
-            src: ['fonts/**', 'less/**'], dest: 'public/vendor/font-awesome/'
-          },
-          {
-            expand: true, cwd: 'bower_components/html5shiv/dist/',
-            src: ['html5shiv.js'], dest: 'public/vendor/html5shiv/'
-          },
-          {
-            expand: true, cwd: 'bower_components/jquery/dist/',
-            src: ['jquery.js'], dest: 'public/vendor/jquery/'
-          },
-          {
-            expand: true, cwd: 'bower_components/jquery.cookie/',
-            src: ['jquery.cookie.js'], dest: 'public/vendor/jquery.cookie/'
-          },
-          {
-            expand: true, cwd: 'bower_components/momentjs/',
-            src: ['moment.js'], dest: 'public/vendor/momentjs/'
-          },
-          {
-            expand: true, cwd: 'bower_components/respond/src/',
-            src: ['respond.js'], dest: 'public/vendor/respond/'
-          },
-          {
-            expand: true, cwd: 'bower_components/underscore/',
-            src: ['underscore.js'], dest: 'public/vendor/underscore/'
+            src: ['fonts/**'], dest: 'public/vendor/font-awesome/'
           }
         ]
       }
@@ -108,29 +76,18 @@ module.exports = function(grunt) {
       layouts: {
         files: {
           'public/layouts/core.min.js': [
-            'public/vendor/jquery/jquery.js',
-            'public/vendor/jquery.cookie/jquery.cookie.js',
-            'public/vendor/underscore/underscore.js',
-            'public/vendor/backbone/backbone.js',
-            'public/vendor/bootstrap/js/affix.js',
-            'public/vendor/bootstrap/js/alert.js',
-            'public/vendor/bootstrap/js/button.js',
-            'public/vendor/bootstrap/js/carousel.js',
-            'public/vendor/bootstrap/js/collapse.js',
-            'public/vendor/bootstrap/js/dropdown.js',
-            'public/vendor/bootstrap/js/modal.js',
-            'public/vendor/bootstrap/js/tooltip.js',
-            'public/vendor/bootstrap/js/popover.js',
-            'public/vendor/bootstrap/js/scrollspy.js',
-            'public/vendor/bootstrap/js/tab.js',
-            'public/vendor/bootstrap/js/transition.js',
-            'public/vendor/momentjs/moment.js',
+            'bower_component/jquery/dist/jquery.min.js',
+            'bower_component/jquery.cookie/jquery.cookie.js',
+            'bower_component/underscore/underscore-min.js',
+            'bower_component/backbone/backbone.js',
+            'bower_component/bootstrap/js/bootstrap.min.js',
+            'bower_component/momentjs/min/moment.min.js',
             'components/web/client/layouts/core.js'
           ],
           'public/layouts/ie-sucks.min.js': [
-            'public/vendor/html5shiv/html5shiv.js',
-            'public/vendor/respond/respond.js',
-            'public/layouts/ie-sucks.js'
+            'bower_component/html5shiv/dist/html5shiv.min.js',
+            'bower_component/respond/dest/respond.min.js',
+            'public/layouts/ie-sucks.min.js'
           ],
           'public/layouts/admin.min.js': ['components/web/client/layouts/admin.js']
         }
@@ -187,8 +144,8 @@ module.exports = function(grunt) {
       layouts: {
         files: {
           'public/layouts/core.min.css': [
-            'public/less/bootstrap-build.less',
-            'public/less/font-awesome-build.less',
+            'bower_component/bootstrap/dist/css/bootstrap.min.css',
+            'bower_component/css/font-awesome.min.css',
             'components/web/client/layouts/core.less'
           ],
           'public/layouts/admin.min.css': ['components/web/client/layouts/admin.less'],
