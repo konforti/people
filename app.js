@@ -130,10 +130,10 @@ require('./util/passport')(app, passport);
 // Setup routes.
 require('./components/api/routes')(app);
 require('./components/remote/routes')(app, passport);
-require('./components/web/routes')(app, passport);
+require('./components/web/server/routes')(app, passport);
 
 // Custom (friendly) error handler.
-app.use(require('./components/web/http/index').http500);
+app.use(require('./components/web/server/http/index').http500);
 
 // Setup utilities.
 app.utility = {
