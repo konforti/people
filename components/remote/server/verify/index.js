@@ -8,9 +8,9 @@ exports.sendVerificationEmail = function (req, res, options) {
     from: settings.smtpFromName + ' <' + settings.smtpFromAddress + '>',
     to: options.email,
     subject: 'Verify Your ' + settings.projectName + ' Account',
-    textPath: 'remote/verify/email-text',
-    htmlPath: 'remote/verify/email-html',
-    markdownPath: 'components/remote/verify/email-markdown',
+    textPath: 'remote/server/verify/email-text',
+    htmlPath: 'remote/server/verify/email-html',
+    markdownPath: 'components/remote/server/verify/email-markdown',
     locals: {
       verifyURL: req.protocol + '://' + req.headers.host + '/remote/verify/' + options.verificationToken + '/',
       projectName: settings.projectName
@@ -89,7 +89,7 @@ exports.verify = function (req, res, next) {
 
       req.hooks.emit('userVerify', user);
 
-      res.render('remote/verify/verify', {data: ''});
+      res.render('remote/server/verify/verify', {data: ''});
     });
   });
 };

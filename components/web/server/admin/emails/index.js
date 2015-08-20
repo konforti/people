@@ -3,9 +3,9 @@ var fs = require('fs');
 
 var getTmpl = function() {
   return {
-    register: process.env.PWD + '/components/remote/register/email-markdown.md',
-    forgot: process.env.PWD + '/components/remote/forgot/email-markdown.md',
-    verify: process.env.PWD + '/components/remote/verify/email-markdown.md'
+    register: process.env.PWD + '/components/remote/server/register/email-markdown.md',
+    forgot: process.env.PWD + '/components/remote/server/forgot/email-markdown.md',
+    verify: process.env.PWD + '/components/remote/server/verify/email-markdown.md'
   };
 };
 
@@ -116,7 +116,7 @@ exports.test = function (req, res, next) {
     subject: '[Test] for ' + id + ' mail',
     textPath: 'remote/' + id + '/email-text',
     htmlPath: 'remote/' + id + '/email-html',
-    markdownPath: 'components/remote/' + id + '/email-markdown',
+    markdownPath: 'components/remote/server/' + id + '/email-markdown',
     locals: {
       username: req.user.username,
       verifyURL: req.protocol + '://' + req.headers.host + '/remote/verify/' + 'VeRYL0nGt0kEN' + '/',

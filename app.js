@@ -129,7 +129,7 @@ require('./util/passport')(app, passport);
 
 // Setup routes.
 require('./components/api/routes')(app);
-require('./components/remote/routes')(app, passport);
+require('./components/remote/server/routes')(app, passport);
 require('./components/web/server/routes')(app, passport);
 
 // Custom (friendly) error handler.

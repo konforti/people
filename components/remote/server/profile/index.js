@@ -93,7 +93,7 @@ exports.readProfile = function (req, res, next) {
       res.send(workflow.outcome.record);
     }
     else {
-      req.app.render('remote/profile/index', {
+      req.app.render('remote/server/profile/index', {
         data: {
           record: workflow.outcome.record,
           fields: workflow.outcome.fields,
@@ -235,7 +235,7 @@ exports.updateProfile = function (req, res, next) {
       }
     });
 
-    req.app.render('remote/profile/index', {
+    req.app.render('remote/server/profile/index', {
         data: {
           record: workflow.outcome.record,
           fields: workflow.outcome.fields,
@@ -317,7 +317,7 @@ exports.updatePassword = function (req, res, next) {
       }
     });
 
-    req.app.render('remote/profile/index', {
+    req.app.render('remote/server/profile/index', {
         data: {
           record: workflow.outcome.record,
           fields: workflow.outcome.fields
@@ -419,7 +419,7 @@ exports.connectOauth = function (req, res, next) {
           if (err) {
             return next(err);
           }
-          res.render('remote/profile/connect', {data: JSON.stringify(outcome)});
+          res.render('remote/server/profile/connect', {data: JSON.stringify(outcome)});
         });
       }
     });
