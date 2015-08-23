@@ -1,0 +1,43 @@
+extends ./../layouts/default
+
+block head
+    title Installation
+block neck
+    link(rel='stylesheet', href='/views/install/index.min.css?#{cacheBreaker}')
+block feet
+    script(src='/views/install/index.min.js?#{cacheBreaker}')
+
+block body
+    div.row
+        div.col-xs-12
+            div#header
+            fieldset
+                div#identity
+
+
+    script(type='text/template', id='tmpl-header')
+        div.page-header
+            h1 Settings
+
+    script(type='text/template', id='tmpl-install')
+        legend Identity
+        div.alerts
+            | <% _.each(errors, function(err) { %>
+            div.alert.alert-danger.alert-dismissable
+                button.close(type='button', data-dismiss='alert') &times;
+                | <%- err %>
+            | <% }); %>
+        div.form-role(class!='<%- errfor.username ? "has-error" : "" %>')
+            label Pick a Username:
+            input.form-control(type='text', name='username', value!='<%= username %>')
+            span.help-block <%- errfor.username %>
+        div.form-role(class!='<%- errfor.email ? "has-error" : "" %>')
+            label Enter Your Email:
+            input.form-control(type='text', name='email', value!='<%= email %>')
+            span.help-block <%- errfor.email %>
+        div.form-role(class!='<%- errfor.password ? "has-error" : "" %>')
+            label Create a Password:
+            input.form-control(type='password', name='password', value!='<%= password %>')
+            span.help-block <%- errfor.password %>
+        div.form-role
+            button.btn.btn-primary.btn-install(type='button') Create My Account

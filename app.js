@@ -1,8 +1,7 @@
 'use strict';
 
 // Dependencies.
-var config = require('./config'),
-    express = require('express'),
+var express = require('express'),
     cookieParser = require('cookie-parser'),
     bodyParser = require('body-parser'),
     session = require('express-session'),
@@ -19,11 +18,17 @@ var config = require('./config'),
 // Create express app.
 var app = express();
 
-// Keep reference to config.
-app.config = config;
-
 // Setup the web server.
 app.server = http.createServer(app);
+
+// Keep reference to config.
+try {
+  app.config = require('./config');
+}
+catch(e) {
+  console.error('\x1b[31m', 'config.js file is missing.\nPlease copy config.example.js to config.js');
+  return process.exit(1);
+}
 
 // Settings.
 app.getSettings = function() {
@@ -42,7 +47,7 @@ app.getSettings = function() {
 app.appSettings = app.getSettings();
 
 // Setup mongoose.
-app.db = mongoose.createConnection(config.mongodb.uri);
+app.db = mongoose.createConnection(app.config.mongodb.uri);
 app.db.on('error', console.error.bind(console, 'mongoose connection error: '));
 app.db.once('open', function () {
   // and... we have a data store
@@ -53,7 +58,7 @@ require('./schema/models')(app, mongoose);
 
 // Settings.
 app.disable('x-powered-by');
-app.set('port', config.port);
+app.set('port', app.config.port);
 app.set('views', path.join(__dirname, 'components'));
 app.set('view engine', 'jade');
 
@@ -76,7 +81,7 @@ app.use(function(req, res, next) {
       resave: false,
       saveUninitialized: false,
       secret: app.appSettings.cryptoKey,
-      store: new mongoStore({url: 'mongodb://' + config.mongodb.uri, ttl: 60*60})
+      store: new mongoStore({url: 'mongodb://' + app.config.mongodb.uri, ttl: 60*60})
     })(req, res, next);
   }
 });

@@ -18,7 +18,7 @@ exports = module.exports = function() {
           };
           request(options, function (error, response, body) {
             if (!error && response.statusCode == 200) {
-              console.log('webhook to ' + url + ' - success');
+              console.error('webhook to ' + url + ' - success');
             }
           });
         });

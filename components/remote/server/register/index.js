@@ -173,7 +173,7 @@ exports.register = function (req, res, next) {
         workflow.emit('logUserIn');
       },
       onError: function (err) {
-        console.log('Error Sending Welcome Email: ' + err);
+        console.error('Error Sending Welcome Email: ' + err);
         workflow.emit('exception', err);
         workflow.emit('logUserIn');
       }

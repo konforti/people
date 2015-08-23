@@ -51,7 +51,7 @@ exports = module.exports = function (req, res, options) {
 
     require('fs').readFile(options.markdownPath + '.md', 'utf8', function(err, data) {
       if (err) {
-        return console.log(err);
+        return console.error(err);
       }
 
       var md = require('markdown-it')({

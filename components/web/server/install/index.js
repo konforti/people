@@ -1,27 +1,31 @@
 'use strict';
 
-var getSocials = function(req) {
-  var settings = req.app.getSettings();
-  var ret = [];
-  req.app.config.socials.forEach(function(social, index, arr) {
-    if (!!settings[social + 'Key']) {
-      ret.push(social);
-    }
+exports.init = function (req, res, next) {
+  var workflow = req.app.utility.workflow(req, res);
+
+  workflow.on('validate', function () {
+    req.app.db.models.User.findOne().exec(function (err, record) {
+      if (err) {
+        return next(err);
+      }
+
+      if (record) {
+        return res.redirect('/');
+      }
+      else {
+        workflow.emit('render');
+      }
+    });
   });
 
-  return ret;
+  workflow.on('render', function () {
+    res.render('web/server/install/index');
+  });
+
+  workflow.emit('validate');
 };
 
-exports.init = function (req, res) {
-  if (req.isAuthenticated()) {
-    res.redirect(req.user.defaultReturnUrl());
-  }
-  else {
-    res.render('web/server/register/index', {socials: getSocials(req)});
-  }
-};
-
-exports.register = function (req, res) {
+exports.install = function (req, res) {
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function () {
@@ -47,33 +51,13 @@ exports.register = function (req, res) {
       return workflow.emit('response');
     }
 
-    workflow.emit('duplicateUsernameCheck');
+    workflow.emit('createUser');
   });
 
-  workflow.on('duplicateUsernameCheck', function () {
-    req.app.db.models.User.findOne({username: req.body.username}, function (err, user) {
+  workflow.on('createRole', function () {
+    req.app.db.models.Role.create({_id: 'root', name: 'Root'}, function (err, role) {
       if (err) {
         return workflow.emit('exception', err);
-      }
-
-      if (user) {
-        workflow.outcome.errfor.username = 'username already taken';
-        return workflow.emit('response');
-      }
-
-      workflow.emit('duplicateEmailCheck');
-    });
-  });
-
-  workflow.on('duplicateEmailCheck', function () {
-    req.app.db.models.User.findOne({email: req.body.email.toLowerCase()}, function (err, user) {
-      if (err) {
-        return workflow.emit('exception', err);
-      }
-
-      if (user) {
-        workflow.outcome.errfor.email = 'email already registered';
-        return workflow.emit('response');
       }
 
       workflow.emit('createUser');
@@ -91,6 +75,7 @@ exports.register = function (req, res) {
         username: req.body.username,
         email: req.body.email.toLowerCase(),
         password: hash,
+        roles: ['root'],
         search: [
           req.body.username,
           req.body.email
@@ -102,32 +87,8 @@ exports.register = function (req, res) {
         }
 
         workflow.user = user;
-        workflow.emit('sendWelcomeEmail');
+        workflow.emit('logUserIn');
       });
-    });
-  });
-
-  workflow.on('sendWelcomeEmail', function () {
-    var settings = req.app.getSettings();
-    req.app.utility.sendmail(req, res, {
-      from: settings.smtpFromName + ' <' + settings.smtpFromAddress + '>',
-      to: req.body.email,
-      subject: 'Your ' + settings.projectName + ' Account',
-      textPath: 'web/server/register/email-text',
-      htmlPath: 'web/server/register/email-html',
-      locals: {
-        username: req.body.username,
-        email: req.body.email,
-        loginURL: req.protocol + '://' + req.headers.host + '/login/',
-        projectName: settings.projectName
-      },
-      success: function (message) {
-        workflow.emit('logUserIn');
-      },
-      error: function (err) {
-        console.error('Error Sending Welcome Email: ' + err);
-        workflow.emit('logUserIn');
-      }
     });
   });
 
@@ -156,9 +117,7 @@ exports.register = function (req, res) {
               return workflow.emit('exception', err);
             }
 
-            req.hooks.emit('userLogin', workflow.user);
             res.cookie(req.app.locals.webJwtName, token);
-            workflow.outcome.defaultReturnUrl = user.defaultReturnUrl();
             workflow.emit('response');
           });
         });

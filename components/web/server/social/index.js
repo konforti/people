@@ -184,7 +184,7 @@ var registerSocial = function (req, res, profile) {
         workflow.emit('logUserIn');
       },
       error: function (err) {
-        console.log('Error Sending Welcome Email: ' + err);
+        console.error('Error Sending Welcome Email: ' + err);
         workflow.emit('logUserIn');
       }
     });

@@ -3,17 +3,17 @@ exports = module.exports = function(req, res, opts) {
 
   workflow.on('validate', function () {
     if (!opts.action.value) {
-      console.log('There is no value.');
+      console.error('There is no value.');
       return;
     }
 
     if (opts.user._id === req.app.config.uid1) {
-      console.log('You\'re not allowed to change this user roles.');
+      console.error('You\'re not allowed to change this user roles.');
       return;
     }
 
     if (opts.user.isMemberOf('root')) {
-      console.log('You may not change this role memberships.');
+      console.error('You may not change this role memberships.');
       return;
     }
 
@@ -27,7 +27,7 @@ exports = module.exports = function(req, res, opts) {
 
     req.app.db.models.User.findByIdAndUpdate(opts.user.id, fieldsToSet, function (err, updatedUser) {
       if (err) {
-        return console.log(err);
+        return console.error(err);
       }
 
       return {user: updatedUser};

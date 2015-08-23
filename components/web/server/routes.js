@@ -154,9 +154,15 @@ exports = module.exports = function (app, passport) {
   app.put('/account/session/remove/', require('./account/index').removeSession);
   app.post('/account/session/remove/', require('./account/index').removeSession);
 
+  // Installation
+  app.get('/install/', require('./install/index').init);
+  app.post('/install/', require('./install/index').install);
+
   // File for source map.
   app.all('*/web/client/*.*', function(req, res) {
-    res.sendFile(req.url, {root: './'});
+    if (app.get('env') === 'development') {
+      res.sendFile(req.url, {root: './'});
+    }
   });
 
   // Route not found.

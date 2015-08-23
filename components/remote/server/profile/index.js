@@ -190,7 +190,7 @@ exports.updateProfile = function (req, res, next) {
         workflow.emit('patchFields');
       },
       onError: function (err) {
-        console.log('Error Sending Welcome Email: ' + err);
+        console.error('Error Sending Welcome Email: ' + err);
         workflow.emit('exception', err);
         workflow.emit('getFields');
       }
@@ -446,7 +446,7 @@ exports.removeSession = function (req, res, next) {
   req.app.db.models.JwtSession.findOneAndRemove(cond, function (err, session) {
     if (err) {
       return workflow.emit('exception', err);
-      console.log('Error remove session' + err);
+      console.error('Error remove session' + err);
     }
     if (!session) {
       return workflow.emit('exception', 'Session not found.');

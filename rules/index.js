@@ -6,11 +6,11 @@ exports = module.exports = function() {
 
     req.app.db.models.Rule.getAll(function(err, rules) {
       if (err) {
-        return console.log(err);
+        return console.error(err);
       }
 
       if (!rules) {
-        return console.log('No Rules');
+        return console.error('No Rules');
       }
 
       function checkConditions(conditions, user, callback) {
