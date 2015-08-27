@@ -5,6 +5,7 @@ html
             title #{title}
         meta(name='viewport', content='width=device-width, initial-scale=1.0')
         link(rel='stylesheet', href='/layouts/core.min.css?#{cacheBreaker}')
+        link(rel='stylesheet', href='/vendor/font-awesome/css/font-awesome.min.css?#{cacheBreaker}')
         block neck
     body
         div.navbar.navbar-default.navbar-fixed-top
@@ -49,7 +50,7 @@ html
             img(src='/media/ajax-pulse.gif')
 
         // If lte IE 9.
-          script(src='/layouts/ie-sucks.min.js?#{cacheBreaker}')
+        script(src='/layouts/ie-sucks.min.js?#{cacheBreaker}')
         script(src='/layouts/core.min.js?#{cacheBreaker}')
 
         block feet

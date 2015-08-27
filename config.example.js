@@ -3,7 +3,7 @@
 exports.port = process.env.PORT || 3000;
 exports.ip = process.env.IP || '127.0.0.1';
 exports.mongodb = {
-  uri: process.env.MONGODB_URL || 'localhost/people'
+  uri: process.env.MONGODB_URL || 'mongodb://localhost/people'
 };
 
 exports.socials = ['twitter', 'github', 'facebook', 'google', 'tumblr'];

@@ -6,6 +6,7 @@ html
         meta(name='viewport', content='width=device-width, initial-scale=1.0')
         link(rel='stylesheet', href='/layouts/core.min.css?#{cacheBreaker}')
         link(rel='stylesheet', href='/layouts/admin.min.css?#{cacheBreaker}')
+        link(rel='stylesheet', href='/vendor/font-awesome/css/font-awesome.min.css?#{cacheBreaker}')
         link(rel='stylesheet', href='/icons/style.css?#{cacheBreaker}')
         block neck
     body
@@ -59,7 +60,7 @@ html
             li.dropdown-header no docs matched
 
         // If lte IE 9.
-          script(src='/layouts/ie-sucks.min.js?#{cacheBreaker}')
+        script(src='/layouts/ie-sucks.min.js?#{cacheBreaker}')
         script(src='/layouts/core.min.js?#{cacheBreaker}')
         script(src='/layouts/admin.min.js?#{cacheBreaker}')
 

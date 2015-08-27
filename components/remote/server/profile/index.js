@@ -445,8 +445,8 @@ exports.removeSession = function (req, res, next) {
   var cond = {_id: req.body.sid, user: req.user.id};
   req.app.db.models.JwtSession.findOneAndRemove(cond, function (err, session) {
     if (err) {
-      return workflow.emit('exception', err);
-      console.error('Error remove session' + err);
+      workflow.emit('exception', err);
+      return console.error('Error remove session' + err);
     }
     if (!session) {
       return workflow.emit('exception', 'Session not found.');

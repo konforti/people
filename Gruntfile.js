@@ -7,12 +7,12 @@ module.exports = function(grunt) {
       vendor: {
         files: [
           {
-            expand: true, cwd: 'bower_components/codemirror/',
+            expand: true, cwd: 'node_modules/codemirror/',
             src: ['addon/**', 'lib/**', 'mode/**'], dest: 'public/vendor/codemirror/'
           },
           {
-            expand: true, cwd: 'bower_components/font-awesome/',
-            src: ['fonts/**'], dest: 'public/vendor/font-awesome/'
+            expand: true, cwd: 'node_modules/font-awesome/',
+            src: ['fonts/**', 'css/font-awesome.min.css'], dest: 'public/vendor/font-awesome/'
           }
         ]
       }
@@ -76,18 +76,17 @@ module.exports = function(grunt) {
       layouts: {
         files: {
           'public/layouts/core.min.js': [
-            'bower_component/jquery/dist/jquery.min.js',
-            'bower_component/jquery.cookie/jquery.cookie.js',
-            'bower_component/underscore/underscore-min.js',
-            'bower_component/backbone/backbone.js',
-            'bower_component/bootstrap/js/bootstrap.min.js',
-            'bower_component/momentjs/min/moment.min.js',
+            'node_modules/jquery/dist/jquery.js',
+            'node_modules/jquery.cookie/jquery.cookie.js',
+            'node_modules/underscore/underscore.js',
+            'node_modules/backbone/backbone.js',
+            'node_modules/bootstrap/js/bootstrap.js',
+            'node_modules/momentjs/moment.js',
             'components/web/client/layouts/core.js'
           ],
           'public/layouts/ie-sucks.min.js': [
-            'bower_component/html5shiv/dist/html5shiv.min.js',
-            'bower_component/respond/dest/respond.min.js',
-            'public/layouts/ie-sucks.min.js'
+            'node_modules/html5shiv/dist/html5shiv.js',
+            'node_modules/respond.js/dest/respond.js'
           ],
           'public/layouts/admin.min.js': ['components/web/client/layouts/admin.js']
         }
@@ -144,8 +143,7 @@ module.exports = function(grunt) {
       layouts: {
         files: {
           'public/layouts/core.min.css': [
-            'bower_component/bootstrap/dist/css/bootstrap.min.css',
-            'bower_component/css/font-awesome.min.css',
+            'node_modules/bootstrap/dist/css/bootstrap.css',
             'components/web/client/layouts/core.less'
           ],
           'public/layouts/admin.min.css': ['components/web/client/layouts/admin.less'],

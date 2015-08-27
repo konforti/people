@@ -1,5 +1,5 @@
-bower_components/*
 public/cdn*
+public/fonts*
 public/layouts*
 public/vendor*
 public/views*
