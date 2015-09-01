@@ -154,6 +154,13 @@ exports = module.exports = function (app, passport) {
   app.put('/account/session/remove/', require('./account/index').removeSession);
   app.post('/account/session/remove/', require('./account/index').removeSession);
 
+  // 2 step
+  app.put('/account/twostep/', require('./account/index').twostep);
+  app.post('/account/twostep/', require('./account/index').twostep);
+
+  // Two Step.
+  app.post('/twostep-login', require('./login/index').twostep);
+
   // Installation
   app.get('/install/', require('./install/index').init);
   app.post('/install/', require('./install/index').install);

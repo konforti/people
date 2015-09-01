@@ -19,6 +19,7 @@ block body
                 div#password
             fieldset
                 div#delete
+
         div.col-sm-5
             if Object.keys(data.socials).length > 0
                 div#connect
@@ -48,6 +49,25 @@ block body
                             if (!session.current)
                                 span.remove
                                     a.session-remove(href='javascript:void(0)', data-id='#{session.id}') &times;
+
+            div#2step
+                h3 2-Step Verification
+                if data.record.totp && Object.keys(data.record.totp).length > 0
+                    a.twostep-click(href="javascript:void(0)") Disable
+                else
+                    a.twostep-click(href="javascript:void(0)") Enable
+
+    script(type='text/template', id='tmpl-twostep')
+        div#twostep-block
+            div.btn-close &times
+            p Add an additional level of security to your account. <br>Whenever you log in, you'll be prompted to enter<br> a security code generated on your mobile device.
+            p Open your two-step application and add your <br>account by scanning this QR code.
+            div#qr-code
+                img(src!='<% print("https://chart.googleapis.com/chart?chs=160x160&cht=qr&chl=" + qrUrl); %>' , alt="QR Code", width="160", height="160")
+                code#manual-code <%= key.match(/..../g).join(' ') %>
+            label Enter the 6-digit code the application generates
+            input(type='text' name='code' placeholder='123456')
+            a#twostep-submit.btn.btn-primary.btn-submit(href='javascript:void(0)') Enable
 
 
     script(type='text/template', id='tmpl-header')
@@ -125,4 +145,4 @@ block body
         div.form-role
             button.btn.btn-danger.btn-delete(type='button') Delete
 
-    script(type='text/template', id='data-record') !{data.record}
+    script(type='text/template', id='data-record') !{escape(JSON.stringify(data.record))}

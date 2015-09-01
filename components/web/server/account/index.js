@@ -2,6 +2,7 @@
 
 var renderSettings = function (req, res, next, oauthMessage) {
   var outcome = {};
+  var settings = req.app.getSettings();
 
   var getAccount = function (callback) {
     req.app.db.models.User.findById(req.user.id).exec(function (err, record) {
@@ -27,7 +28,6 @@ var renderSettings = function (req, res, next, oauthMessage) {
 
   var getSocial = function (callback) {
     outcome.socials = {};
-    var settings = req.app.getSettings();
     req.app.config.socials.forEach(function(social, index, arr) {
       if (!!settings[social + 'Key']) {
         outcome.socials[social] = {
@@ -62,7 +62,7 @@ var renderSettings = function (req, res, next, oauthMessage) {
         outcome.sessions.push(sess);
       });
 
-      callback(null);
+      return callback(null, 'done');
     });
   };
 
@@ -82,9 +82,11 @@ var renderSettings = function (req, res, next, oauthMessage) {
       }
     });
 
+    outcome.record.appName = settings.projectName;
+
     res.render('web/server/account/index', {
       data: {
-        record: escape(JSON.stringify(outcome.record)),
+        record: outcome.record,
         fields: outcome.fields,
         socials: outcome.socials,
         sessions: outcome.sessions
@@ -92,7 +94,7 @@ var renderSettings = function (req, res, next, oauthMessage) {
     });
   };
 
-  require('async').series([getAccount, getFields, getSocial, getSessions], asyncFinally);
+  require('async').parallel([getAccount, getFields, getSocial, getSessions], asyncFinally);
 };
 
 exports.init = function (req, res, next) {
@@ -333,4 +335,52 @@ exports.removeSession = function (req, res, next) {
 
     workflow.emit('response');
   });
+};
+
+exports.twostep = function (req, res, next) {
+  var workflow = req.app.utility.workflow(req, res);
+
+  workflow.on('validate', function () {
+    if (req.body.secret === null) {
+      req.body.secret = {};
+      workflow.emit('patchUser');
+    }
+    else {
+      if (req.body.code && req.body.code.length !== 6) {
+        workflow.outcome.errfor.code = 'A 6-digit code is required.';
+      }
+
+      if (req.body.secret.length !== 16) {
+        workflow.outcome.errors.push('The secret is wrong.');
+      }
+
+      var notp = require('notp');
+      var b32 = require('thirty-two');
+      req.body.secret = b32.decode(req.body.secret);
+      var verified = notp.totp.verify(req.body.code, req.body.secret);
+      if(!verified) {
+        workflow.outcome.errors.push('Code is not verified.');
+      }
+
+      if (workflow.hasErrors()) {
+        return workflow.emit('response');
+      }
+
+      workflow.emit('patchUser');
+    }
+  });
+
+  workflow.on('patchUser', function () {
+    var fieldsToSet = {};
+    fieldsToSet.totp = req.body.secret;
+    req.app.db.models.User.findByIdAndUpdate(req.user.id, fieldsToSet, function (err, user) {
+      if (err) {
+        return workflow.emit('exception', err);
+      }
+
+      workflow.emit('response');
+    });
+  });
+
+  workflow.emit('validate');
 };
