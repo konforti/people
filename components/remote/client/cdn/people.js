@@ -722,7 +722,7 @@ People.prototype.clickEvents = function () {
 
       case 'ppl-register-btn':
         _self.ajax('POST', _self.url + '/remote/register/', {
-          username: document.getElementById('register-name').value,
+          username: document.getElementById('ppl-register-name').value,
           email: document.getElementById('ppl-register-email').value,
           password: document.getElementById('ppl-register-pass').value
         }, function (data) {

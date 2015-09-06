@@ -11,6 +11,8 @@ var renderSettings = function (req, res, next, oauthMessage) {
       }
 
       outcome.record = record;
+      outcome.record.appName = settings.projectName;
+
       return callback(null, 'done');
     });
   };
@@ -81,8 +83,6 @@ var renderSettings = function (req, res, next, oauthMessage) {
         }
       }
     });
-
-    outcome.record.appName = settings.projectName;
 
     res.render('web/server/account/index', {
       data: {
@@ -342,7 +342,7 @@ exports.twostep = function (req, res, next) {
 
   workflow.on('validate', function () {
     if (req.body.secret === null) {
-      req.body.secret = {};
+      req.body.secret = new Buffer(0);
       workflow.emit('patchUser');
     }
     else {

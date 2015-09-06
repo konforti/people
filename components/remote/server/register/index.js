@@ -302,7 +302,7 @@ exports.login = function (req, res, next) {
           return workflow.emit('response');
         });
       }
-      else if (typeof user.totp !== 'undefined' && Object.keys(user.totp).length > 0) {
+      else if (typeof user.totp !== 'undefined' && user.totp.length > 0) {
         var payload = {
           id: user.id,
           twostep: 'on'

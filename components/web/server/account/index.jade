@@ -52,7 +52,7 @@ block body
 
             div#2step
                 h3 2-Step Verification
-                if data.record.totp && Object.keys(data.record.totp).length > 0
+                if data.record.totp && data.record.totp.length > 0
                     a.twostep-click(href="javascript:void(0)") Disable
                 else
                     a.twostep-click(href="javascript:void(0)") Enable

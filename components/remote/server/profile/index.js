@@ -344,7 +344,7 @@ exports.twostep = function (req, res, next) {
 
   workflow.on('validate', function () {
     if (req.body.secret === 'null') {
-      req.body.secret = {};
+      req.body.secret = new Buffer(0);
       workflow.emit('patchUser');
     }
     else {
