@@ -56,10 +56,6 @@ exports = module.exports = function() {
           return workflow.emit('exception', err);
         }
 
-        if (!sess) {
-          return next();
-        }
-
         jwt.verify(token, settings.cryptoKey, function(err, decoded) {
           if (err) {
             return workflow.emit('exception', err);
@@ -70,6 +66,10 @@ exports = module.exports = function() {
 
           if (decoded.twostep === 'on') {
             req.twostepUser = decoded.id;
+            return next();
+          }
+
+          if (!sess) {
             return next();
           }
 

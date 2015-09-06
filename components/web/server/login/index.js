@@ -12,7 +12,7 @@ var getSocials = function(req) {
   return ret;
 };
 
-exports.init = function (req, res) {console.log('dasd');
+exports.init = function (req, res) {
   if (req.isAuthenticated()) {
     res.redirect(req.user.defaultReturnUrl());
   }
@@ -22,6 +22,7 @@ exports.init = function (req, res) {console.log('dasd');
 };
 
 exports.login = function (req, res) {
+  var settings = req.app.getSettings();
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function () {
@@ -68,7 +69,6 @@ exports.login = function (req, res) {
         return workflow.emit('exception', err);
       }
 
-      var settings = req.app.getSettings();
       if (results.ip >= settings.loginAttemptsForIp || results.ipUser >= settings.loginAttemptsForIpAndUser) {
         workflow.outcome.errors.push('You\'ve reached the maximum number of login attempts. Please try again later.');
         return workflow.emit('response');
@@ -98,13 +98,23 @@ exports.login = function (req, res) {
           return workflow.emit('response');
         });
       }
+      else if (typeof user.totp !== 'undefined' && Object.keys(user.totp).length > 0) {
+        var payload = {
+          id: user.id,
+          twostep: 'on'
+        };
+        var jwt = require('jsonwebtoken');
+        var token = jwt.sign(payload, settings.cryptoKey);
+        res.cookie(req.app.locals.webJwtName, token);
+        workflow.outcome.twostep  = true;
+        return workflow.emit('response');
+      }
       else {
         req.login(user, {session: false}, function (err) {
           if (err) {
             return workflow.emit('exception', err);
           }
 
-          var settings = req.app.getSettings();
           var methods = req.app.utility.methods;
           var token = methods.setJwt(user, settings.cryptoKey);
 
@@ -121,72 +131,6 @@ exports.login = function (req, res) {
         });
       }
     })(req, res);
-  });
-
-  workflow.emit('validate');
-};
-
-exports.twostep = function (req, res, next) {
-  var workflow = req.app.utility.workflow(req, res);
-
-  workflow.on('validate', function () {
-    if (!req.body.code) {
-      workflow.outcome.errfor.code = 'required';
-    }
-
-    if (workflow.hasErrors()) {
-      return workflow.emit('response');
-    }
-
-    workflow.emit('verifyCode');
-  });
-
-  workflow.on('verifyCode', function () {
-    if (!req.twostepUser) {
-      return next('No 2 step User.');
-    }
-
-    req.app.db.models.User.findById(req.twostepUser, function (err, user) {
-      if (err) {
-        return next(err);
-      }
-      if (!user) {
-        return next('No User.');
-      }
-
-      var notp = require('notp');
-      var verify = notp.totp.verify(req.body.code, user.totp);
-      if (!verify) {
-        return workflow.emit('exception', 'Token invalid');
-      }
-      if (verify.delta > 5) {
-        workflow.outcome.errors.push('Code not verified.');
-        return workflow.emit('response');
-      }
-
-      req.login(user, {session: false}, function (err) {
-        if (err) {
-          return workflow.emit('exception', err);
-        }
-
-        var settings = req.app.getSettings();
-        var gravatarHash = crypto.createHash('md5').update(user.email).digest('hex');
-        user.avatar = 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g';
-        user.twostep = 'verified';
-        var methods = req.app.utility.methods;
-        workflow.outcome.jwt = methods.setJwt(user, settings.cryptoKey);
-
-        methods.setSession(req, workflow.outcome.jwt, function(err) {
-          if (err) {
-            return workflow.emit('exception', err);
-          }
-
-          req.hooks.emit('userLogin', user);
-          workflow.emit('response');
-        });
-      });
-    });
-
   });
 
   workflow.emit('validate');

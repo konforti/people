@@ -1,0 +1,30 @@
+extends ../../layouts/default
+
+block head
+    title 2 Step Verification
+
+block feet
+    script(src='/views/login/twostep/index.min.js?#{cacheBreaker}')
+
+block body
+    div.row
+        div.col-sm-6
+            div.page-header
+                h1 2 Step Verification
+            div#twostep
+
+    script(type='text/template', id='tmpl-twostep')
+        form
+            div.alerts
+                | <% _.each(errors, function(err) { %>
+                div.alert.alert-danger.alert-dismissable
+                    button.close(type='button', data-dismiss='alert') &times;
+                    | <%- err %>
+                | <% }); %>
+            div.form-role(class!='<%- errfor.twostep ? "has-error" : "" %>')
+                label Verification Code:
+                input.form-control(type='password', name='twostep', value!='')
+                span.help-block <%- errfor.twostep %>
+
+            div.form-actions
+                button.btn.btn-primary.btn-twostep-login(type='button') Login

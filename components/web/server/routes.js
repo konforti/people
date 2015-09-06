@@ -62,6 +62,7 @@ exports = module.exports = function (app, passport) {
   app.get('/login/reset/', require('./login/reset/index').init);
   app.get('/login/reset/:email/:token/', require('./login/reset/index').init);
   app.put('/login/reset/:email/:token/', require('./login/reset/index').set);
+  app.get('/login/2step/', require('./login/twostep/index').init);
   app.get('/logout/', require('./logout/index').init);
 
   // Admin.
@@ -159,7 +160,7 @@ exports = module.exports = function (app, passport) {
   app.post('/account/twostep/', require('./account/index').twostep);
 
   // Two Step.
-  app.post('/twostep-login', require('./login/index').twostep);
+  app.post('/twostep-login', require('./login/twostep/index').twostep);
 
   // Installation
   app.get('/install/', require('./install/index').init);

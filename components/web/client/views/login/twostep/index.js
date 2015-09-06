@@ -5,57 +5,51 @@
 
   var app = app || {};
 
-  app.Login = Backbone.Model.extend({
-    url: '/login/',
+  app.TwoStep = Backbone.Model.extend({
+    url: '/twostep-login/',
     defaults: {
+      success: false,
       errors: [],
       errfor: {},
-      username: '',
-      password: ''
+      twostep: ''
     }
   });
 
-  app.LoginView = Backbone.View.extend({
-    el: '#login',
-    template: _.template( $('#tmpl-login').html() ),
+  app.TwoStepView = Backbone.View.extend({
+    el: '#twostep',
+    template: _.template( $('#tmpl-twostep').html() ),
     events: {
       'submit form': 'preventSubmit',
       'keypress [name="password"]': 'loginOnEnter',
-      'click .btn-login': 'login'
+      'click .btn-twostep-login': 'login'
     },
     initialize: function() {
-      this.model = new app.Login();
+      this.model = new app.TwoStep();
       this.listenTo(this.model, 'sync', this.render);
       this.render();
     },
     render: function() {
       this.$el.html(this.template( this.model.attributes ));
-      this.$el.find('[name="username"]').focus();
+      this.$el.find('[name="twostep"]').focus();
+      return this;
     },
     preventSubmit: function(event) {
       event.preventDefault();
     },
     loginOnEnter: function(event) {
       if (event.keyCode !== 13) { return; }
-      if ($(event.target).attr('name') !== 'password') { return; }
       event.preventDefault();
       this.login();
     },
     login: function() {
       this.$el.find('.btn-login').attr('disabled', true);
+
       this.model.save({
-        username: this.$el.find('[name="username"]').val(),
-        password: this.$el.find('[name="password"]').val()
+        code: this.$el.find('[name="twostep"]').val()
       },{
-        //dataType: 'text',
         success: function(model, response) {
           if (response.success) {
-            if (response.twostep) {
-              location.href = '/login/2step/';
-            }
-            else {
-              location.href = '/';
-            }
+            location.href = '/';
           }
           else {
             model.set(response);
@@ -66,6 +60,6 @@
   });
 
   $(document).ready(function() {
-    app.loginView = new app.LoginView();
+    app.TwoStepView = new app.TwoStepView();
   });
 }());

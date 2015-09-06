@@ -46,7 +46,7 @@ function unsaveUninitialized(req, res, next) {
 exports = module.exports = function (app) {
 
   // Prevent empty sessions store.
-  app.all('/api/*', unsaveUninitialized);
+  //app.all('/api/*', unsaveUninitialized);
 
   // People.
   // Require Authentication.
