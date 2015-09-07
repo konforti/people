@@ -28,11 +28,11 @@ exports = module.exports = function(app, passport) {
         }
 
         app.db.models.User.validatePassword(password, user.password, function(err, isValid) {
-          if (err) {
+          if (err) {console.log(err);
             return done(err);
           }
 
-          if (!isValid) {
+          if (!isValid) {console.log('Invalid password');
             return done(null, false, { message: 'Invalid password' });
           }
 

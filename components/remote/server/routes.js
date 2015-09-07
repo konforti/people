@@ -82,4 +82,11 @@ exports = module.exports = function (app, passport) {
   app.get('/remote/disconnect/:social/', require('./profile/index').disconnectOauth);
 
   app.post('/remote/session/remove/', require('./profile/index').removeSession);
+
+  // File for source map.
+  app.all('*/remote/client/*.*', function(req, res) {
+    if (app.get('env') === 'development') {
+      res.sendFile(req.url, {root: './'});
+    }
+  });
 };

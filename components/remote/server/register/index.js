@@ -1,29 +1,6 @@
 'use strict';
 var crypto = require('crypto');
 
-var sendWelcomeEmail = function (req, res, options) {
-  var settings = req.app.getSettings();
-  req.app.utility.sendmail(req, res, {
-    from: settings.smtpFromName + ' <' + settings.smtpFromAddress + '>',
-    to: options.email,
-    subject: 'Welcome to ' + settings.projectName,
-    textPath: 'remote/server/register/email-text',
-    htmlPath: 'remote/server/register/email-html',
-    markdownPath: 'components/remote/server/register/email-markdown',
-    locals: {
-      username: req.user.username,
-      verifyURL: req.protocol + '://' + req.headers.host + '/remote/verify/' + options.verificationToken + '/',
-      projectName: settings.projectName
-    },
-    success: function () {
-      options.onSuccess();
-    },
-    error: function (err) {
-      options.onError(err);
-    }
-  });
-};
-
 /**
  *
  * @param req
@@ -132,8 +109,9 @@ exports.register = function (req, res, next) {
           return next(err);
         }
 
+        // Verification Token.
         var token = buf.toString('hex');
-        req.app.db.models.User.encryptPassword(token, function (err, hash) {
+        req.app.db.models.User.encryptPassword(token, function (err, verificationHash) {
           if (err) {
             return next(err);
           }
@@ -141,7 +119,7 @@ exports.register = function (req, res, next) {
           var fieldsToSet = {
             mode: 'on',
             isVerified: 'no',
-            verificationToken: hash,
+            verificationToken: verificationHash,
             username: req.body.username,
             email: req.body.email.toLowerCase(),
             password: hash,
@@ -165,16 +143,24 @@ exports.register = function (req, res, next) {
   });
 
   workflow.on('sendWelcomeEmail', function (token) {
-
-    sendWelcomeEmail(req, res, {
-      email: req.body.email.toLowerCase(),
-      verificationToken: token,
-      onSuccess: function () {
+    var settings = req.app.getSettings();
+    req.app.utility.sendmail(req, res, {
+      from: settings.smtpFromName + ' <' + settings.smtpFromAddress + '>',
+      to: req.body.email.toLowerCase(),
+      subject: 'Welcome to ' + settings.projectName,
+      textPath: 'remote/server/register/email-text',
+      htmlPath: 'remote/server/register/email-html',
+      markdownPath: 'components/remote/server/register/email-markdown',
+      locals: {
+        username: req.body.username,
+        verifyURL: req.protocol + '://' + req.headers.host + '/remote/verify/' + token + '/',
+        projectName: settings.projectName
+      },
+      success: function () {
         workflow.emit('logUserIn');
       },
-      onError: function (err) {
+      error: function (err) {
         console.error('Error Sending Welcome Email: ' + err);
-        workflow.emit('exception', err);
         workflow.emit('logUserIn');
       }
     });
@@ -197,7 +183,7 @@ exports.register = function (req, res, next) {
           }
 
           var settings = req.app.getSettings();
-          var gravatarHash = crypto.createHash('md5').update(req.email).digest('hex');
+          var gravatarHash = crypto.createHash('md5').update(req.body.email).digest('hex');
           user.avatar = 'https://secure.gravatar.com/avatar/' + gravatarHash + '?d=mm&s=100&r=g';
           user.twostep = 'off';
           var methods = req.app.utility.methods;
