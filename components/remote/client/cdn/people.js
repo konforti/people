@@ -135,8 +135,9 @@ People.prototype.isUser = function() {
 People.prototype.setCookie = function (name, value, exsec) {
   var d = new Date();
   d.setTime(d.getTime() + (exsec * 1000));
-  var expires = 'expires=' + d.toUTCString();
-  document.cookie = name + '=' + value + '; ' + expires;
+  var expires = '; expires=' + d.toUTCString();
+  var domain = '; domain=' + location.hostname;
+  document.cookie = name + '=' + value + expires + domain;
 };
 
 /**

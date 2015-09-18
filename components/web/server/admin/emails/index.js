@@ -114,12 +114,12 @@ exports.test = function (req, res, next) {
     from: settings.smtpFromName + ' <' + settings.smtpFromAddress + '>',
     to: settings.systemEmail,
     subject: '[Test] for ' + id + ' mail',
-    textPath: 'remote/' + id + '/email-text',
-    htmlPath: 'remote/' + id + '/email-html',
+    textPath: 'remote/server/' + id + '/email-text',
+    htmlPath: 'remote/server/' + id + '/email-html',
     markdownPath: 'components/remote/server/' + id + '/email-markdown',
     locals: {
       username: req.user.username,
-      verifyURL: req.protocol + '://' + req.headers.host + '/remote/verify/' + 'VeRYL0nGt0kEN' + '/',
+      verifyURL: req.protocol + '://' + req.headers.host + '/remote/server/verify/' + 'VeRYL0nGt0kEN' + '/',
       resetCode: 'VeRYL0nGt0kEN',
       projectName: settings.projectName
     },
