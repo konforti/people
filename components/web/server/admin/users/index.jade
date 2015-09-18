@@ -19,9 +19,16 @@ block body
 
     script(type='text/template', id='tmpl-header')
         div.page-header
+            div.alerts
+                | <% _.each(errors, function(err) { %>
+                div.alert.alert-danger.alert-dismissable
+                    button.close(type='button', data-dismiss='alert') &times;
+                    | <%- err %>
+                | <% }); %>
             form.form-inline.pull-right
                 div.input-role
-                    input.form-control(name='username', type='text', placeholder='enter a username', value!='<%= username %>')
+                    input.form-control(name='username', type='text', placeholder='Username', value!='<%= username %>')
+                    input.form-control(name='email', type='text', placeholder='Email', value!='<%= email %>')
                     button.btn.btn-primary.btn-add(type='button') Add New
             h1 Users
 

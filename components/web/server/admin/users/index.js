@@ -157,9 +157,19 @@ exports.create = function (req, res, next) {
       workflow.outcome.errors.push('Please enter a username.');
       return workflow.emit('response');
     }
-
-    if (!/^[a-zA-Z0-9\-\_]+$/.test(req.body.username)) {
+    else if (!/^[a-zA-Z0-9\-\_]+$/.test(req.body.username)) {
       workflow.outcome.errors.push('only use letters, numbers, -, _');
+      return workflow.emit('response');
+    }
+
+    if (!req.body.email) {
+      workflow.outcome.errors.push('Please enter a username.');
+    }
+    else if (!/^[a-zA-Z0-9\-\_\.\+]+@[a-zA-Z0-9\-\_\.]+\.[a-zA-Z0-9\-\_]+$/.test(req.body.email)) {
+      workflow.outcome.errors.push('invalid email format.');
+    }
+
+    if (workflow.hasErrors()) {
       return workflow.emit('response');
     }
 
@@ -177,6 +187,21 @@ exports.create = function (req, res, next) {
         return workflow.emit('response');
       }
 
+      workflow.emit('duplicateEmailCheck');
+    });
+  });
+
+  workflow.on('duplicateEmailCheck', function () {
+    req.app.db.models.User.findOne({email: req.body.email.toLowerCase()}, function (err, user) {
+      if (err) {
+        return workflow.emit('exception', err);
+      }
+
+      if (user) {
+        workflow.outcome.errors.push('email already registered.');
+        return workflow.emit('response');
+      }
+
       workflow.emit('createUser');
     });
   });
@@ -184,8 +209,11 @@ exports.create = function (req, res, next) {
   workflow.on('createUser', function () {
     var fieldsToSet = {
       username: req.body.username,
+      email: req.body.email.toLowerCase(),
+      mode: 'off',
       search: [
-        req.body.username
+        req.body.username,
+        req.body.email.toLowerCase()
       ]
     };
     req.app.db.models.User.create(fieldsToSet, function (err, user) {

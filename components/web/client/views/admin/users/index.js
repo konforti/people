@@ -9,6 +9,8 @@
     idAttribute: '_id',
     defaults: {
       _id: undefined,
+      success: false,
+      errors: [],
       username: '',
       email: '',
       mode: ''
@@ -75,9 +77,13 @@
       if (this.$el.find('[name="username"]').val() === '') {
         alert('Please enter a username.');
       }
+      else if (this.$el.find('[name="email"]').val() === '') {
+        alert('Please enter an email.');
+      }
       else {
         this.model.save({
-          username: this.$el.find('[name="username"]').val()
+          username: this.$el.find('[name="username"]').val(),
+          email: this.$el.find('[name="email"]').val()
         },{
           success: function(model, response) {
             if (response.success) {
@@ -85,7 +91,7 @@
               location.href = model.url();
             }
             else {
-              alert(response.errors.join('\n'));
+              model.set(response);
             }
           }
         });
