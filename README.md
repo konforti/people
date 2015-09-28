@@ -1,5 +1,6 @@
 # People - Remote Identity Management
 
+[![Build Status](https://semaphoreci.com/api/v1/projects/745296cf-e263-48ac-9d92-df3e2b3c3aa9/553352/badge.svg)](https://semaphoreci.com/konforti/people)
 [![Build Status](https://travis-ci.org/konforti/people.svg?branch=master)](https://travis-ci.org/konforti/people)
 [![Dependency Status](https://david-dm.org/konforti/people.svg?theme=shields.io)](https://david-dm.org/konforti/people)
 [![devDependency Status](https://david-dm.org/konforti/people/dev-status.svg?theme=shields.io)](https://david-dm.org/konforti/people#info=devDependencies)
