@@ -56,3 +56,4 @@ User management admin demo
 Server side API reference<br>
 http://www.konforti.net/slate
 
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/konforti/people/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
