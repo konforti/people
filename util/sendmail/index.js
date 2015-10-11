@@ -123,10 +123,11 @@ exports = module.exports = function (req, res, options) {
         }
       });
       // setup e-mail data with unicode symbols
+      var form = options.from ? options.from : settings.smtpFromName + ' <' + settings.smtpFromAddress + '>';
       var mailOptions = {
-        from: options.from,
+        from: form,
         to: options.to,
-        'reply-to': options.replyTo || options.from,
+        'reply-to': options.replyTo || form,
         cc: options.cc,
         bcc: options.bcc,
         subject: options.subject,

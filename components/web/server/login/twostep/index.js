@@ -57,7 +57,7 @@ exports.twostep = function (req, res, next) {
         var methods = req.app.utility.methods;
         var token = methods.setJwt(user, settings.cryptoKey);
 
-        methods.setSession(req, token, function (err) {
+        methods.setSession(req, res, token, function (err) {
           if (err) {
             return workflow.emit('exception', err);
           }

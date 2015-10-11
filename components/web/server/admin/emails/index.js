@@ -3,9 +3,9 @@ var fs = require('fs');
 
 var getTmpl = function() {
   return {
-    register: process.env.PWD + '/components/remote/server/register/email-markdown.md',
-    forgot: process.env.PWD + '/components/remote/server/forgot/email-markdown.md',
-    verify: process.env.PWD + '/components/remote/server/verify/email-markdown.md'
+    register: process.cwd() + '/components/remote/server/register/email-markdown.md',
+    forgot: process.cwd() + '/components/remote/server/forgot/email-markdown.md',
+    verify: process.cwd() + '/components/remote/server/verify/email-markdown.md'
   };
 };
 

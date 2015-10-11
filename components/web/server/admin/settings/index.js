@@ -8,7 +8,7 @@ var generateKey = function(type, settings) {
     param = 'publicKey';
   }
   settings[param] = type + '_' + crypto.randomBytes(15).toString('hex').toUpperCase();
-  fs.writeFileSync(process.env.PWD + '/settings.json', JSON.stringify(settings, null, '\t'));
+  fs.writeFileSync(process.cwd() + '/settings.json', JSON.stringify(settings, null, '\t'));
 
   return settings;
 };
@@ -205,7 +205,7 @@ exports.update = function (req, res, next) {
       }
     }
 
-    fs.writeFile(process.env.PWD + '/settings.json', JSON.stringify(settings, null, '\t'), function (err) {
+    fs.writeFile(process.cwd() + '/settings.json', JSON.stringify(settings, null, '\t'), function (err) {
       if (err) {
         return workflow.emit('exception', err);
       }
