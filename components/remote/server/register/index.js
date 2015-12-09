@@ -309,7 +309,7 @@ exports.login = function (req, res, next) {
           var methods = req.app.utility.methods;
           workflow.outcome.jwt = methods.setJwt(user, settings.cryptoKey);
 
-          methods.setSession(req, workflow.outcome.jwt, function(err) {
+          methods.setSession(req, res, workflow.outcome.jwt, function(err) {
             if (err) {
               return workflow.emit('exception', err);
             }
@@ -375,7 +375,7 @@ exports.twostep = function (req, res, next) {
         var methods = req.app.utility.methods;
         workflow.outcome.jwt = methods.setJwt(user, settings.cryptoKey);
 
-        methods.setSession(req, workflow.outcome.jwt, function(err) {
+        methods.setSession(req, res, workflow.outcome.jwt, function(err) {
           if (err) {
             return workflow.emit('exception', err);
           }
