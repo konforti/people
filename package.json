@@ -3,8 +3,9 @@
   "version": "0.0.1",
   "discription": "Remote Identity Management",
   "author": "Raz Konforti <konforti@gmail.com>",
+  "main": "app.js",
   "engines": {
-    "node": ">= 0.12.0"
+    "node": ">= 5.1.0"
   },
   "scripts": {
     "start": "NODE_ENV=development grunt"
@@ -16,7 +17,7 @@
   "dependencies": {
     "async": "^1.5.0",
     "backbone": "^1.2.3",
-    "bcrypt": "^0.8.5",
+    "bcryptjs": "^2.3.0",
     "body-parser": "^1.14.2",
     "bootstrap": "^3.3.6",
     "codemirror": "^5.9.0",

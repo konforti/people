@@ -3,7 +3,7 @@ public/fonts*
 public/layouts*
 public/vendor*
 public/views*
-node_modules/*
+node_modules*
 *.min.js
 *.min.js.map
 *.min.css

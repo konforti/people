@@ -36,7 +36,7 @@ app.getSettings = function() {
     return JSON.parse(fs.readFileSync('./settings.json', {encoding: 'utf8'}));
   }
   catch(e) {
-    var defaults = JSON.parse(fs.readFileSync('./defaults.json', {encoding: 'utf8'}));
+    var defaults = JSON.parse(fs.readFileSync('./settings.defaults.json', {encoding: 'utf8'}));
     defaults.cryptoKey = crypto.randomBytes(6).toString('hex');
     fs.writeFileSync('./settings.json', JSON.stringify(defaults, null, '\t'));
     return JSON.parse(fs.readFileSync('./settings.json', {encoding: 'utf8'}));
@@ -150,5 +150,5 @@ app.utility = {
 
 // Listen up.
 app.server.listen(app.config.port, app.config.ip, function() {
-  //and... we're live
+  console.info('Server run: ' + app.config.ip + ':' + app.config.port)
 });
